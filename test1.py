@@ -3,8 +3,8 @@ from pyAudioAnalysis import audioFeatureExtraction
 import matplotlib.pyplot as plt
 import numpy as np
 
-[Fs_rock, x_rock] = audioBasicIO.readAudioFile("genres/rock.00093.wav")
-[Fs_pop, x_pop] = audioBasicIO.readAudioFile("genres/pop.00000.wav")
+[Fs_rock, x_rock] = audioBasicIO.readAudioFile("genres/rock/rock.00093.wav")
+[Fs_pop, x_pop] = audioBasicIO.readAudioFile("genres/pop/pop.00000.wav")
 
 # inputsignalen, samplignsfrequensen (Hz), short term window size (in samples), short term window step (in samples)
 F, f_names = audioFeatureExtraction.stFeatureExtraction(x_rock, Fs_rock, 0.50*Fs_rock, 0.025*Fs_rock)
