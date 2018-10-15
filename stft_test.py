@@ -81,7 +81,8 @@ f, t, short_time_fourier = stft(x_rock, Fs_rock, nperseg=512) # Not sure how to 
 plt.plot(f, short_time_fourier[:, 1000].real) # Using only the real part, what does the imaginary do?
 
 # Magnitude only the absolute value?? https://www.mathworks.com/help/matlab/math/fourier-transforms.html
-plt.plot(f, np.abs(short_time_fourier[:, 1000].real))
+#plt.plot(f, np.abs(short_time_fourier[:, 1000].real))
+
 plt.show()
 
 
