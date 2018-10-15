@@ -1,3 +1,5 @@
 genres/
 pyAudioAnalysis/
 .idea/
+.DS_Store
+.vscode/
