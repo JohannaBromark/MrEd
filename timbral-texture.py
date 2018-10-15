@@ -32,7 +32,7 @@ def plot_fft(samples, sample_rate):
   plt.ylabel("Amplitude")
   plt.xlabel("Frequency [Hz]")
 
-def plot_stft(samples, sample_rate, wnd_no, centroid):
+def plot_stft(samples, sample_rate):
   # STFT
   f, t, Zxx = signal.stft(samples, fs=sample_rate, nperseg=512*2, noverlap=0)
   plt.pcolormesh(t, f, np.abs(Zxx))
@@ -63,7 +63,16 @@ if __name__ == '__main__':
   f, t, Zxx = signal.stft(samples, fs=sample_rate, nperseg=512*2, noverlap=0)
   Zxx = np.abs(Zxx)
 
-  for i in range(5, 20):
+  # plot FFT for whole audio file
+  # plot_fft(samples, sample_rate)
+  # plt.show()
+
+  # plot STFT for while audio file
+  # plot_stft(samples, sample_rate)
+  # plt.show()
+
+  # plot first five analysis windows
+  for i in range(0, 5):
     wnd = Zxx[:,i]
     s_c_index = spectral_centroid_idx(wnd)
     plot_window(wnd, f, centroid_idx=s_c_index) 
