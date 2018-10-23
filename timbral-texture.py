@@ -1,10 +1,10 @@
 from pyAudioAnalysis import audioBasicIO
+from pyAudioAnalysis import audioFeatureExtraction as audioFE
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.fft as fft
 import scipy.signal as signal
 from sklearn.preprocessing import normalize
-import librosa
 
 def read_file(file_name='genres/rock/rock.00093.wav'):
   """Return 22050 Hz sampling frequency and sample amplitudes"""
@@ -97,20 +97,21 @@ if __name__ == '__main__':
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
   # nperseg -> length of each segment (also number of frequencies per seg) should be *2 for some reason?
-  freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=512*2, noverlap=0)
+  freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=512, noverlap=0)
 
   wndw_no = 1
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   an_wndw = an_wndws[:,wndw_no] # col -> analysis window
 
+  # Parameters for mfcc computation
+  an_wndw_size = an_wndw.shape[0]
+  [filter_bank, _] = audioFE.mfccInitFilterBanks(sample_rate, an_wndw_size)
+
   centroid = spectral_centroid(an_wndw, freqs)
   rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
   flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
   zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
-
-
-
-
+  mfcc = audioFE.stMFCC(an_wndw, filter_bank, 5)
 
 
 
