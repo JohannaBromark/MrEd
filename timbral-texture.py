@@ -88,8 +88,11 @@ def time_zero_crossings(an_wndw):
   signed = np.where(inv_fft > 0, 1, 0)
   return np.sum([np.abs(signed[i]-signed[i-1]) for i in range(1, len(signed))])
 
-def mfcc_coeffs(an_wndw):
-  pass
+def mfcc_coeffs(an_wndw, sample_rate):
+  """Return the five first mfcc coefficients"""
+  an_wndw_size = an_wndw.shape[0]
+  [filter_bank, _] = audioFE.mfccInitFilterBanks(sample_rate, an_wndw_size)
+  return audioFE.stMFCC(an_wndw, filter_bank, 5)
 
 #Mean and variance of the centroids
 def MVcentroid(an_wndws,freqs,t_wndw_size):
@@ -144,24 +147,18 @@ def MVzero_crossing(stft_wndws,t_wndw_size):
   return mean, var
 
 
-
-
-
-
-
 if __name__ == '__main__':
   sample_rate, samples = read_file()
- 
+
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
   # nperseg -> length of each segment (also number of frequencies per seg) should be *2 for some reason?
   freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=512, noverlap=0)
-<<<<<<< HEAD
- 
+
   wndw_no = 1
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   an_wndw = an_wndws[:,wndw_no] # col -> analysis window
-  
+
   print(an_wndws.shape)
   t_wndw_size = 43
   mean_centroids = []
@@ -192,7 +189,6 @@ if __name__ == '__main__':
     mean_crossing, var_crossing = MVzero_crossing(stft_wndws[:,i:i+t_wndw_size],t_wndw_size)
     mean_crossings = np.append(mean_crossings, mean_crossing)
     var_crossings = np.append(var_crossings, var_crossing)
-    
 
   print(mean_centroids)
   print(var_centroids)
@@ -203,30 +199,18 @@ if __name__ == '__main__':
   print(mean_crossings)
   print(var_crossings)
   # centroid = spectral_centroid(an_wndw, freqs)
-  # rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
+  # rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output
   # flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
   # zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
-
-
-
-
-=======
 
   wndw_no = 1
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   an_wndw = an_wndws[:,wndw_no] # col -> analysis window
 
-  # Parameters for mfcc computation
-  an_wndw_size = an_wndw.shape[0]
-  [filter_bank, _] = audioFE.mfccInitFilterBanks(sample_rate, an_wndw_size)
-
   centroid = spectral_centroid(an_wndw, freqs)
   rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
   flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
   zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
-  mfcc = audioFE.stMFCC(an_wndw, filter_bank, 5)
->>>>>>> 3dadbffc99656c0c47dc735b014e8cdae8709b87
-
-
+  mfcc = mfcc_coeffs(an_wndw, sample_rate)
 
 
