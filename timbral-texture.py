@@ -197,7 +197,6 @@ if __name__ == '__main__':
   print(an_wndws.shape)
   t_wndw_size = 43
 
-
   mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
   mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
   mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
@@ -212,10 +211,6 @@ if __name__ == '__main__':
   # print(var_fluxs)
   # print(mean_crossings)
   # print(var_crossings)
- 
-  wndw_no = 1
-  an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
-  an_wndw = an_wndws[:,wndw_no] # col -> analysis window
 
   centroid = spectral_centroid(an_wndw, freqs)
   rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
