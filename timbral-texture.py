@@ -79,13 +79,10 @@ def spectral_flux(an_wndw, prev_wndw):
   prev_wndw *= 1./np.max(prev_wndw, axis=0)
   return np.sum(np.power(an_wndw-prev_wndw, 2))
 
-def time_zero_crossings(an_wndw):
+def time_zero_crossings(wndw_no, samples, seg_size):
   """Return time domain zero crossings for an analysis window in the time domain"""
-
-  print(an_wndw)
-  inv_fft = fft.ifft(an_wndw) # hur reconstructar man ett window från freqdomän till tidsdomän?
-  print(inv_fft)
-  signed = np.where(inv_fft > 0, 1, 0)
+  
+  signed = np.where(samples[wndw_no*seg_size:(wndw_no+1)*seg_size] > 0, 1, 0)
   return np.sum([np.abs(signed[i]-signed[i-1]) for i in range(1, len(signed))])
 
 def mfcc_coeffs(an_wndw):
@@ -144,25 +141,19 @@ def MVzero_crossing(stft_wndws,t_wndw_size):
   return mean, var
 
 
-
-
-
-
-
 if __name__ == '__main__':
   sample_rate, samples = read_file()
  
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
   # nperseg -> length of each segment (also number of frequencies per seg) should be *2 for some reason?
-  freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=512, noverlap=0)
-<<<<<<< HEAD
+  seg_size = 512
+  freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
  
   wndw_no = 1
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   an_wndw = an_wndws[:,wndw_no] # col -> analysis window
   
-  print(an_wndws.shape)
   t_wndw_size = 43
   mean_centroids = []
   var_centroids = []
@@ -210,7 +201,6 @@ if __name__ == '__main__':
 
 
 
-=======
 
   wndw_no = 1
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
@@ -223,10 +213,8 @@ if __name__ == '__main__':
   centroid = spectral_centroid(an_wndw, freqs)
   rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
   flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
-  zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
+  zero_crossings = time_zero_crossings(wndw_no, samples, seg_size)
   mfcc = audioFE.stMFCC(an_wndw, filter_bank, 5)
->>>>>>> 3dadbffc99656c0c47dc735b014e8cdae8709b87
-
 
 
 
