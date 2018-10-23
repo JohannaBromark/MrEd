@@ -215,7 +215,7 @@ if __name__ == '__main__':
   centroid = spectral_centroid(an_wndw, freqs)
   rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
   flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
-  zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
+  zero_crossings = time_zero_crossings(wndw_no, samples, seg_size)
   mfcc = mfcc_coeffs(an_wndw, sample_rate)
 
 
