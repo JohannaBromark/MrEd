@@ -7,7 +7,10 @@ import numpy as np
 [Fs_pop, x_pop] = audioBasicIO.readAudioFile("genres/pop/pop.00000.wav")
 
 # inputsignalen, samplignsfrequensen (Hz), short term window size (in samples), short term window step (in samples)
-F, f_names = audioFeatureExtraction.stFeatureExtraction(x_rock, Fs_rock, 0.50*Fs_rock, 0.025*Fs_rock)
+F, f_names = audioFeatureExtraction.stFeatureExtraction(x_rock, Fs_rock, 512*2, 0.025*Fs_rock)
+
+mfcc = F[8:21, :]
+
 
 #[chromaGram, TimeAxis, FreqAxis] = audioFeatureExtraction.stChromagram(x_rock, Fs_rock, 0.50*Fs_rock, 0.025*Fs_rock, PLOT=True)
 #nChroma, nFreqsPerChroma = audioFeatureExtraction.stChromaFeaturesInit(int(0.025*Fs_rock), Fs_rock)
