@@ -146,7 +146,7 @@ def MVzero_crossing(stft_wndws,t_wndw_size):
   var/(t_wndw_size-1)
   return mean, var
 
-def MeVaCentroid(an_wndws,freqs,t_wndw_size)
+def MeVaCentroid(an_wndws,freqs,t_wndw_size):
   mean_centroids = []
   var_centroids = []
   for i in range(0, 1294, t_wndw_size):
@@ -155,7 +155,7 @@ def MeVaCentroid(an_wndws,freqs,t_wndw_size)
     var_centroids = np.append(var_centroids, var_centroid)
   return mean_centroids, var_centroids
 
-def MeVaRolloffs(an_wndws,t_wndw_size)
+def MeVaRolloffs(an_wndws,t_wndw_size):
   mean_rolloffs = []
   var_rolloffs = []
   for i in range(0, 1294, t_wndw_size):
@@ -164,7 +164,7 @@ def MeVaRolloffs(an_wndws,t_wndw_size)
     var_rolloffs = np.append(var_rolloffs, var_rolloff)
   return mean_rolloffs, var_rolloffs
 
-def MeVaFlux(an_wndws,t_wndw_size)
+def MeVaFlux(an_wndws,t_wndw_size):
   mean_fluxs = []
   var_fluxs = []
   for i in range(0, 1294, t_wndw_size):
@@ -173,7 +173,7 @@ def MeVaFlux(an_wndws,t_wndw_size)
     var_fluxs = np.append(var_fluxs, var_flux)
   return mean_fluxs, var_fluxs
 
-def MeVaZero_Crossings(stft_wndws,t_wndw_size)
+def MeVaZero_Crossings(stft_wndws,t_wndw_size):
   mean_crossings = []
   var_crossings = []
   for i in range(0, 1294, t_wndw_size):
