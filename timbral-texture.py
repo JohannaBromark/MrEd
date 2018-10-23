@@ -4,6 +4,7 @@ import numpy as np
 import numpy.fft as fft
 import scipy.signal as signal
 from sklearn.preprocessing import normalize
+import librosa
 
 def read_file(file_name='genres/rock/rock.00093.wav'):
   """Return 22050 Hz sampling frequency and sample amplitudes"""
@@ -79,11 +80,16 @@ def spectral_flux(an_wndw, prev_wndw):
   return np.sum(np.power(an_wndw-prev_wndw, 2))
 
 def time_zero_crossings(an_wndw):
-  """Return time domain zero crossings for an analysis window"""
+  """Return time domain zero crossings for an analysis window in the time domain"""
 
-  inv_fft = fft.ifft(an_wndw)
+  print(an_wndw)
+  inv_fft = fft.ifft(an_wndw) # hur reconstructar man ett window från freqdomän till tidsdomän?
+  print(inv_fft)
   signed = np.where(inv_fft > 0, 1, 0)
   return np.sum([np.abs(signed[i]-signed[i-1]) for i in range(1, len(signed))])
+
+def mfcc_coeffs(an_wndw):
+  pass
 
 if __name__ == '__main__':
   sample_rate, samples = read_file()
@@ -100,10 +106,7 @@ if __name__ == '__main__':
   centroid = spectral_centroid(an_wndw, freqs)
   rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
   flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
-  zero_crossings = time_zero_crossings(an_wndw)
-
-
-
+  zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
 
 
 
