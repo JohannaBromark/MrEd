@@ -82,9 +82,9 @@ def spectral_flux(an_wndw, prev_wndw):
 def time_zero_crossings(an_wndw):
   """Return time domain zero crossings for an analysis window in the time domain"""
 
-  print(an_wndw)
+  # print(an_wndw)
   inv_fft = fft.ifft(an_wndw) # hur reconstructar man ett window från freqdomän till tidsdomän?
-  print(inv_fft)
+  # print(inv_fft)
   signed = np.where(inv_fft > 0, 1, 0)
   return np.sum([np.abs(signed[i]-signed[i-1]) for i in range(1, len(signed))])
 
@@ -143,10 +143,42 @@ def MVzero_crossing(stft_wndws,t_wndw_size):
   var/(t_wndw_size-1)
   return mean, var
 
+def MeVaCentroid(an_wndws,freqs,t_wndw_size)
+  mean_centroids = []
+  var_centroids = []
+  for i in range(0, 1294, t_wndw_size):
+    mean_centroid, var_centroid = MVcentroid(an_wndws[:,i:i+t_wndw_size],freqs,t_wndw_size)
+    mean_centroids = np.append(mean_centroids, mean_centroid)
+    var_centroids = np.append(var_centroids, var_centroid)
+  return mean_centroids, var_centroids
 
+def MeVaRolloffs(an_wndws,t_wndw_size)
+  mean_rolloffs = []
+  var_rolloffs = []
+  for i in range(0, 1294, t_wndw_size):
+    mean_rolloff, var_rolloff = MVrolloffs(an_wndws[:,i:i+t_wndw_size],t_wndw_size)
+    mean_rolloffs = np.append(mean_rolloffs, mean_rolloff)
+    var_rolloffs = np.append(var_rolloffs, var_rolloff)
+  return mean_rolloffs, var_rolloffs
 
+def MeVaFlux(an_wndws,t_wndw_size)
+  mean_fluxs = []
+  var_fluxs = []
+  for i in range(0, 1294, t_wndw_size):
+    mean_flux, var_flux = MVflux(an_wndws[:,i:i+t_wndw_size], t_wndw_size)
+    mean_fluxs = np.append(mean_fluxs, mean_flux)
+    var_fluxs = np.append(var_fluxs, var_flux)
+  return mean_fluxs, var_fluxs
 
-
+def MeVaZero_Crossings(stft_wndws,t_wndw_size)
+  mean_crossings = []
+  var_crossings = []
+  for i in range(0, 1294, t_wndw_size):
+    mean_crossing, var_crossing = MVzero_crossing(stft_wndws[:,i:i+t_wndw_size],t_wndw_size)
+    mean_crossings = np.append(mean_crossings, mean_crossing)
+    var_crossings = np.append(var_crossings, var_crossing)
+  return mean_crossings, var_crossings
+    
 
 
 if __name__ == '__main__':
@@ -156,7 +188,6 @@ if __name__ == '__main__':
   # Include overlap? Praxis is to use default overlap setting
   # nperseg -> length of each segment (also number of frequencies per seg) should be *2 for some reason?
   freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=512, noverlap=0)
-<<<<<<< HEAD
  
   wndw_no = 1
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
@@ -164,54 +195,23 @@ if __name__ == '__main__':
   
   print(an_wndws.shape)
   t_wndw_size = 43
-  mean_centroids = []
-  var_centroids = []
-
-  mean_rolloffs = []
-  var_rolloffs = []
-
-  mean_fluxs = []
-  var_fluxs = []
-
-  mean_crossings = []
-  var_crossings = []
-
-  for i in range(0, 1294, t_wndw_size):
-    mean_centroid, var_centroid = MVcentroid(an_wndws[:,i:i+t_wndw_size],freqs,t_wndw_size)
-    mean_centroids = np.append(mean_centroids, mean_centroid)
-    var_centroids = np.append(var_centroids, var_centroid)
-
-    mean_rolloff, var_rolloff = MVrolloffs(an_wndws[:,i:i+t_wndw_size],t_wndw_size)
-    mean_rolloffs = np.append(mean_rolloffs, mean_rolloff)
-    var_rolloffs = np.append(var_rolloffs, var_rolloff)
-
-    mean_flux, var_flux = MVflux(an_wndws[:,i:i+t_wndw_size], t_wndw_size)
-    mean_fluxs = np.append(mean_fluxs, mean_flux)
-    var_fluxs = np.append(var_fluxs, var_flux)
-
-    mean_crossing, var_crossing = MVzero_crossing(stft_wndws[:,i:i+t_wndw_size],t_wndw_size)
-    mean_crossings = np.append(mean_crossings, mean_crossing)
-    var_crossings = np.append(var_crossings, var_crossing)
-    
-
-  print(mean_centroids)
-  print(var_centroids)
-  print(mean_rolloffs)
-  print(var_rolloffs)
-  print(mean_fluxs)
-  print(var_fluxs)
-  print(mean_crossings)
-  print(var_crossings)
-  # centroid = spectral_centroid(an_wndw, freqs)
-  # rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
-  # flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
-  # zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
 
 
+  mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
+  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
+  mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
+  mean_crossings, var_crossings = MeVaZero_Crossings(stft_wndws, t_wndw_size)
 
 
-=======
-
+  # print(mean_centroids.shape)
+  # print(var_centroids)
+  # print(mean_rolloffs)
+  # print(var_rolloffs)
+  # print(mean_fluxs)
+  # print(var_fluxs)
+  # print(mean_crossings)
+  # print(var_crossings)
+ 
   wndw_no = 1
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   an_wndw = an_wndws[:,wndw_no] # col -> analysis window
@@ -225,7 +225,6 @@ if __name__ == '__main__':
   flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
   zero_crossings = time_zero_crossings(stft_wndws[wndw_no])
   mfcc = audioFE.stMFCC(an_wndw, filter_bank, 5)
->>>>>>> 3dadbffc99656c0c47dc735b014e8cdae8709b87
 
 
 
