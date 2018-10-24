@@ -215,6 +215,29 @@ def MeVaMfcc(an_wndws,sample_rate,t_wndw_size):
   
   return mean_mfccs, var_mfccs
 
+def MVenergy(start,samples,seg_size,t_wndw_size):
+  energy = []
+  for i in range(start,t_wndw_size+start,1):
+    energy = np.append(energy, rms_energy(i,samples,seg_size))
+
+  mean = np.sum(energy)/t_wndw_size
+
+  count = 0
+  for i in range(t_wndw_size):
+    if energy[i] < mean:
+      count += 1
+  return count/t_wndw_size
+
+def MeVaEnergy(samples,seg_size,t_wndw_size):
+  mean_rms_energys = []
+  
+  for i in range(0, 1292, t_wndw_size):
+    mean_rms_energy = MVenergy(i,samples,seg_size,t_wndw_size)
+    mean_rms_energys = np.append(mean_rms_energys, mean_rms_energy)
+  return mean_rms_energys
+
+
+
 
 if __name__ == '__main__':
   sample_rate, samples = read_file()
@@ -235,7 +258,9 @@ if __name__ == '__main__':
   # mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
   # mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
   # mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size)
-  # MeVaMfcc(an_wndws,sample_rate,t_wndw_size) #31 texture windows, 5 olika MFCSS i varje rad.
+  #mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size) #31 texture windows, 5 olika MFCSS i varje rad.
+  # mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size)
+
 
 
 
@@ -256,6 +281,6 @@ if __name__ == '__main__':
 
   # print(mfcc.shape)
 
-  print(rms_energy(wndw_no, samples, seg_size))
+  # print(rms_energy(wndw_no, samples, seg_size))
 
 
