@@ -179,6 +179,36 @@ def MeVaZero_Crossings(samples,seg_size,t_wndw_size):
     var_crossings = np.append(var_crossings, var_crossing)
   return mean_crossings, var_crossings
     
+def MVmfcc(an_wndws, sample_rate, t_wndw_size):
+  mfccs = []
+  for i in range(t_wndw_size):
+    mfccs = np.append(mfccs, mfcc_coeffs(an_wndws[i],sample_rate))
+  mfccs = mfccs.reshape(t_wndw_size,5)
+  mean = []
+  for i in range(5):
+    mean = np.append(mean, np.sum(mfccs[:,i])/t_wndw_size)
+  var = []
+  for k in range(5):
+    variance = 0
+    for a in range(t_wndw_size):
+      variance = variance + (mfccs[a,k]-mean[k])
+    var = np.append(var,variance)
+  var/(t_wndw_size-1)
+  return mean, var
+
+def MeVaMfcc(an_wndws,sample_rate,t_wndw_size):
+  mean_mfccs = []
+  var_mfccs = []
+  for i in range(0, 1292, t_wndw_size):
+    mean_mfcc, var_mfcc = MVmfcc(an_wndws[:,i:i+t_wndw_size],sample_rate,t_wndw_size)
+    mean_mfccs = np.append(mean_mfccs, mean_mfcc)
+    var_mfccs = np.append(var_mfccs, var_mfcc)
+
+  rshape = int(mean_mfccs.size/5)
+  mean_mfccs = mean_mfccs.reshape(rshape,5) #TROR DET ÄR RÄTT RESHAPE
+  var_mfccs = var_mfccs.reshape(rshape,5)
+  
+  return mean_mfccs, var_mfccs
 
 
 if __name__ == '__main__':
@@ -197,10 +227,12 @@ if __name__ == '__main__':
   print(an_wndws.shape)
   t_wndw_size = 43
 
-  mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
-  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
-  mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
-  mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size)
+  # mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
+  # mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
+  # mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
+  # mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size)
+  # MeVaMfcc(an_wndws,sample_rate,t_wndw_size) #31 texture windows, 5 olika MFCSS i varje rad.
+
 
 
   # print(mean_centroids.shape)
@@ -212,10 +244,12 @@ if __name__ == '__main__':
   # print(mean_crossings)
   # print(var_crossings)
 
-  centroid = spectral_centroid(an_wndw, freqs)
-  rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
-  flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
-  zero_crossings = time_zero_crossings(wndw_no, samples, seg_size)
-  mfcc = mfcc_coeffs(an_wndw, sample_rate)
+  # centroid = spectral_centroid(an_wndw, freqs)
+  # rolloff = spectral_rolloff(an_wndw) # nåt lurt med denna, vafan betyder ens output 
+  # flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
+  # zero_crossings = time_zero_crossings(wndw_no, samples, seg_size)
+  # mfcc = mfcc_coeffs(an_wndw, sample_rate)
+
+  # print(mfcc.shape)
 
 
