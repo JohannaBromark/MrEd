@@ -11,6 +11,11 @@ def read_file(file_name='genres/rock/rock.00093.wav'):
 
   # pop: genres/pop/pop.00000.wav
   return audioBasicIO.readAudioFile(file_name)
+def read_file2(file_name='genres/pop/pop.00050.wav'):
+  """Return 22050 Hz sampling frequency and sample amplitudes"""
+
+  # pop: genres/pop/pop.00000.wav
+  return audioBasicIO.readAudioFile(file_name)
 
 def plot_fft(samples, sample_rate):
   """Plot FFT of an audio sample"""
@@ -278,6 +283,8 @@ def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
 
 if __name__ == '__main__':
   sample_rate, samples = read_file()
+  sample_rate2, samples2 = read_file2()
+
  
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
@@ -292,6 +299,9 @@ if __name__ == '__main__':
   t_wndw_size = 43
 
   featureMatrix = CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
+    
+  featureMatrix2 = CreateFeatureVector(seg_size,samples2,sample_rate,an_wndws,freqs,t_wndw_size)
+
   print(featureMatrix)
 
 
