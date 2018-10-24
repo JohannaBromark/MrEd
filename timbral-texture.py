@@ -91,6 +91,11 @@ def mfcc_coeffs(an_wndw, sample_rate):
   [filter_bank, _] = audioFE.mfccInitFilterBanks(sample_rate, an_wndw_size)
   return audioFE.stMFCC(an_wndw, filter_bank, 5)
 
+def rms_energy(wndw_no, samples, seg_size):
+  """Return the RMS energy of an analysis window"""
+  energy = [np.power(i, 2) for i in samples[wndw_no*seg_size:(wndw_no+1)*seg_size]]
+  return np.square(np.sum(energy) * 1/seg_size)
+
 #Mean and variance of the centroids
 def MVcentroid(an_wndws,freqs,t_wndw_size):
   centroids = []
@@ -190,11 +195,10 @@ if __name__ == '__main__':
   seg_size = 512
   freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
  
-  wndw_no = 1
+  wndw_no = 3
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   an_wndw = an_wndws[:,wndw_no] # col -> analysis window
   
-  print(an_wndws.shape)
   t_wndw_size = 43
 
   mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
@@ -217,5 +221,7 @@ if __name__ == '__main__':
   flux = spectral_flux(an_wndw, an_wndws[:,wndw_no-1])
   zero_crossings = time_zero_crossings(wndw_no, samples, seg_size)
   mfcc = mfcc_coeffs(an_wndw, sample_rate)
+
+  print(rms_energy(wndw_no, samples, seg_size))
 
 
