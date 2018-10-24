@@ -8,13 +8,11 @@ from sklearn.preprocessing import normalize
 
 def read_file(file_name='genres/rock/rock.00093.wav'):
   """Return 22050 Hz sampling frequency and sample amplitudes"""
-
   # pop: genres/pop/pop.00000.wav
   return audioBasicIO.readAudioFile(file_name)
 
 def plot_fft(samples, sample_rate):
   """Plot FFT of an audio sample"""
-
   # Perioden för ett sample
   T = 1./sample_rate
   # Antal samples
@@ -33,7 +31,6 @@ def plot_fft(samples, sample_rate):
 
 def plot_whole_stft(samples, sample_rate):
   """Plot STFT of an audio sample"""
-
   f, t, Zxx = signal.stft(samples, fs=sample_rate, nperseg=512*2, noverlap=0)
   plt.pcolormesh(t, f, np.abs(Zxx))
   plt.title('STFT Magnitude')
@@ -43,7 +40,6 @@ def plot_whole_stft(samples, sample_rate):
 
 def plot_an_window(an_wndw, freqs, include_centroid=True):
   """Plot an analysis window from STFT with optional spectral centroid"""
-
   plt.title('Window FFT')
   plt.ylabel('Amplitude')
   plt.xlabel('Frequency [Hz]')
@@ -54,19 +50,16 @@ def plot_an_window(an_wndw, freqs, include_centroid=True):
 
 def spectral_centroid_idx(an_wndw):
   """Return index of spectral centroid frequency of an analysis window"""
-
   bin_sum = np.sum(an_wndw*[i for i in range(1, len(an_wndw)+1)])
   mag_sum = np.sum(an_wndw)
   return int(round(bin_sum/mag_sum, 0)) - 1
 
 def spectral_centroid(an_wndw, freqs):
   """Return spectral centroid frequency of an analysis window"""
-
   return freqs[spectral_centroid_idx(an_wndw)]
 
 def spectral_rolloff(an_wndw):
   """Return the spectral rolloff in an analysis window"""
-  
   return 0.85*np.sum(np.abs(an_wndw))
 
 def spectral_flux(an_wndw, prev_wndw):
@@ -74,14 +67,12 @@ def spectral_flux(an_wndw, prev_wndw):
   
   :param prev_wndw: The analysis window one time step prior to an_wndw
   """
-
   an_wndw *= 1./np.max(an_wndw, axis=0)
   prev_wndw *= 1./np.max(prev_wndw, axis=0)
   return np.sum(np.power(an_wndw-prev_wndw, 2))
 
 def time_zero_crossings(wndw_no, samples, seg_size):
-  """Return time domain zero crossings for an analysis window in the time domain"""
-  
+  """Return time domain zero crossings for an analysis window"""
   signed = np.where(samples[wndw_no*seg_size:(wndw_no+1)*seg_size] > 0, 1, 0)
   return np.sum([np.abs(signed[i]-signed[i-1]) for i in range(1, len(signed))])
 
