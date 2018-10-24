@@ -180,6 +180,7 @@ def MVmfcc(an_wndws, sample_rate, t_wndw_size):
   for i in range(t_wndw_size):
     mfccs = np.append(mfccs, mfcc_coeffs(an_wndws[i],sample_rate))
   mfccs = mfccs.reshape(t_wndw_size,5)
+  # print(mfccs)
   mean = []
   for i in range(5):
     mean = np.append(mean, np.sum(mfccs[:,i])/t_wndw_size)
@@ -227,6 +228,42 @@ def MeVaEnergy(samples,seg_size,t_wndw_size):
     mean_rms_energys = np.append(mean_rms_energys, mean_rms_energy)
   return mean_rms_energys
 
+def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size):
+  mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
+  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
+  mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
+  mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size)
+  mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size) #31 texture windows, 5 olika MFCSS i varje rad.
+  mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size)
+
+  featureVector = np.zeros(19)
+  featureMatrix = []
+  for i in range(mean_centroids.size):
+    featureVector[0] = mean_centroids[i]
+    featureVector[1] = var_centroids[i]
+    featureVector[2] = mean_rolloffs[i]
+    featureVector[3] = var_rolloffs[i]
+    featureVector[4] = mean_fluxs[i]
+    featureVector[5] = var_fluxs[i]
+    featureVector[6] = mean_crossings[i]
+    featureVector[7] = var_crossings[i]
+    featureVector[8] = mean_mfccs[i,0]
+    featureVector[9] = mean_mfccs[i,1]
+    featureVector[10] = mean_mfccs[i,2]
+    featureVector[11] = mean_mfccs[i,3]
+    featureVector[12] = mean_mfccs[i,4]
+    featureVector[13] = mean_mfccs[i,0]
+    featureVector[14] = var_mfccs[i,1]
+    featureVector[15] = var_mfccs[i,2]
+    featureVector[16] = var_mfccs[i,3]
+    featureVector[17] = var_mfccs[i,4]
+    featureVector[18] = mean_rms_energy[i]
+    featureMatrix = np.append(featureMatrix,featureVector)
+  featureMatrix = featureMatrix.reshape(31,19)
+
+  return featureMatrix
+  
+    
 
 
 
@@ -245,14 +282,8 @@ if __name__ == '__main__':
   
   t_wndw_size = 43
 
-  # mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
-  # mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
-  # mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
-  # mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size)
-  #mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size) #31 texture windows, 5 olika MFCSS i varje rad.
-  # mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size)
-
-
+  featureMatrix = CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
+  print(featureMatrix)
 
 
   # print(mean_centroids.shape)
