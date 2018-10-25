@@ -16,16 +16,29 @@ def read_stored_data():
 
   return features, targets
 
+def normalise(features):
+  for i in range(len(features[1])):
+    features[:,i] = np.interp(features[:,i], (features[:,i].min(), features[:,i].max()), (0, 1))
+  return features
+
 if __name__ == '__main__':
   features, targets = read_stored_data()
-  print('done')
-  # gmm = GaussianMixture()
-  # gmm.fit(features[0:5])
-  # print(gmm.predict(features[5:10]))
 
-  for i in range(30):
-    plt.subplot(6,5,i+1)
+  norm_features = normalise(features)
+
+  c = 1
+  for i in range(10):
+    plt.subplot(2,10,c)
     plt.axis('off')
-    plt.imshow(features[i][:-1].reshape(6,3))
-  plt.show()
+    plt.imshow(features[100*i][:-1].reshape(6,3))
+    c += 1
+    plt.subplot(2,10,c)
+    plt.axis('off')
+    plt.imshow(features[101*i][:-1].reshape(6,3))
+    c += 1
+  # plt.show()
+
+  gmm = GaussianMixture()
+  gmm.fit(features)
+  print(gmm.predict(features))
   

@@ -122,8 +122,14 @@ def spectral_flux(an_wndw, prev_wndw):
   
   :param prev_wndw: The analysis window one time step prior to an_wndw
   """
-  an_wndw *= 1./np.max(an_wndw, axis=0)
-  prev_wndw *= 1./np.max(prev_wndw, axis=0)
+
+  an_wndw = np.interp(an_wndw, (an_wndw.min(), an_wndw.max()), (0, 1))
+  prev_wndw = np.interp(prev_wndw, (prev_wndw.min(), prev_wndw.max()), (0, 1))
+
+  # wrong previous normalisation
+  #an_wndw *= 1./np.max(an_wndw, axis=0) # not normalised between 0 and 1
+  #prev_wndw *= 1./np.max(prev_wndw, axis=0) # not normalised between 0 and 1
+
   return np.sum(np.power(an_wndw-prev_wndw, 2))
 
 def time_zero_crossings(wndw_no, samples, seg_size):
@@ -372,7 +378,7 @@ if __name__ == '__main__':
   #   for item in targets:
   #     file.write(str(int(item[0])))
   #     file.write('\n')
-  
+
   # gmm = GaussianMixture(n_components=3)
   # gmm.fit(featureMatrix)
   # print(gmm.predict(featureMatrix))
