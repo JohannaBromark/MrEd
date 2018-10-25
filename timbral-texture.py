@@ -242,7 +242,7 @@ def MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws):
     mean_rms_energys = np.append(mean_rms_energys, mean_rms_energy)
   return mean_rms_energys
 
-def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size):
+def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws):
   mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size,nr_wndws)
   mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws)
   mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size,nr_wndws)
@@ -273,37 +273,47 @@ def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
     featureVector[17] = var_mfccs[i,4]
     featureVector[18] = mean_rms_energy[i]
     featureMatrix = np.append(featureMatrix,featureVector)
-  featureMatrix = featureMatrix.reshape(31,19)
+  featureMatrix = featureMatrix.reshape(nr_wndws,19)
 
   return featureMatrix
   
     
+def createAll():
+  seg_size = 512
+  t_wndw_size = 43
 
+  featureMatrix = []
+  for i in range('inputs[0,:].size'):
+    freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+    an_wndws = np.abs(stft_wndws)
+    nr_wndws = ((samples.size/512)//43)*43
+
+    featureMatrix = np.append(featureMatrix,CreateFeatureVectors(seg_size,'samples[i]',sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws))
+    labels = np.zeros(nr_wndws)
+    labels[0:nr_wndws] = inputlabel[i,'möjligtvis + något]
+    labelsMatrix = np.append(labelsMatrix,labels)
+
+  featureMatrix = featureMatrix.reshape(inputs.size['något'],19)
+  labelsMatrix = labelsMatrix.reshape(labelsMatrix.size,1)
+  return featureMatrix, labelsMatrix
 
 
 if __name__ == '__main__':
   sample_rate, samples = read_file()
-  sample_rate2, samples2 = read_file2()
 
  
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
   # nperseg -> length of each segment (also number of frequencies per seg) should be *2 for some reason?
-  seg_size = 512
-  freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+  # freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+  # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
+  # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  wndw_no = 3
-  an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
-  an_wndw = an_wndws[:,wndw_no] # col -> analysis window
-  
-  t_wndw_size = 43
+  features, labels = createAll()
 
-  nr_wndws = ((samples.size/512)//43)*43
-  
-  
-  # featureMatrix = CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)
+
+
     
-  # featureMatrix2 = CreateFeatureVector(seg_size,samples2,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)
 
   
 
