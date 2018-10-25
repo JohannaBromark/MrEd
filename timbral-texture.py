@@ -316,7 +316,7 @@ def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size
     featureMatrix = np.append(featureMatrix,featureVector)
   featureMatrix = featureMatrix.reshape(int(nr_wndws/43),19)
   # print(featureMatrix.shape)
-  print(featureMatrix)
+  # print(featureMatrix)
 
   return featureMatrix
   
@@ -327,16 +327,21 @@ def createAll(all_samples,labels):
   featureMatrix = np.zeros((2,19))
   labelsMatrix = []
   for i in range(1000):
-    freqs, time_inits, stft_wndws = signal.stft(all_samples[i], fs=sample_rate, nperseg=seg_size, noverlap=0)
-    an_wndws = np.abs(stft_wndws)
-    nr_wndws = int(((samples.size/512)//43)*43)
-    nr_t_wndws = int(nr_wndws/43)
+    try:
+      print(i)
+      freqs, time_inits, stft_wndws = signal.stft(all_samples[i], fs=sample_rate, nperseg=seg_size, noverlap=0)
+      an_wndws = np.abs(stft_wndws)
+      nr_wndws = int(((samples.size/512)//43)*43)
+      nr_t_wndws = int(nr_wndws/43)
 
-    featureMatrix = np.concatenate((featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)),axis =0)
-    targets = np.zeros(nr_t_wndws)
-    targets[0:nr_t_wndws] = labels[i][0]
-    labelsMatrix = np.append(labelsMatrix,targets)
-    
+      featureMatrix = np.concatenate((featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)),axis =0)
+      targets = np.zeros(nr_t_wndws)
+      targets[0:nr_t_wndws] = labels[i][0]
+      labelsMatrix = np.append(labelsMatrix,targets)
+    except:
+      print('Någt gick snett till')
+      print(i)
+      
 
     
 
