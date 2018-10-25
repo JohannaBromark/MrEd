@@ -330,7 +330,7 @@ def createAll():
 
     featureMatrix = np.append(featureMatrix,CreateFeatureVectors(seg_size,'samples[i]',sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws))
     labels = np.zeros(nr_wndws)
-    labels[0:nr_wndws] = inputlabel[i,'möjligtvis + något]
+    labels[0:nr_wndws] = inputlabel[i,'möjligtvis + något']
     labelsMatrix = np.append(labelsMatrix,labels)
 
   featureMatrix = featureMatrix.reshape(inputs.size['något'],19)
@@ -339,9 +339,7 @@ def createAll():
 
 if __name__ == '__main__':
   sample_rate, samples = read_file()
-
   all_samples, labels = read_directories()
-  print(all_samples)
 
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
