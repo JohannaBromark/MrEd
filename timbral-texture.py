@@ -5,12 +5,62 @@ import numpy as np
 import numpy.fft as fft
 import scipy.signal as signal
 from sklearn.preprocessing import normalize
+from sklearn.mixture import GaussianMixture
+import os
 
 def read_file(file_name='genres/rock/rock.00093.wav'):
   """Return 22050 Hz sampling frequency and sample amplitudes"""
   # pop: genres/pop/pop.00000.wav
   return audioBasicIO.readAudioFile(file_name)
 
+def read_directory(genre='rock'):
+  path = 'genres/' + genre + '/'
+  all_samples = [[0]] * len([f for f in os.listdir(path)])
+  i = 0
+  for filename in os.listdir(path):
+    sample_rate, all_samples[i] = read_file(os.path.join(path, filename))
+    i += 1
+  all_samples = np.array(all_samples)
+  labels = np.full((100,1), get_label(genre))
+  return all_samples, labels
+
+def read_directories():
+  all_songs = []
+  all_labels = []
+  i = 0
+  for name in os.listdir('genres/'):
+    songs, labels = read_directory(name)
+    all_songs[i*100:(i+1)*100] = songs
+    all_labels[i*100:(i+1)*100] = labels
+    i += 1
+  all_songs = np.array(all_songs)
+  all_labels = np.array(all_labels)
+  return all_songs, all_labels
+
+def get_label(genre='rock'):
+  if genre == 'blues':
+    return 0
+  elif genre == 'classical':
+    return 1
+  elif genre == 'country':
+    return 2
+  elif genre == 'disco':
+    return 3
+  elif genre == 'hiphop':
+    return 4
+  elif genre == 'jazz':
+    return 5
+  elif genre == 'metal':
+    return 6
+  elif genre == 'pop':
+    return 7
+  elif genre == 'reggae':
+    return 8
+  elif genre == 'rock':
+    return 9
+  else:
+    return False
+  
 def plot_fft(samples, sample_rate):
   """Plot FFT of an audio sample"""
   # Perioden för ett sample
@@ -264,11 +314,11 @@ def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
   return featureMatrix
   
     
-
-
-
 if __name__ == '__main__':
-  sample_rate, samples = read_file()
+  # sample_rate, samples = read_file()
+  samples, labels = read_directories()
+  print(samples[50])
+  print(labels[150])
  
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
@@ -282,8 +332,9 @@ if __name__ == '__main__':
   
   t_wndw_size = 43
 
-  featureMatrix = CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
-  print(featureMatrix)
+  # gmm = GaussianMixture(n_components=3)
+  # gmm.fit(featureMatrix)
+  # print(gmm.predict(featureMatrix))
 
 
   # print(mean_centroids.shape)
