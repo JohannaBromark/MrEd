@@ -1,4 +1,5 @@
 from sklearn.mixture import GaussianMixture
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,7 +13,9 @@ def read_stored_data():
     features = np.array(features)
 
   with open('targets.txt') as f:
-    targets = np.array([[int(i)] for i in f.readlines()])
+    targets = np.array([int(i) for i in f.readlines()])
+    # with brackets
+    # targets = np.array([[int(i)] for i in f.readlines()])
 
   return features, targets
 
@@ -24,21 +27,17 @@ def normalise(features):
 if __name__ == '__main__':
   features, targets = read_stored_data()
 
-  norm_features = normalise(features)
+  # features = normalise(features)
 
-  c = 1
-  for i in range(10):
-    plt.subplot(2,10,c)
-    plt.axis('off')
-    plt.imshow(features[100*i][:-1].reshape(6,3))
-    c += 1
-    plt.subplot(2,10,c)
-    plt.axis('off')
-    plt.imshow(features[101*i][:-1].reshape(6,3))
-    c += 1
-  # plt.show()
+  train_samples, test_samples, train_targets, test_targets = train_test_split(
+    features, 
+    targets, 
+    test_size=0.33, 
+    random_state=42)
 
-  gmm = GaussianMixture()
-  gmm.fit(features)
-  print(gmm.predict(features))
+  gmm = GaussianMixture(n_components=10)
+  gmm.fit(train_samples)
+
+  res = gmm.predict(train_samples)
+  print(np.count_nonzero(res==train_targets)/len(train_samples))
   
