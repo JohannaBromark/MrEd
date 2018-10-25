@@ -12,6 +12,11 @@ def read_file(file_name='genres/rock/rock.00093.wav'):
   """Return 22050 Hz sampling frequency and sample amplitudes"""
   # pop: genres/pop/pop.00000.wav
   return audioBasicIO.readAudioFile(file_name)
+def read_file2(file_name='genres/pop/pop.00050.wav'):
+  """Return 22050 Hz sampling frequency and sample amplitudes"""
+
+  # pop: genres/pop/pop.00000.wav
+  return audioBasicIO.readAudioFile(file_name)
 
 def read_directory(genre='rock'):
   path = 'genres/' + genre + '/'
@@ -189,37 +194,37 @@ def MVzero_crossing(start,samples,seg_size,t_wndw_size):
   var/(t_wndw_size-1)
   return mean, var
 
-def MeVaCentroid(an_wndws,freqs,t_wndw_size):
+def MeVaCentroid(an_wndws,freqs,t_wndw_size,nr_wndws):
   mean_centroids = []
   var_centroids = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_centroid, var_centroid = MVcentroid(an_wndws[:,i:i+t_wndw_size],freqs,t_wndw_size)
     mean_centroids = np.append(mean_centroids, mean_centroid)
     var_centroids = np.append(var_centroids, var_centroid)
   return mean_centroids, var_centroids
 
-def MeVaRolloffs(an_wndws,t_wndw_size):
+def MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws):
   mean_rolloffs = []
   var_rolloffs = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_rolloff, var_rolloff = MVrolloffs(an_wndws[:,i:i+t_wndw_size],t_wndw_size)
     mean_rolloffs = np.append(mean_rolloffs, mean_rolloff)
     var_rolloffs = np.append(var_rolloffs, var_rolloff)
   return mean_rolloffs, var_rolloffs
 
-def MeVaFlux(an_wndws,t_wndw_size):
+def MeVaFlux(an_wndws,t_wndw_size,nr_wndws):
   mean_fluxs = []
   var_fluxs = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_flux, var_flux = MVflux(an_wndws[:,i:i+t_wndw_size], t_wndw_size)
     mean_fluxs = np.append(mean_fluxs, mean_flux)
     var_fluxs = np.append(var_fluxs, var_flux)
   return mean_fluxs, var_fluxs
 
-def MeVaZero_Crossings(samples,seg_size,t_wndw_size):
+def MeVaZero_Crossings(samples,seg_size,t_wndw_size,nr_wndws):
   mean_crossings = []
   var_crossings = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_crossing, var_crossing = MVzero_crossing(i,samples,seg_size,t_wndw_size)
     mean_crossings = np.append(mean_crossings, mean_crossing)
     var_crossings = np.append(var_crossings, var_crossing)
@@ -243,10 +248,10 @@ def MVmfcc(an_wndws, sample_rate, t_wndw_size):
   var/(t_wndw_size-1)
   return mean, var
 
-def MeVaMfcc(an_wndws,sample_rate,t_wndw_size):
+def MeVaMfcc(an_wndws,sample_rate,t_wndw_size,nr_wndws):
   mean_mfccs = []
   var_mfccs = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_mfcc, var_mfcc = MVmfcc(an_wndws[:,i:i+t_wndw_size],sample_rate,t_wndw_size)
     mean_mfccs = np.append(mean_mfccs, mean_mfcc)
     var_mfccs = np.append(var_mfccs, var_mfcc)
@@ -270,21 +275,21 @@ def MVenergy(start,samples,seg_size,t_wndw_size):
       count += 1
   return count/t_wndw_size
 
-def MeVaEnergy(samples,seg_size,t_wndw_size):
+def MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws):
   mean_rms_energys = []
   
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_rms_energy = MVenergy(i,samples,seg_size,t_wndw_size)
     mean_rms_energys = np.append(mean_rms_energys, mean_rms_energy)
   return mean_rms_energys
 
-def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size):
-  mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
-  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
-  mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
-  mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size)
-  mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size) #31 texture windows, 5 olika MFCSS i varje rad.
-  mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size)
+def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws):
+  mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size,nr_wndws)
+  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws)
+  mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size,nr_wndws)
+  mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size,nr_wndws)
+  mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size,nr_wndws) #31 texture windows, 5 olika MFCSS i varje rad.
+  mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws)
 
   featureVector = np.zeros(19)
   featureMatrix = []
@@ -309,28 +314,44 @@ def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
     featureVector[17] = var_mfccs[i,4]
     featureVector[18] = mean_rms_energy[i]
     featureMatrix = np.append(featureMatrix,featureVector)
-  featureMatrix = featureMatrix.reshape(31,19)
+  featureMatrix = featureMatrix.reshape(nr_wndws,19)
 
   return featureMatrix
   
-    
+def createAll():
+  seg_size = 512
+  t_wndw_size = 43
+
+  featureMatrix = []
+  for i in range('inputs[0,:].size'):
+    freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+    an_wndws = np.abs(stft_wndws)
+    nr_wndws = ((samples.size/512)//43)*43
+
+    featureMatrix = np.append(featureMatrix,CreateFeatureVectors(seg_size,'samples[i]',sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws))
+    labels = np.zeros(nr_wndws)
+    labels[0:nr_wndws] = inputlabel[i,'möjligtvis + något]
+    labelsMatrix = np.append(labelsMatrix,labels)
+
+  featureMatrix = featureMatrix.reshape(inputs.size['något'],19)
+  labelsMatrix = labelsMatrix.reshape(labelsMatrix.size,1)
+  return featureMatrix, labelsMatrix
+
 if __name__ == '__main__':
-  # sample_rate, samples = read_file()
-  samples, labels = read_directories()
-  print(samples[50])
-  print(labels[150])
- 
+  sample_rate, samples = read_file()
+
+  all_samples, labels = read_directories()
+  print(all_samples)
+
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
   # nperseg -> length of each segment (also number of frequencies per seg) should be *2 for some reason?
-  seg_size = 512
-  freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+  # freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+  # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
+  # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  wndw_no = 3
-  an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
-  an_wndw = an_wndws[:,wndw_no] # col -> analysis window
-  
-  t_wndw_size = 43
+  features, labels = createAll()
+
 
   # gmm = GaussianMixture(n_components=3)
   # gmm.fit(featureMatrix)
