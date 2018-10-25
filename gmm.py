@@ -35,9 +35,27 @@ if __name__ == '__main__':
     test_size=0.33, 
     random_state=42)
 
-  gmm = GaussianMixture(n_components=10)
-  gmm.fit(train_samples)
-
-  res = gmm.predict(train_samples)
-  print(np.count_nonzero(res==train_targets)/len(train_samples))
   
+  # gmm = GaussianMixture(n_components=10)
+  # gmm.fit(train_samples)
+
+  # res = gmm.predict(train_samples)
+  # print(np.count_nonzero(res==train_targets)/len(train_samples))
+  
+
+  score = np.empty((test_samples.shape[0], 10))
+  predictor_list = []
+  for i in range(10):
+    predictor = GaussianMixture(n_components=3)
+    predictor.fit(train_samples[train_targets==i])
+    predictor_list.append(predictor)
+    score[:, i] = predictor.score_samples(test_samples)
+  # print(score)
+  # print(score.shape)
+
+  Y_predicted = np.argmax(score, axis=1)
+  
+  # print(Y_predicted.size)
+  print([i for i in(Y_predicted)])
+  a = np.count_nonzero(Y_predicted == test_targets)/len(test_targets)
+  print(a)
