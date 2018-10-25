@@ -153,37 +153,37 @@ def MVzero_crossing(start,samples,seg_size,t_wndw_size):
   var/(t_wndw_size-1)
   return mean, var
 
-def MeVaCentroid(an_wndws,freqs,t_wndw_size):
+def MeVaCentroid(an_wndws,freqs,t_wndw_size,nr_wndws):
   mean_centroids = []
   var_centroids = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_centroid, var_centroid = MVcentroid(an_wndws[:,i:i+t_wndw_size],freqs,t_wndw_size)
     mean_centroids = np.append(mean_centroids, mean_centroid)
     var_centroids = np.append(var_centroids, var_centroid)
   return mean_centroids, var_centroids
 
-def MeVaRolloffs(an_wndws,t_wndw_size):
+def MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws):
   mean_rolloffs = []
   var_rolloffs = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_rolloff, var_rolloff = MVrolloffs(an_wndws[:,i:i+t_wndw_size],t_wndw_size)
     mean_rolloffs = np.append(mean_rolloffs, mean_rolloff)
     var_rolloffs = np.append(var_rolloffs, var_rolloff)
   return mean_rolloffs, var_rolloffs
 
-def MeVaFlux(an_wndws,t_wndw_size):
+def MeVaFlux(an_wndws,t_wndw_size,nr_wndws):
   mean_fluxs = []
   var_fluxs = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_flux, var_flux = MVflux(an_wndws[:,i:i+t_wndw_size], t_wndw_size)
     mean_fluxs = np.append(mean_fluxs, mean_flux)
     var_fluxs = np.append(var_fluxs, var_flux)
   return mean_fluxs, var_fluxs
 
-def MeVaZero_Crossings(samples,seg_size,t_wndw_size):
+def MeVaZero_Crossings(samples,seg_size,t_wndw_size,nr_wndws):
   mean_crossings = []
   var_crossings = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_crossing, var_crossing = MVzero_crossing(i,samples,seg_size,t_wndw_size)
     mean_crossings = np.append(mean_crossings, mean_crossing)
     var_crossings = np.append(var_crossings, var_crossing)
@@ -207,10 +207,10 @@ def MVmfcc(an_wndws, sample_rate, t_wndw_size):
   var/(t_wndw_size-1)
   return mean, var
 
-def MeVaMfcc(an_wndws,sample_rate,t_wndw_size):
+def MeVaMfcc(an_wndws,sample_rate,t_wndw_size,nr_wndws):
   mean_mfccs = []
   var_mfccs = []
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_mfcc, var_mfcc = MVmfcc(an_wndws[:,i:i+t_wndw_size],sample_rate,t_wndw_size)
     mean_mfccs = np.append(mean_mfccs, mean_mfcc)
     var_mfccs = np.append(var_mfccs, var_mfcc)
@@ -234,21 +234,21 @@ def MVenergy(start,samples,seg_size,t_wndw_size):
       count += 1
   return count/t_wndw_size
 
-def MeVaEnergy(samples,seg_size,t_wndw_size):
+def MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws):
   mean_rms_energys = []
   
-  for i in range(0, 1292, t_wndw_size):
+  for i in range(0, nr_wndws, t_wndw_size):
     mean_rms_energy = MVenergy(i,samples,seg_size,t_wndw_size)
     mean_rms_energys = np.append(mean_rms_energys, mean_rms_energy)
   return mean_rms_energys
 
 def CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size):
-  mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size)
-  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size)
-  mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size)
-  mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size)
-  mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size) #31 texture windows, 5 olika MFCSS i varje rad.
-  mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size)
+  mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size,nr_wndws)
+  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws)
+  mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size,nr_wndws)
+  mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size,nr_wndws)
+  mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size,nr_wndws) #31 texture windows, 5 olika MFCSS i varje rad.
+  mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws)
 
   featureVector = np.zeros(19)
   featureMatrix = []
@@ -298,11 +298,14 @@ if __name__ == '__main__':
   
   t_wndw_size = 43
 
-  featureMatrix = CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size)
+  nr_wndws = ((samples.size/512)//43)*43
+  
+  
+  # featureMatrix = CreateFeatureVector(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)
     
-  featureMatrix2 = CreateFeatureVector(seg_size,samples2,sample_rate,an_wndws,freqs,t_wndw_size)
+  # featureMatrix2 = CreateFeatureVector(seg_size,samples2,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)
 
-  print(featureMatrix)
+  
 
 
   # print(mean_centroids.shape)
