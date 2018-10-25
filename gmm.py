@@ -18,12 +18,12 @@ def read_stored_data():
 
 if __name__ == '__main__':
   features, targets = read_stored_data()
-
-  gmm = GaussianMixture()
-  gmm.fit(features[0:5])
+  print('done')
+  # gmm = GaussianMixture()
+  # gmm.fit(features[0:5])
   # print(gmm.predict(features[5:10]))
 
-  for i in range(len(features)):
+  for i in range(30):
     plt.subplot(6,5,i+1)
     plt.axis('off')
     plt.imshow(features[i][:-1].reshape(6,3))
