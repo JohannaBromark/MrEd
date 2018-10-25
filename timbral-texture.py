@@ -314,26 +314,28 @@ def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size
     featureVector[17] = var_mfccs[i,4]
     featureVector[18] = mean_rms_energy[i]
     featureMatrix = np.append(featureMatrix,featureVector)
-  featureMatrix = featureMatrix.reshape(nr_wndws,19)
+  featureMatrix = featureMatrix.reshape(int(nr_wndws/43),19)
+  # print(featureMatrix.shape)
 
   return featureMatrix
   
-def createAll():
+def createAll(all_samples,labels):
   seg_size = 512
   t_wndw_size = 43
 
   featureMatrix = []
-  for i in range('inputs[0,:].size'):
-    freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+  labelsMatrix = []
+  for i in range(all_samples.shape[0]):
+    freqs, time_inits, stft_wndws = signal.stft(all_samples[i], fs=sample_rate, nperseg=seg_size, noverlap=0)
     an_wndws = np.abs(stft_wndws)
-    nr_wndws = ((samples.size/512)//43)*43
+    nr_wndws = int(((samples.size/512)//43)*43)
 
-    featureMatrix = np.append(featureMatrix,CreateFeatureVectors(seg_size,'samples[i]',sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws))
-    labels = np.zeros(nr_wndws)
-    labels[0:nr_wndws] = inputlabel[i,'möjligtvis + något']
+
+    featureMatrix = np.concatenate(featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws))
+    targets = np.zeros(nr_wndws)
+    targets[0:nr_wndws] = labels[i[0]]
     labelsMatrix = np.append(labelsMatrix,labels)
 
-  featureMatrix = featureMatrix.reshape(inputs.size['något'],19)
   labelsMatrix = labelsMatrix.reshape(labelsMatrix.size,1)
   return featureMatrix, labelsMatrix
 
@@ -348,7 +350,7 @@ if __name__ == '__main__':
   # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  features, labels = createAll()
+  features, targets = createAll(all_samples,labels)
 
 
   # gmm = GaussianMixture(n_components=3)
