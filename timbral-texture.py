@@ -326,7 +326,7 @@ def createAll(all_samples,labels):
   
   featureMatrix = np.zeros((2,19))
   labelsMatrix = []
-  for i in range(all_samples.shape[0]):
+  for i in range(1000):
     freqs, time_inits, stft_wndws = signal.stft(all_samples[i], fs=sample_rate, nperseg=seg_size, noverlap=0)
     an_wndws = np.abs(stft_wndws)
     nr_wndws = int(((samples.size/512)//43)*43)
@@ -356,8 +356,17 @@ if __name__ == '__main__':
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
   features, targets = createAll(all_samples,labels)
+  with open('features.txt','w') as file:
+    for item in features:
+      for element in item:
+        file.write(str(element))
+        file.write(' ')
+      file.write('\n')
 
-
+  with open('targets.txt', 'w') as file:
+    for item in targets:
+      file.write(str(int(item[0])))
+      file.write('\n')
   # gmm = GaussianMixture(n_components=3)
   # gmm.fit(featureMatrix)
   # print(gmm.predict(featureMatrix))
