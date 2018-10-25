@@ -316,27 +316,32 @@ def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size
     featureMatrix = np.append(featureMatrix,featureVector)
   featureMatrix = featureMatrix.reshape(int(nr_wndws/43),19)
   # print(featureMatrix.shape)
+  print(featureMatrix)
 
   return featureMatrix
   
 def createAll(all_samples,labels):
   seg_size = 512
   t_wndw_size = 43
-
-  featureMatrix = []
+  
+  featureMatrix = np.zeros((2,19))
   labelsMatrix = []
   for i in range(all_samples.shape[0]):
     freqs, time_inits, stft_wndws = signal.stft(all_samples[i], fs=sample_rate, nperseg=seg_size, noverlap=0)
     an_wndws = np.abs(stft_wndws)
     nr_wndws = int(((samples.size/512)//43)*43)
+    nr_t_wndws = int(nr_wndws/43)
 
+    featureMatrix = np.concatenate((featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)),axis =0)
+    targets = np.zeros(nr_t_wndws)
+    targets[0:nr_t_wndws] = labels[i][0]
+    labelsMatrix = np.append(labelsMatrix,targets)
+    
 
-    featureMatrix = np.concatenate(featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws))
-    targets = np.zeros(nr_wndws)
-    targets[0:nr_wndws] = labels[i[0]]
-    labelsMatrix = np.append(labelsMatrix,labels)
+    
 
   labelsMatrix = labelsMatrix.reshape(labelsMatrix.size,1)
+  featureMatrix = featureMatrix[2:]
   return featureMatrix, labelsMatrix
 
 if __name__ == '__main__':
