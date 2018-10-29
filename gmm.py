@@ -27,6 +27,17 @@ def group_by_song(features, targets):
     grouped_targets.append(targets[i*30])
   return np.array(songs), grouped_targets
 
+def mean_var_by_song(features, targets):
+  features_mean = np.zeros((int(len(features)//30), features.shape[1]))
+  grouped_targets = []
+  features_matrix = np.array(features)
+  for i in range(len(features)//30):
+    features_mean[i, :] = np.mean(features_matrix[i*30:(i+1)*30, :], 0)
+    # SHOULD THERE BE VARIANCE AS WELL --> 38 dimensions?
+    grouped_targets.append(targets[i*30])
+
+  return features_mean, grouped_targets
+
 def ungroup(grouped_features, grouped_targets):
   targets_noflat = np.array([[i]*30 for i in grouped_targets])
   targets = targets_noflat.flatten()
@@ -45,7 +56,9 @@ def normalise(features):
 if __name__ == '__main__':
   features, targets = read_stored_data()
 
-  grouped_features, grouped_targets = group_by_song(features, targets)
+  #grouped_features, grouped_targets = group_by_song(features, targets)
+
+  features_mean, grouped_targets = mean_var_by_song(features, targets)
 
   # features = normalise(features)
 
@@ -55,14 +68,18 @@ if __name__ == '__main__':
   #  test_size=0.33,
   #  random_state=42)
 
-  grouped_train_samples, grouped_test_samples, grouped_train_targets, grouped_test_targets = train_test_split(
-    grouped_features,
-    grouped_targets,
-    test_size=0.33,
-    random_state=42)
 
-  train_samples, train_targets = ungroup(grouped_train_samples, grouped_train_targets)
-  test_samples, test_targets = ungroup(grouped_test_samples, grouped_test_targets)
+  #grouped_train_samples, grouped_test_samples, grouped_train_targets, grouped_test_targets = train_test_split(
+  #  grouped_features,
+  #  grouped_targets,
+  #  test_size=0.33,
+  #  random_state=42)
+#
+  #train_samples, train_targets = ungroup(grouped_train_samples, grouped_train_targets)
+  #test_samples, test_targets = ungroup(grouped_test_samples, grouped_test_targets)
+
+  grouped_targets = np.array(grouped_targets)
+  train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.33, random_state=42)
 
   # gmm = GaussianMixture(n_components=10)
   # gmm.fit(train_samples)
@@ -73,8 +90,7 @@ if __name__ == '__main__':
   score = np.empty((test_samples.shape[0], 10))
   predictor_list = []
   for i in range(10):
-    predictor = GaussianMixture(n_components=1)
-    test = train_samples[train_targets==i]
+    predictor = GaussianMixture(n_components=3)
     predictor.fit(train_samples[train_targets==i])
     predictor_list.append(predictor)
     score[:, i] = predictor.score_samples(test_samples)
