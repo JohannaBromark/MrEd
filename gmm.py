@@ -106,7 +106,7 @@ if __name__ == '__main__':
   score = np.empty((test_samples.shape[0], 10))
   predictor_list = []
   for i in range(10):
-    predictor = GaussianMixture(n_components=3)
+    predictor = GaussianMixture(n_components=3,n_init=1)
     predictor.fit(train_samples[train_targets==i])
     predictor_list.append(predictor)
     score[:, i] = predictor.score_samples(test_samples)
