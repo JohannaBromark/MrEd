@@ -368,7 +368,7 @@ def createAll(all_samples,labels):
   
   featureMatrix = np.zeros((2,19))
   labelsMatrix = []
-  for i in range(1000):
+  for i in range(len(all_samples)):
     try:
       print(i)
       freqs, time_inits, stft_wndws = signal.stft(all_samples[i], fs=sample_rate, nperseg=seg_size, noverlap=0)
@@ -390,15 +390,30 @@ def createAll(all_samples,labels):
   labelsMatrix = labelsMatrix.reshape(labelsMatrix.size,1)
   featureMatrix = featureMatrix[2:]
   return featureMatrix, labelsMatrix
+def writetofile(all_samples,labels,filename1,filename2):
+  features, targets = createAll(all_samples,labels)
+
+
+  with open(filename,'w') as file:
+    for item in features:
+      for element in item:
+        file.write(str(element))
+        file.write(' ')
+      file.write('\n')
+
+  with open(filename2, 'w') as file:
+    for item in targets:
+      file.write(str(int(item[0])))
+      file.write('\n')
 
 if __name__ == '__main__':
   sample_rate, samples = read_file()
-  # all_samples, labels = read_directories()
+  all_samples, labels = read_directories()
   # print(all_samples)
 
-  # sample_rateT,samplesT,targetsT = read_partition('test_fault.txt')
-  # sample_rate,samples,targets = read_partition('train_fault.txt')
-  # sample_rateV,samplesV,targetsV = read_partition('valid_fault.txt')
+  sample_rateF,samplesF,targetsF = read_partition('train_fault.txt')
+  sample_rateFT,samplesFT,targetsFT = read_partition('test_fault.txt')
+  sample_rateFV,samplesFV,targetsFV = read_partition('valid_fault.txt')
 
 
   # Check if params are correct
@@ -408,20 +423,14 @@ if __name__ == '__main__':
   # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  # features, targets = createAll(all_samples,labels)
+  writetofile(all_samples,labels,'featuresO','targetsO')
+  writetofile(samplesF,targetsF,'featuresF','targetsF') #Fault filtered partion train
+  writetofile(samplesFT,targetsFT,'featuresFT','targetsFT') #Fault filtered partion test
+  writetofile(samplesFV,targetsFV,'featuresFV','targetsFV') #Fault filtered partion vali
 
 
-  # with open('features.txt','w') as file:
-  #   for item in features:
-  #     for element in item:
-  #       file.write(str(element))
-  #       file.write(' ')
-  #     file.write('\n')
 
-  # with open('targets.txt', 'w') as file:
-  #   for item in targets:
-  #     file.write(str(int(item[0])))
-  #     file.write('\n')
+  
 
   # gmm = GaussianMixture(n_components=3)
   # gmm.fit(featureMatrix)
