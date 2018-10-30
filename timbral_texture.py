@@ -68,11 +68,12 @@ def read_partition(path="test_fault.txt"):
   path = get_path("test_fault.txt")
   all_songs = []
   all_labels = np.zeros(len(path))
-  all_samples = np.zeros(len(path))
+  # all_samples = np.zeros(len(path))
+  all_samples = [[0]] * len([f for f in range(len(path))])
+
   i = 0
   for p in path:
-    print('genres/' + p)
-    sample_rate, all_samples[i] = read_file('genres/' + p)
+    sample_rate, all_samples[i] = read_file('genres/' + p.strip())
     label = get_label(p.split('/')[0])
     all_labels[i] = label
     i += 1
@@ -381,6 +382,11 @@ if __name__ == '__main__':
   # all_samples, labels = read_directories()
   # print(all_samples)
 
+  # sample_rateT,samplesT,targetsT = read_partition('test_fault.txt')
+  # sample_rate,samples,targets = read_partition('train_fault.txt')
+  # sample_rateV,samplesV,targetsV = read_partition('valid_fault.txt')
+
+
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
   # nperseg -> length of each segment (also number of frequencies per seg) should be *2 for some reason?
@@ -427,8 +433,6 @@ if __name__ == '__main__':
 
   # print(rms_energy(wndw_no, samples, seg_size))
 
-  a,b,c = read_partition()
-  print(a)
-  print(b)
-  print(c)
+ 
+ 
 
