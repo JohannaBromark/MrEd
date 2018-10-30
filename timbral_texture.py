@@ -154,7 +154,7 @@ def MVcentroid(an_wndws,freqs,t_wndw_size):
   mean = np.sum(centroids)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (centroids[k]-mean)
+    var = var + ((centroids[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -167,7 +167,7 @@ def MVrolloffs(an_wndws,t_wndw_size):
   mean = np.sum(rolloffs)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (rolloffs[k]-mean)
+    var = var + ((rolloffs[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -180,7 +180,7 @@ def MVflux(an_wndws,t_wndw_size):
   mean = np.sum(flux)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (flux[k]-mean)
+    var = var + ((flux[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -193,7 +193,7 @@ def MVzero_crossing(start,samples,seg_size,t_wndw_size):
   mean = np.sum(crossing)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (crossing[k]-mean)
+    var = var + ((crossing[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -246,7 +246,7 @@ def MVmfcc(an_wndws, sample_rate, t_wndw_size):
   for k in range(5):
     variance = 0
     for a in range(t_wndw_size):
-      variance = variance + (mfccs[a,k]-mean[k])
+      variance = variance + ((mfccs[a,k]-mean[k])**2)
     var = np.append(var,variance)
   var/(t_wndw_size-1)
   return mean, var
