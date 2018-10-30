@@ -62,6 +62,30 @@ def get_label(target):
     for key in labels:
       if labels.get(key) == target:
         return key
+
+#Missat något, trött o sliten. 
+def read_partition(path="test_fault.txt"):
+  path = get_path("test_fault.txt")
+  all_songs = []
+  all_labels = np.zeros(len(path))
+  all_samples = np.zeros(len(path))
+  i = 0
+  for p in path:
+    print('genres/' + p)
+    sample_rate, all_samples[i] = read_file('genres/' + p)
+    label = get_label(p.split('/')[0])
+    all_labels[i] = label
+    i += 1
+
+  # all_samples = np.array(all_samples)
+  return sample_rate, all_samples, all_labels
+
+def get_path(txt="test_fault.txt"):
+  with open(txt, "r") as ins:
+    paths = []
+    for line in ins:
+        paths.append(line)
+  return paths
   
 def plot_fft(samples, sample_rate):
   """Plot FFT of an audio sample"""
@@ -353,8 +377,9 @@ def createAll(all_samples,labels):
   return featureMatrix, labelsMatrix
 
 if __name__ == '__main__':
-  sample_rate, samples = read_file()
-  all_samples, labels = read_directories()
+  # sample_rate, samples = read_file()
+  # all_samples, labels = read_directories()
+  # print(all_samples)
 
   # Check if params are correct
   # Include overlap? Praxis is to use default overlap setting
@@ -363,7 +388,9 @@ if __name__ == '__main__':
   # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  features, targets = createAll(all_samples,labels)
+  # features, targets = createAll(all_samples,labels)
+
+
   # with open('features.txt','w') as file:
   #   for item in features:
   #     for element in item:
@@ -400,4 +427,8 @@ if __name__ == '__main__':
 
   # print(rms_energy(wndw_no, samples, seg_size))
 
+  a,b,c = read_partition()
+  print(a)
+  print(b)
+  print(c)
 
