@@ -12,11 +12,20 @@ def read_file(file_name='genres/rock/rock.00093.wav'):
   """Return 22050 Hz sampling frequency and sample amplitudes"""
   # pop: genres/pop/pop.00000.wav
   return audioBasicIO.readAudioFile(file_name)
-def read_file2(file_name='genres/pop/pop.00050.wav'):
-  """Return 22050 Hz sampling frequency and sample amplitudes"""
 
-  # pop: genres/pop/pop.00000.wav
-  return audioBasicIO.readAudioFile(file_name)
+def write_features_to_file(features, file_name='features.txt'):
+  with open('features.txt','w') as file:
+    for item in features:
+      for element in item:
+        file.write(str(element))
+        file.write(' ')
+      file.write('\n')
+
+def write_targes_to_file(targets, file_name='targets.txt'):
+  with open('targets.txt', 'w') as file:
+    for item in targets:
+      file.write(str(int(item[0])))
+      file.write('\n')
 
 def read_directory(genre='rock'):
   path = 'genres/' + genre + '/'
@@ -127,37 +136,42 @@ def plot_an_window(an_wndw, freqs, include_centroid=True):
 
 def spectral_centroid_idx(an_wndw):
   """Return index of spectral centroid frequency of an analysis window"""
+  # DEPRECATED
   bin_sum = np.sum(an_wndw*[i for i in range(1, len(an_wndw)+1)])
   mag_sum = np.sum(an_wndw)
   return int(round(bin_sum/mag_sum, 0)) - 1
 
 def spectral_centroid(an_wndw, freqs):
-  """Return spectral centroid frequency of an analysis window"""
-  return freqs[spectral_centroid_idx(an_wndw)]
+  """Return spectral centroid of an analysis window"""
+  bin_sum = np.sum(an_wndw*[i for i in range(1, len(an_wndw)+1)])
+  mag_sum = np.sum(an_wndw)
+  return bin_sum/mag_sum
 
-def spectral_rolloff(an_wndw):
-  """Return the spectral rolloff in an analysis window"""
-  return 0.85*np.sum(np.abs(an_wndw))
+def spectral_rolloff(an_wndw, freqs):
+  """Return the spectral rolloff freq of an analysis window"""
+  limit = 0.85*np.sum(np.abs(an_wndw))
+  total = 0
+  for i in range(len(an_wndw)):
+    total += an_wndw[i]
+    if total > limit:
+      return freqs[i-1]
 
 def spectral_flux(an_wndw, prev_wndw):
   """Return the spectral flux of an analysis window
   
   :param prev_wndw: The analysis window one time step prior to an_wndw
   """
-
-  an_wndw = np.interp(an_wndw, (an_wndw.min(), an_wndw.max()), (0, 1))
-  prev_wndw = np.interp(prev_wndw, (prev_wndw.min(), prev_wndw.max()), (0, 1))
-
   # wrong previous normalisation
-  #an_wndw *= 1./np.max(an_wndw, axis=0) # not normalised between 0 and 1
-  #prev_wndw *= 1./np.max(prev_wndw, axis=0) # not normalised between 0 and 1
-
+  # an_wndw *= 1./np.max(an_wndw, axis=0)
+  # prev_wndw *= 1./np.max(prev_wndw, axis=0)
+  an_wndw = an_wndw / np.square(np.var(an_wndw))
+  prev_wndw = prev_wndw / np.square(np.var(prev_wndw))
   return np.sum(np.power(an_wndw-prev_wndw, 2))
 
 def time_zero_crossings(wndw_no, samples, seg_size):
   """Return time domain zero crossings for an analysis window"""
   signed = np.where(samples[wndw_no*seg_size:(wndw_no+1)*seg_size] > 0, 1, 0)
-  return np.sum([np.abs(signed[i]-signed[i-1]) for i in range(1, len(signed))])
+  return (1/2) * np.sum([np.abs(signed[i]-signed[i-1]) for i in range(1, len(signed))])
 
 def mfcc_coeffs(an_wndw, sample_rate):
   """Return the five first mfcc coefficients"""
@@ -168,7 +182,7 @@ def mfcc_coeffs(an_wndw, sample_rate):
 def rms_energy(wndw_no, samples, seg_size):
   """Return the RMS energy of an analysis window"""
   energy = [np.power(i, 2) for i in samples[wndw_no*seg_size:(wndw_no+1)*seg_size]]
-  return np.square(np.sum(energy) * 1/seg_size)
+  return np.square(np.sum(energy) * 1./seg_size)
 
 #Mean and variance of the centroids
 def MVcentroid(an_wndws,freqs,t_wndw_size):
@@ -378,7 +392,7 @@ def createAll(all_samples,labels):
   return featureMatrix, labelsMatrix
 
 if __name__ == '__main__':
-  # sample_rate, samples = read_file()
+  sample_rate, samples = read_file()
   # all_samples, labels = read_directories()
   # print(all_samples)
 
@@ -432,6 +446,12 @@ if __name__ == '__main__':
   # print(mfcc.shape)
 
   # print(rms_energy(wndw_no, samples, seg_size))
+
+  # seg_size = 512
+  # wndw_no = 1
+  # freqs, time_inits, stft_wndws = signal.stft(samples, fs=sample_rate, nperseg=seg_size, noverlap=0)
+  # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
+  # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
 
  
  

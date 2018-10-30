@@ -28,13 +28,12 @@ def group_by_song(features, targets):
     grouped_targets.append(targets[i*30])
   return np.array(songs), grouped_targets
 
-def mean_var_by_song(features, targets):
+def mean_by_song(features, targets):
   features_mean = np.zeros((int(len(features)//30), features.shape[1]))
   grouped_targets = []
   features_matrix = np.array(features)
   for i in range(len(features)//30):
     features_mean[i, :] = np.mean(features_matrix[i*30:(i+1)*30, :], 0)
-    # SHOULD THERE BE VARIANCE AS WELL --> 38 dimensions?
     grouped_targets.append(targets[i*30])
 
   return features_mean, grouped_targets
@@ -69,12 +68,98 @@ def plot_feature_vectors(features, targets):
       c += 1
   plt.show()
 
+
+def k_fold_initialization(samples, targets, k):
+
+  """
+
+  :param samples: All samples that are used for training and testing
+  :param targets: Targets corresponding to each sample
+  :param k: Integer to decide number of partitions
+  :return: partitions: 3D matrix (3D layers correspond to the partitions),
+           partition_targets: matrix where each row is target for each partitions
+  """
+  partition_size = samples.shape[0]//k
+  partitions = np.zeros((partition_size, samples.shape[1], k))
+  partition_targets = np.zeros((k, partition_size))
+  for i in range(k):
+    partitions[:, :, i] = samples[i*partition_size:(i+1)*partition_size, :]
+    partition_targets[i, :] = targets[i*partition_size:(i+1)*partition_size]
+  return partitions, partition_targets
+
+def get_cross_validate_partitions(partitioned_samples, partitioned_targets, partition_num):
+  """
+
+  :param paritioned_samples: All samples partitioned into equal sized partitions (stored as 3D matrix)
+  :param partition_num: The partition to be training set
+  :return: training set and test set
+  """
+  k = partitioned_samples.shape[2]
+  N = partitioned_samples.shape[0]
+  test_samples = partitioned_samples[:, : partition_num]
+  train_samples_ = np.zeros((N*(k-1), partitioned_samples.shape[1]))
+
+  test_targets = partitioned_targets[partition_num, :]
+  train_targets = np.delete(partitioned_targets, np.s_[partition_num*N:(partition_num+1)*N], None)
+  j = 0
+  for i in range(k):
+    if i != partition_num:
+      partitioned = partitioned_samples[:, :, i]
+      train_samples_[j*N:(j+1)*N, :] = partitioned
+      j += 1
+
+  return train_samples_, train_targets, test_samples, test_targets
+
+
+
+def k_fold_initialization(samples, targets, k):
+
+  """
+
+  :param samples: All samples that are used for training and testing
+  :param targets: Targets corresponding to each sample
+  :param k: Integer to decide number of partitions
+  :return: partitions: 3D matrix (3D layers correspond to the partitions),
+           partition_targets: matrix where each row is target for each partitions
+  """
+  partition_size = samples.shape[0]//k
+  partitions = np.zeros((partition_size, samples.shape[1], k))
+  partition_targets = np.zeros((k, partition_size))
+  for i in range(k):
+    partitions[:, :, i] = samples[i*partition_size:(i+1)*partition_size, :]
+    partition_targets[i, :] = targets[i*partition_size:(i+1)*partition_size]
+  return partitions, partition_targets
+
+def get_cross_validate_partitions(partitioned_samples, partitioned_targets, partition_num):
+  """
+
+  :param paritioned_samples: All samples partitioned into equal sized partitions (stored as 3D matrix)
+  :param partition_num: The partition to be training set
+  :return: training set and test set
+  """
+  k = partitioned_samples.shape[2]
+  N = partitioned_samples.shape[0]
+  test_samples = partitioned_samples[:, : partition_num]
+  train_samples_ = np.zeros((N*(k-1), partitioned_samples.shape[1]))
+
+  test_targets = partitioned_targets[partition_num, :]
+  train_targets = np.delete(partitioned_targets, np.s_[partition_num*N:(partition_num+1)*N], None)
+  j = 0
+  for i in range(k):
+    if i != partition_num:
+      partitioned = partitioned_samples[:, :, i]
+      train_samples_[j*N:(j+1)*N, :] = partitioned
+      j += 1
+
+  return train_samples_, train_targets, test_samples, test_targets
+
+
 if __name__ == '__main__':
   features, targets = read_stored_data()
 
   #grouped_features, grouped_targets = group_by_song(features, targets)
 
-  features_mean, grouped_targets = mean_var_by_song(features, targets)
+  features_mean, grouped_targets = mean_by_song(features, targets)
 
   # features = normalise(features)
 
@@ -93,6 +178,11 @@ if __name__ == '__main__':
 #
   #train_samples, train_targets = ungroup(grouped_train_samples, grouped_train_targets)
   #test_samples, test_targets = ungroup(grouped_test_samples, grouped_test_targets)
+
+
+  # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
+  # (each 3D layer correspond to a partition)
+  partitioned_samples, partitioned_targets = k_fold_initialization(features_mean, grouped_targets, 10)
 
   grouped_targets = np.array(grouped_targets)
   train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.33, random_state=42)
