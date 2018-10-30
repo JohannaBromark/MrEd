@@ -42,29 +42,26 @@ def read_directories():
   all_labels = np.array(all_labels)
   return all_songs, all_labels
 
-def get_label(genre='rock'):
-  if genre == 'blues':
-    return 0
-  elif genre == 'classical':
-    return 1
-  elif genre == 'country':
-    return 2
-  elif genre == 'disco':
-    return 3
-  elif genre == 'hiphop':
-    return 4
-  elif genre == 'jazz':
-    return 5
-  elif genre == 'metal':
-    return 6
-  elif genre == 'pop':
-    return 7
-  elif genre == 'reggae':
-    return 8
-  elif genre == 'rock':
-    return 9
+def get_label(target):
+  labels = {
+    'blues' : 0,
+    'classical' : 1,
+    'country' : 2,
+    'disco' : 3,
+    'hiphop' : 4,
+    'jazz' : 5,
+    'metal' : 6,
+    'pop' : 7,
+    'reggae' : 8,
+    'rock' : 9
+  }
+
+  if isinstance(target, str):
+    return labels.get(target)
   else:
-    return False
+    for key in labels:
+      if labels.get(key) == target:
+        return key
   
 def plot_fft(samples, sample_rate):
   """Plot FFT of an audio sample"""

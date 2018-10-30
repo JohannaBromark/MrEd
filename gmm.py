@@ -1,5 +1,6 @@
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
+from timbral_texture import get_label
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -24,20 +25,35 @@ def normalise(features):
     features[:,i] = np.interp(features[:,i], (features[:,i].min(), features[:,i].max()), (0, 1))
   return features
 
+def plot_feature_vectors(features, targets):
+  features = normalise(features)
+  c = 0
+  for i in range(20):
+    plt.subplot(5,4,i+1)
+    plt.axis('off')
+    if i % 2 == 0:
+      plt.title(get_label(targets[3000*c]))
+      plt.imshow(np.append(features[3000*c], [0.5]).reshape(4,5))
+    else:
+      plt.title(get_label(targets[3001*c]))
+      plt.imshow(np.append(features[3001*c], [0.5]).reshape(4,5))
+      c += 1
+  plt.show()
+
 if __name__ == '__main__':
   features, targets = read_stored_data()
 
   # features = normalise(features)
 
-  train_samples, test_samples, train_targets, test_targets = train_test_split(
-    features, 
-    targets, 
-    test_size=0.33, 
-    random_state=42)
+  # train_samples, test_samples, train_targets, test_targets = train_test_split(
+  #   features, 
+  #   targets, 
+  #   test_size=0.33, 
+  #   random_state=42)
 
-  gmm = GaussianMixture(n_components=10)
-  gmm.fit(train_samples)
+  # gmm = GaussianMixture(n_components=10)
+  # gmm.fit(train_samples)
 
-  res = gmm.predict(train_samples)
-  print(np.count_nonzero(res==train_targets)/len(train_samples))
+  # res = gmm.predict(train_samples)
+  # print(np.count_nonzero(res==train_targets)/len(train_samples))
   
