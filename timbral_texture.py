@@ -198,10 +198,10 @@ def MVcentroid(an_wndws,freqs,t_wndw_size):
   return mean, var
 
 #Mean and variance of the rolloffs
-def MVrolloffs(an_wndws,t_wndw_size):
+def MVrolloffs(an_wndws,t_wndw_size,freqs):
   rolloffs = []
   for i in range(t_wndw_size):
-    rolloffs = np.append(rolloffs, spectral_rolloff(an_wndws[i]))
+    rolloffs = np.append(rolloffs, spectral_rolloff(an_wndws[i],freqs))
 
   mean = np.sum(rolloffs)/t_wndw_size
   var = 0
@@ -245,11 +245,11 @@ def MeVaCentroid(an_wndws,freqs,t_wndw_size,nr_wndws):
     var_centroids = np.append(var_centroids, var_centroid)
   return mean_centroids, var_centroids
 
-def MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws):
+def MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws,freqs):
   mean_rolloffs = []
   var_rolloffs = []
   for i in range(0, nr_wndws, t_wndw_size):
-    mean_rolloff, var_rolloff = MVrolloffs(an_wndws[:,i:i+t_wndw_size],t_wndw_size)
+    mean_rolloff, var_rolloff = MVrolloffs(an_wndws[:,i:i+t_wndw_size],t_wndw_size,freqs)
     mean_rolloffs = np.append(mean_rolloffs, mean_rolloff)
     var_rolloffs = np.append(var_rolloffs, var_rolloff)
   return mean_rolloffs, var_rolloffs
@@ -327,7 +327,7 @@ def MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws):
 
 def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws):
   mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size,nr_wndws)
-  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws)
+  mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws,freqs)
   mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size,nr_wndws)
   mean_crossings, var_crossings = MeVaZero_Crossings(samples,seg_size, t_wndw_size,nr_wndws)
   mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size,nr_wndws) #31 texture windows, 5 olika MFCSS i varje rad.
@@ -373,16 +373,18 @@ def createAll(all_samples,labels):
       print(i)
       freqs, time_inits, stft_wndws = signal.stft(all_samples[i], fs=sample_rate, nperseg=seg_size, noverlap=0)
       an_wndws = np.abs(stft_wndws)
-      nr_wndws = int(((samples.size/512)//43)*43)
+      nr_wndws = int(((all_samples[i].size/512)//43)*43)
       nr_t_wndws = int(nr_wndws/43)
-
+ 
       featureMatrix = np.concatenate((featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)),axis =0)
       targets = np.zeros(nr_t_wndws)
       targets[0:nr_t_wndws] = labels[i][0]
       labelsMatrix = np.append(labelsMatrix,targets)
-    except:
+    except Exception as err:
       print('Någt gick snett till')
+      print(err)
       print(i)
+      print('******************')
       
 
     
@@ -394,7 +396,7 @@ def writetofile(all_samples,labels,filename1,filename2):
   features, targets = createAll(all_samples,labels)
 
 
-  with open(filename,'w') as file:
+  with open(filename1,'w') as file:
     for item in features:
       for element in item:
         file.write(str(element))
@@ -423,10 +425,10 @@ if __name__ == '__main__':
   # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  writetofile(all_samples,labels,'featuresO','targetsO')
-  writetofile(samplesF,targetsF,'featuresF','targetsF') #Fault filtered partion train
-  writetofile(samplesFT,targetsFT,'featuresFT','targetsFT') #Fault filtered partion test
-  writetofile(samplesFV,targetsFV,'featuresFV','targetsFV') #Fault filtered partion vali
+  writetofile(all_samples,labels,'featuresO.txt','targetsO.txt') #all 1000 songs w/o partion
+  writetofile(samplesF,targetsF,'featuresF.txt','targetsF.txt') #Fault filtered partion train
+  writetofile(samplesFT,targetsFT,'featuresFT.txt','targetsFT.txt') #Fault filtered partion test
+  writetofile(samplesFV,targetsFV,'featuresFV.txt','targetsFV.txt') #Fault filtered partion vali
 
 
 
