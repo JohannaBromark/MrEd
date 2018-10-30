@@ -71,6 +71,30 @@ def get_label(target):
     for key in labels:
       if labels.get(key) == target:
         return key
+
+#Missat något, trött o sliten. 
+def read_partition(path="test_fault.txt"):
+  path = get_path("test_fault.txt")
+  all_songs = []
+  all_labels = np.zeros(len(path))
+  all_samples = np.zeros(len(path))
+  i = 0
+  for p in path:
+    print('genres/' + p)
+    sample_rate, all_samples[i] = read_file('genres/' + p)
+    label = get_label(p.split('/')[0])
+    all_labels[i] = label
+    i += 1
+
+  # all_samples = np.array(all_samples)
+  return sample_rate, all_samples, all_labels
+
+def get_path(txt="test_fault.txt"):
+  with open(txt, "r") as ins:
+    paths = []
+    for line in ins:
+        paths.append(line)
+  return paths
   
 def plot_fft(samples, sample_rate):
   """Plot FFT of an audio sample"""
@@ -168,7 +192,7 @@ def MVcentroid(an_wndws,freqs,t_wndw_size):
   mean = np.sum(centroids)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (centroids[k]-mean)
+    var = var + ((centroids[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -181,7 +205,7 @@ def MVrolloffs(an_wndws,t_wndw_size):
   mean = np.sum(rolloffs)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (rolloffs[k]-mean)
+    var = var + ((rolloffs[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -194,7 +218,7 @@ def MVflux(an_wndws,t_wndw_size):
   mean = np.sum(flux)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (flux[k]-mean)
+    var = var + ((flux[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -207,7 +231,7 @@ def MVzero_crossing(start,samples,seg_size,t_wndw_size):
   mean = np.sum(crossing)/t_wndw_size
   var = 0
   for k in range(t_wndw_size):
-    var = var + (crossing[k]-mean)
+    var = var + ((crossing[k]-mean)**2)
   var/(t_wndw_size-1)
   return mean, var
 
@@ -260,7 +284,7 @@ def MVmfcc(an_wndws, sample_rate, t_wndw_size):
   for k in range(5):
     variance = 0
     for a in range(t_wndw_size):
-      variance = variance + (mfccs[a,k]-mean[k])
+      variance = variance + ((mfccs[a,k]-mean[k])**2)
     var = np.append(var,variance)
   var/(t_wndw_size-1)
   return mean, var
@@ -376,6 +400,8 @@ if __name__ == '__main__':
   an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   an_wndw = an_wndws[:,wndw_no] # col -> analysis window
 
-  # features, targets = createAll(all_samples,labels)
-
+  a,b,c = read_partition()
+  print(a)
+  print(b)
+  print(c)
 
