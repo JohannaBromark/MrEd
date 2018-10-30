@@ -130,11 +130,11 @@ def k_fold_initialization(samples, targets, k):
     partition_targets[i, :] = targets[i*partition_size:(i+1)*partition_size]
   return partitions, partition_targets
 
-def get_cross_validate_partitions(partitioned_samples, partitioned_targets, partition_num):
+def get_cross_validation_sets(partitioned_samples, partitioned_targets, partition_num):
   """
-
+  Sets one partition as test set and the remaining as training set.
   :param paritioned_samples: All samples partitioned into equal sized partitions (stored as 3D matrix)
-  :param partition_num: The partition to be training set
+  :param partition_num: The partition to be the testing set
   :return: training set and test set
   """
   k = partitioned_samples.shape[2]
