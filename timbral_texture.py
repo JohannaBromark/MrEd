@@ -73,8 +73,8 @@ def get_label(target):
         return key
 
 #Missat något, trött o sliten. 
-def read_partition(path="test_fault.txt"):
-  path = get_path("test_fault.txt")
+def read_partition(path):
+  path = get_path(path)
   all_songs = []
   all_labels = np.zeros(len(path))
   # all_samples = np.zeros(len(path))
@@ -92,7 +92,7 @@ def read_partition(path="test_fault.txt"):
   # all_samples = np.array(all_samples)
   return sample_rate, all_samples, all_labels
 
-def get_path(txt="test_fault.txt"):
+def get_path(txt):
   with open(txt, "r") as ins:
     paths = []
     for line in ins:

@@ -4,16 +4,16 @@ from timbral_texture import get_label
 import matplotlib.pyplot as plt
 import numpy as np
 
-def read_stored_data():
+def read_stored_data(filename1 = 'featuresO.txt',filename2 = 'targetsO.txt'):
   """Return feature vectors and corr labels from stored txt file"""
-  with open('features.txt') as f:
+  with open(filename1) as f:
     lines = f.readlines()
     features = [[0]] * len(lines)
     for i in range(len(lines)):
       features[i] = [float(i) for i in lines[i].split()]
     features = np.array(features)
 
-  with open('targets.txt') as f:
+  with open(filename2) as f:
     targets = np.array([int(i) for i in f.readlines()])
     # with brackets
     # targets = np.array([[int(i)] for i in f.readlines()])
@@ -156,10 +156,18 @@ def get_cross_validation_sets(partitioned_samples, partitioned_targets, partitio
 
 if __name__ == '__main__':
   features, targets = read_stored_data()
+  train_samples, train_targets = read_stored_data('featuresF.txt','targetsF.txt')
+  test_samples, test_targets = read_stored_data('featuresFT.txt','targetsFT.txt')
+  print(features.size)
+  print(train_samples.size)
+  print(train_targets.size)
+  print(test_samples.size)
+  print(test_targets.size)
+
 
   #grouped_features, grouped_targets = group_by_song(features, targets)
 
-  features_mean, grouped_targets = mean_by_song(features, targets)
+  # features_mean, grouped_targets = mean_by_song(features, targets)
 
   # features = normalise(features)
 
@@ -182,10 +190,10 @@ if __name__ == '__main__':
 
   # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
   # (each 3D layer correspond to a partition)
-  partitioned_samples, partitioned_targets = k_fold_initialization(features_mean, grouped_targets, 10)
+  # partitioned_samples, partitioned_targets = k_fold_initialization(features_mean, grouped_targets, 10)
 
-  grouped_targets = np.array(grouped_targets)
-  train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.33, random_state=42)
+  # grouped_targets = np.array(grouped_targets)
+  # train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.33, random_state=42)
 
   # gmm = GaussianMixture(n_components=10)
   # gmm.fit(train_samples)
