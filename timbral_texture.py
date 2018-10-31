@@ -87,6 +87,8 @@ def read_partition(path="test_fault.txt"):
     all_labels[i] = label
     i += 1
 
+  all_labels = np.array(all_labels)
+
   # all_samples = np.array(all_samples)
   return sample_rate, all_samples, all_labels
 
@@ -362,7 +364,7 @@ def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size
 
   return featureMatrix
   
-def createAll(all_samples,labels):
+def createAll(all_samples,labels,flag = True):
   seg_size = 512
   t_wndw_size = 43
   
@@ -375,10 +377,13 @@ def createAll(all_samples,labels):
       an_wndws = np.abs(stft_wndws)
       nr_wndws = int(((all_samples[i].size/512)//43)*43)
       nr_t_wndws = int(nr_wndws/43)
- 
+
       featureMatrix = np.concatenate((featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)),axis =0)
       targets = np.zeros(nr_t_wndws)
-      targets[0:nr_t_wndws] = labels[i][0]
+      if flag:
+        targets[0:nr_t_wndws] = labels[i][0]
+      else:
+        targets[0:nr_t_wndws] = labels[i]
       labelsMatrix = np.append(labelsMatrix,targets)
     except Exception as err:
       print('Någt gick snett till')
@@ -388,12 +393,12 @@ def createAll(all_samples,labels):
       
 
     
-
-  labelsMatrix = labelsMatrix.reshape(labelsMatrix.size,1)
+  if flag:
+    labelsMatrix = labelsMatrix.reshape(labelsMatrix.size,1)
   featureMatrix = featureMatrix[2:]
   return featureMatrix, labelsMatrix
-def writetofile(all_samples,labels,filename1,filename2):
-  features, targets = createAll(all_samples,labels)
+def writetofile(all_samples,labels,filename1,filename2,flag=True):
+  features, targets = createAll(all_samples,labels,flag)
 
 
   with open(filename1,'w') as file:
@@ -405,7 +410,10 @@ def writetofile(all_samples,labels,filename1,filename2):
 
   with open(filename2, 'w') as file:
     for item in targets:
-      file.write(str(int(item[0])))
+      if flag:
+        file.write(str(int(item[0])))
+      else:
+        file.write(str(int(item)))
       file.write('\n')
 
 if __name__ == '__main__':
@@ -425,10 +433,10 @@ if __name__ == '__main__':
   # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  writetofile(all_samples,labels,'featuresO.txt','targetsO.txt') #all 1000 songs w/o partion
-  writetofile(samplesF,targetsF,'featuresF.txt','targetsF.txt') #Fault filtered partion train
-  writetofile(samplesFT,targetsFT,'featuresFT.txt','targetsFT.txt') #Fault filtered partion test
-  writetofile(samplesFV,targetsFV,'featuresFV.txt','targetsFV.txt') #Fault filtered partion vali
+  # writetofile(all_samples,labels,'featuresO.txt','targetsO.txt') #all 1000 songs w/o partion
+  writetofile(samplesF,targetsF,'featuresF.txt','targetsF.txt',False) #Fault filtered partion train
+  writetofile(samplesFT,targetsFT,'featuresFT.txt','targetsFT.txt',False) #Fault filtered partion test
+  writetofile(samplesFV,targetsFV,'featuresFV.txt','targetsFV.txt',False) #Fault filtered partion vali
 
 
 
