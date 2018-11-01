@@ -141,6 +141,7 @@ def read_partition(path):
     i += 1
 
   all_labels = np.array(all_labels)
+  all_labels = all_labels.reshape(all_labels.size,1)
 
   # all_samples = np.array(all_samples)
   return sample_rate, all_samples, all_labels
