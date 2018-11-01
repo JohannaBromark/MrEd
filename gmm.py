@@ -252,8 +252,9 @@ def run_gmm_k_fold():
     print("Accuracy: ", iteration_accuracy)
 
   final_accuracy = np.mean(iteration_accuracies)
-  print(iteration_accuracies)
-  print(final_accuracy)
+  final_accuracy_variance = np.var(iteration_accuracies)
+  print("Final accuracy: ", final_accuracy)
+  print("Final variance: ", final_accuracy_variance)
 
 
 
