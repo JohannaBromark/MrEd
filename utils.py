@@ -244,12 +244,15 @@ def ungroup(grouped_features, grouped_targets):
 def mean_by_song(features):
   num_songs = len(np.unique(features[:, 0]))
   songs = np.zeros((num_songs, features.shape[1]-1))
+  
+  
 
   for song_num in range(num_songs):
     song_idx = np.where(features[:, 0] == song_num)[0]
     song_matrix = np.take(features[:, 1:], song_idx, 0)
     songs[song_num, :] = np.mean(song_matrix, 0)
-
+    
+      
   return songs
 
 
