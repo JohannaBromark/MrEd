@@ -9,7 +9,7 @@ from utils import *
 def runRandomGMM():
   features, targets = read_stored_data()
   features = features[:,1:]
-  features = normalise(features)
+  # features = normalise(features)
   features_mean, grouped_targets = mean_var_by_song(features, targets)
 
   grouped_targets = np.array(grouped_targets)
@@ -97,7 +97,8 @@ def runFaultFilteredGMM():
 
 def run_gmm_k_fold():
   features, targets = read_stored_data()
-  features = normalise(features)
+  features = features[:,1:]
+  # features = normalise(features)
   features_mean, grouped_targets = mean_var_by_song(features, targets)
   feature_partition, target_partition = k_fold_initialization(features_mean, grouped_targets, 10)
 
@@ -140,8 +141,8 @@ def run_gmm_k_fold():
 if __name__ == '__main__':
 
   #runFaultFilteredGMM()
-  #runRandomGMM()
-  run_gmm_k_fold()
+  runRandomGMM()
+  # run_gmm_k_fold()
 
 
 # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
