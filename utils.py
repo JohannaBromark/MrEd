@@ -240,16 +240,16 @@ def ungroup(grouped_features, grouped_targets):
 ##################
 ### Song means ###
 
-def mean_var_by_song(features, targets):
-  features_mean = np.zeros((int(len(features)//30), features.shape[1]))
-  grouped_targets = []
-  features_matrix = np.array(features)
-  for i in range(len(features)//30):
-    features_mean[i, :] = np.mean(features_matrix[i*30:(i+1)*30, :], 0)
-    # SHOULD THERE BE VARIANCE AS WELL --> 38 dimensions?
-    grouped_targets.append(targets[i*30])
+def mean_by_song(features):
+  num_songs = len(np.unique(features[:, 0]))
+  songs = np.zeros((num_songs, features.shape[1]-1))
 
-  return features_mean, grouped_targets
+  for song_num in range(num_songs):
+    song_idx = np.where(features[:, 0] == song_num)[0]
+    song_matrix = np.take(features[:, 1:], song_idx, 0)
+    songs[song_num, :] = np.mean(song_matrix, 0)
+
+  return songs
 
 
 
