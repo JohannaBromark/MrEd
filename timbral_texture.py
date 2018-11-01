@@ -7,134 +7,7 @@ import scipy.signal as signal
 from sklearn.preprocessing import normalize
 from sklearn.mixture import GaussianMixture
 import os
-
-def read_file(file_name='genres/rock/rock.00093.wav'):
-  """Return 22050 Hz sampling frequency and sample amplitudes"""
-  # pop: genres/pop/pop.00000.wav
-  return audioBasicIO.readAudioFile(file_name)
-
-def write_features_to_file(features, file_name='features.txt'):
-  with open('features.txt','w') as file:
-    for item in features:
-      for element in item:
-        file.write(str(element))
-        file.write(' ')
-      file.write('\n')
-
-def write_targes_to_file(targets, file_name='targets.txt'):
-  with open('targets.txt', 'w') as file:
-    for item in targets:
-      file.write(str(int(item[0])))
-      file.write('\n')
-
-def read_directory(genre='rock'):
-  path = 'genres/' + genre + '/'
-  all_samples = [[0]] * len([f for f in os.listdir(path)])
-  i = 0
-  for filename in os.listdir(path):
-    sample_rate, all_samples[i] = read_file(os.path.join(path, filename))
-    i += 1
-  all_samples = np.array(all_samples)
-  labels = np.full((100,1), get_label(genre))
-  return all_samples, labels
-
-def read_directories():
-  all_songs = []
-  all_labels = []
-  i = 0
-  for name in os.listdir('genres/'):
-    songs, labels = read_directory(name)
-    all_songs[i*100:(i+1)*100] = songs
-    all_labels[i*100:(i+1)*100] = labels
-    i += 1
-  all_songs = np.array(all_songs)
-  all_labels = np.array(all_labels)
-  return all_songs, all_labels
-
-def get_label(target):
-  labels = {
-    'blues' : 0,
-    'classical' : 1,
-    'country' : 2,
-    'disco' : 3,
-    'hiphop' : 4,
-    'jazz' : 5,
-    'metal' : 6,
-    'pop' : 7,
-    'reggae' : 8,
-    'rock' : 9
-  }
-
-  if isinstance(target, str):
-    return labels.get(target)
-  else:
-    for key in labels:
-      if labels.get(key) == target:
-        return key
-
-#Missat något, trött o sliten. 
-def read_partition(path):
-  path = get_path(path)
-  all_songs = []
-  all_labels = np.zeros(len(path))
-  # all_samples = np.zeros(len(path))
-  all_samples = [[0]] * len([f for f in range(len(path))])
-
-  i = 0
-  for p in path:
-    sample_rate, all_samples[i] = read_file('genres/' + p.strip())
-    label = get_label(p.split('/')[0])
-    all_labels[i] = label
-    i += 1
-
-  all_labels = np.array(all_labels)
-
-  # all_samples = np.array(all_samples)
-  return sample_rate, all_samples, all_labels
-
-def get_path(txt):
-  with open(txt, "r") as ins:
-    paths = []
-    for line in ins:
-        paths.append(line)
-  return paths
-  
-def plot_fft(samples, sample_rate):
-  """Plot FFT of an audio sample"""
-  # Perioden för ett sample
-  T = 1./sample_rate
-  # Antal samples
-  N = len(samples)
-  # Returnerar N st amplituder för varje frekvens från DFT
-  fft = np.fft.fft(samples)
-  # N st mappade frekvenser (bins) för varje amplitud
-  # För varje N st amplituder med index i -> frekvens fi = i * sample_rate/N
-  freqs = np.linspace(0, 1 / T, N)
-  # Tar endast första halvan pga Nyqvist-frekvens
-  plt.title('FFT Magnitude')
-  plt.plot(freqs[:N // 2], np.abs(fft)[:N // 2] * 1 / N)  # 1 / N is a normalization factor
-  plt.ylabel('Amplitude')
-  plt.xlabel('Frequency [Hz]')
-  plt.show()
-
-def plot_whole_stft(samples, sample_rate):
-  """Plot STFT of an audio sample"""
-  f, t, Zxx = signal.stft(samples, fs=sample_rate, nperseg=512*2, noverlap=0)
-  plt.pcolormesh(t, f, np.abs(Zxx))
-  plt.title('STFT Magnitude')
-  plt.ylabel('Frequency [Hz]')
-  plt.xlabel('Time [sec]')
-  plt.show()
-
-def plot_an_window(an_wndw, freqs, include_centroid=True):
-  """Plot an analysis window from STFT with optional spectral centroid"""
-  plt.title('Window FFT')
-  plt.ylabel('Amplitude')
-  plt.xlabel('Frequency [Hz]')
-  plt.plot(freqs, an_wndw)
-  if include_centroid:
-    plt.plot(spectral_centroid(an_wndw, freqs), 0, 'o', label='centroid')
-  plt.show()
+from utils import *
 
 def spectral_centroid_idx(an_wndw):
   """Return index of spectral centroid frequency of an analysis window"""
@@ -434,7 +307,7 @@ if __name__ == '__main__':
   # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  writetofile(all_samples,labels,'features_targets/featuresO.txt','features_targets/targetsO.txt') #all 1000 songs w/o partion
+  writetofile(all_samples,labels,'features_targets/ta_bort_mig.txt','features_targets/ta_bort_mig.txt') #all 1000 songs w/o partion
   # writetofile(samplesF,targetsF,'features_targets/featuresF.txt','features_targets/targetsF.txt',False) #Fault filtered partion train
   # writetofile(samplesFT,targetsFT,'features_targets/featuresFT.txt','features_targets/targetsFT.txt',False) #Fault filtered partion test
   # writetofile(samplesFV,targetsFV,'features_targets/featuresFV.txt','features_targets/targetsFV.txt',False) #Fault filtered partion vali
