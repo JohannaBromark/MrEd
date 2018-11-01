@@ -62,7 +62,7 @@ def read_stored_data(feat_name='features_targets/afe_features.txt', tar_name='fe
     # with brackets
     # targets = np.array([[int(i)] for i in f.readlines()])
 
-  return features, targets
+  return features, features[:,1]
 
 
 
@@ -141,6 +141,7 @@ def read_partition(path):
     i += 1
 
   all_labels = np.array(all_labels)
+  all_labels = all_labels.reshape(all_labels.size,1)
 
   # all_samples = np.array(all_samples)
   return sample_rate, all_samples, all_labels

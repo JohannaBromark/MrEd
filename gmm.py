@@ -48,11 +48,11 @@ def runRandomGMM():
   print(b/100)
 
 def runFaultFilteredGMM():
-  train_samples, train_targets = read_stored_data('features_targets/featuresF.txt','features_targets/targetsF.txt')
+  train_samples, train_targets = read_stored_data('features_targets/afe_feat_and_tarF.txt')
   train_samples = normalise(train_samples)
-  test_samples, test_targets = read_stored_data('features_targets/featuresFT.txt','features_targets/targetsFT.txt')
+  test_samples, test_targets = read_stored_data('features_targets/afe_feat_and_tarFT.txt')
   test_samples = normalise(test_samples)
-  vali_samples, vali_targets = read_stored_data('features_targets/featuresFV.txt','features_targets/targetsFV.txt')
+  vali_samples, vali_targets = read_stored_data('features_targets/afe_feat_and_tarFV.txt')
   # print(train_samples.shape)
   # print(vali_samples.shape)
   train_samples = np.concatenate([train_samples,vali_samples],0)
@@ -62,11 +62,17 @@ def runFaultFilteredGMM():
   # grouped_features, grouped_targets = group_by_song(features, targets)
 
 
-  train_samples = normalise(train_samples)
-  test_samples = normalise(test_samples)
+  # train_samples = normalise(train_samples)
+  # test_samples = normalise(test_samples)
 
-  train_samples, train_targets = mean_var_by_song(train_samples, train_targets)
-  test_samples, test_targets = mean_var_by_song(test_samples, test_targets)
+  train_samples = mean_var_by_song(train_samples)
+  train_targets = train_samples[:,0]
+  print(train_targets.shape())
+  train_samples = train_samples[:,1:]
+  test_samples, test_targets = mean_var_by_song(test_samples)
+  test_targets = test_samples[:,0]
+  test_samples = test_samples[:,1:]
+
   test_targets = np.array(test_targets)
   train_targets = np.array(train_targets)
   score = np.empty((test_samples.shape[0], 10))
@@ -140,8 +146,8 @@ def run_gmm_k_fold():
 
 if __name__ == '__main__':
 
-  #runFaultFilteredGMM()
-  runRandomGMM()
+  runFaultFilteredGMM()
+  # runRandomGMM()
   # run_gmm_k_fold()
 
 
