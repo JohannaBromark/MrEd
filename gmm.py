@@ -141,7 +141,7 @@ def get_cross_validate_partitions(partitioned_samples, partitioned_targets, part
 
 def runRandomGMM():
   features, targets = read_stored_data()
-  
+  features = features[:,1:]
   features = normalise(features)
   features_mean, grouped_targets = mean_var_by_song(features, targets)
 
@@ -149,8 +149,8 @@ def runRandomGMM():
   
 
   b = 0
-  for o in range(1000):
-    train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.1, random_state=o)
+  for o in range(100):
+    train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.05, random_state=o)
     score = np.empty((test_samples.shape[0], 10))
     predictor_list = []
     for i in range(10):
@@ -178,14 +178,14 @@ def runRandomGMM():
     print('Prediction')
     print(a)
     b = b + a 
-  print(b/1000)
+  print(b/100)
 
 def runFaultFilteredGMM():
-  train_samples, train_targets = read_stored_data('featuresF.txt','targetsF.txt')
+  train_samples, train_targets = read_stored_data('features_targets/featuresF.txt','features_targets/targetsF.txt')
   train_samples = normalise(train_samples)
-  test_samples, test_targets = read_stored_data('featuresFT.txt','targetsFT.txt')
+  test_samples, test_targets = read_stored_data('features_targets/featuresFT.txt','features_targets/targetsFT.txt')
   test_samples = normalise(test_samples)
-  vali_samples, vali_targets = read_stored_data('featuresFV.txt','targetsFV.txt')
+  vali_samples, vali_targets = read_stored_data('features_targets/featuresFV.txt','features_targets/targetsFV.txt')
   # print(train_samples.shape)
   # print(vali_samples.shape)
   train_samples = np.concatenate([train_samples,vali_samples],0)
@@ -230,7 +230,7 @@ def runFaultFilteredGMM():
 
 if __name__ == '__main__':
 
-  runFaultFilteredGMM()
+  # runFaultFilteredGMM()
   runRandomGMM()
 # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
   # (each 3D layer correspond to a partition)

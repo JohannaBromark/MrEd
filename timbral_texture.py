@@ -327,7 +327,7 @@ def MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws):
     mean_rms_energys = np.append(mean_rms_energys, mean_rms_energy)
   return mean_rms_energys
 
-def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws):
+def CreateFeatureVectors(song_nr,seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws):
   mean_centroids, var_centroids = MeVaCentroid(an_wndws, freqs, t_wndw_size,nr_wndws)
   mean_rolloffs, var_rolloffs = MeVaRolloffs(an_wndws,t_wndw_size,nr_wndws,freqs)
   mean_fluxs, var_fluxs = MeVaFlux(an_wndws, t_wndw_size,nr_wndws)
@@ -335,30 +335,31 @@ def CreateFeatureVectors(seg_size,samples,sample_rate,an_wndws,freqs,t_wndw_size
   mean_mfccs, var_mfccs = MeVaMfcc(an_wndws,sample_rate,t_wndw_size,nr_wndws) #31 texture windows, 5 olika MFCSS i varje rad.
   mean_rms_energy = MeVaEnergy(samples,seg_size,t_wndw_size,nr_wndws)
 
-  featureVector = np.zeros(19)
+  featureVector = np.zeros(20)
   featureMatrix = []
   for i in range(mean_centroids.size):
-    featureVector[0] = mean_centroids[i]
-    featureVector[1] = var_centroids[i]
-    featureVector[2] = mean_rolloffs[i]
-    featureVector[3] = var_rolloffs[i]
-    featureVector[4] = mean_fluxs[i]
-    featureVector[5] = var_fluxs[i]
-    featureVector[6] = mean_crossings[i]
-    featureVector[7] = var_crossings[i]
-    featureVector[8] = mean_mfccs[i,0]
-    featureVector[9] = mean_mfccs[i,1]
-    featureVector[10] = mean_mfccs[i,2]
-    featureVector[11] = mean_mfccs[i,3]
-    featureVector[12] = mean_mfccs[i,4]
-    featureVector[13] = mean_mfccs[i,0]
-    featureVector[14] = var_mfccs[i,1]
-    featureVector[15] = var_mfccs[i,2]
-    featureVector[16] = var_mfccs[i,3]
-    featureVector[17] = var_mfccs[i,4]
-    featureVector[18] = mean_rms_energy[i]
+    featureVector[0] = song_nr
+    featureVector[1] = mean_centroids[i]
+    featureVector[2] = var_centroids[i]
+    featureVector[3] = mean_rolloffs[i]
+    featureVector[4] = var_rolloffs[i]
+    featureVector[5] = mean_fluxs[i]
+    featureVector[6] = var_fluxs[i]
+    featureVector[7] = mean_crossings[i]
+    featureVector[8] = var_crossings[i]
+    featureVector[9] = mean_mfccs[i,0]
+    featureVector[10] = mean_mfccs[i,1]
+    featureVector[11] = mean_mfccs[i,2]
+    featureVector[12] = mean_mfccs[i,3]
+    featureVector[13] = mean_mfccs[i,4]
+    featureVector[14] = var_mfccs[i,0]
+    featureVector[15] = var_mfccs[i,1]
+    featureVector[16] = var_mfccs[i,2]
+    featureVector[17] = var_mfccs[i,3]
+    featureVector[18] = var_mfccs[i,4]
+    featureVector[19] = mean_rms_energy[i]
     featureMatrix = np.append(featureMatrix,featureVector)
-  featureMatrix = featureMatrix.reshape(int(nr_wndws/43),19)
+  featureMatrix = featureMatrix.reshape(int(nr_wndws/43),20)
   # print(featureMatrix.shape)
   # print(featureMatrix)
 
@@ -368,7 +369,7 @@ def createAll(all_samples,labels,flag = True):
   seg_size = 512
   t_wndw_size = 43
   
-  featureMatrix = np.zeros((2,19))
+  featureMatrix = np.zeros((2,20))
   labelsMatrix = []
   for i in range(len(all_samples)):
     try:
@@ -378,7 +379,7 @@ def createAll(all_samples,labels,flag = True):
       nr_wndws = int(((all_samples[i].size/512)//43)*43)
       nr_t_wndws = int(nr_wndws/43)
 
-      featureMatrix = np.concatenate((featureMatrix ,CreateFeatureVectors(seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)),axis =0)
+      featureMatrix = np.concatenate((featureMatrix ,CreateFeatureVectors(i,seg_size,all_samples[i],sample_rate,an_wndws,freqs,t_wndw_size,nr_wndws)),axis =0)
       targets = np.zeros(nr_t_wndws)
       if flag:
         targets[0:nr_t_wndws] = labels[i][0]
@@ -421,9 +422,9 @@ if __name__ == '__main__':
   all_samples, labels = read_directories()
   # print(all_samples)
 
-  sample_rateF,samplesF,targetsF = read_partition('train_fault.txt')
-  sample_rateFT,samplesFT,targetsFT = read_partition('test_fault.txt')
-  sample_rateFV,samplesFV,targetsFV = read_partition('valid_fault.txt')
+  # sample_rateF,samplesF,targetsF = read_partition('features_targets/train_fault.txt')
+  # sample_rateFT,samplesFT,targetsFT = read_partition('features_targets/test_fault.txt')
+  # sample_rateFV,samplesFV,targetsFV = read_partition('features_targets/valid_fault.txt')
 
 
   # Check if params are correct
@@ -433,10 +434,10 @@ if __name__ == '__main__':
   # an_wndws = np.abs(stft_wndws) # abs -> we only want freq amplitudes
   # an_wndw = an_wndws[:,wndw_no] # col -> analysis window
  
-  # writetofile(all_samples,labels,'featuresO.txt','targetsO.txt') #all 1000 songs w/o partion
-  writetofile(samplesF,targetsF,'featuresF.txt','targetsF.txt',False) #Fault filtered partion train
-  writetofile(samplesFT,targetsFT,'featuresFT.txt','targetsFT.txt',False) #Fault filtered partion test
-  writetofile(samplesFV,targetsFV,'featuresFV.txt','targetsFV.txt',False) #Fault filtered partion vali
+  writetofile(all_samples,labels,'features_targets/featuresO.txt','features_targets/targetsO.txt') #all 1000 songs w/o partion
+  # writetofile(samplesF,targetsF,'features_targets/featuresF.txt','features_targets/targetsF.txt',False) #Fault filtered partion train
+  # writetofile(samplesFT,targetsFT,'features_targets/featuresFT.txt','features_targets/targetsFT.txt',False) #Fault filtered partion test
+  # writetofile(samplesFV,targetsFV,'features_targets/featuresFV.txt','features_targets/targetsFV.txt',False) #Fault filtered partion vali
 
 
 

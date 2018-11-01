@@ -20,7 +20,7 @@ def read_stored_data():
     # with brackets
     # targets = np.array([[int(i)] for i in f.readlines()])
 
-  return features, targets
+  return features[:,1:], targets
 
 
 def normalise(features):
