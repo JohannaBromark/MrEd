@@ -62,7 +62,7 @@ def read_stored_data(feat_name='features_targets/afe_features.txt', tar_name='fe
     # with brackets
     # targets = np.array([[int(i)] for i in f.readlines()])
 
-  return features, targets
+  return features, features[:,1]
 
 
 
