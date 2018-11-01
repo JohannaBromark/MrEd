@@ -8,14 +8,14 @@ import numpy as np
 
 def read_stored_data():
   """Return feature vectors and corr labels from stored txt file"""
-  with open('features_targets/features.txt') as f:
+  with open('features_targets/featuresO.txt') as f:
     lines = f.readlines()
     features = [[0]] * len(lines)
     for i in range(len(lines)):
       features[i] = [float(i) for i in lines[i].split()]
     features = np.array(features)
 
-  with open('features_targets/targets.txt') as f:
+  with open('features_targets/targetsO.txt') as f:
     targets = np.array([int(i) for i in f.readlines()])
     # with brackets
     # targets = np.array([[int(i)] for i in f.readlines()])
@@ -59,20 +59,24 @@ def ungroup(grouped_features, grouped_targets):
   
 
 if __name__ == '__main__':
-	features, targets = read_stored_data()
-	features = normalise(features)
-	
-	features_mean, grouped_targets = mean_var_by_song(features, targets)
+  features, targets = read_stored_data()
+  features = normalise(features)
 
-	grouped_targets = np.array(grouped_targets)
+  features_mean, grouped_targets = mean_var_by_song(features, targets)
 
-	train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.33, random_state=42)
+  grouped_targets = np.array(grouped_targets)
+  b = 0
 
-	knn = KNeighborsClassifier(n_neighbors=1)
+  for i in range(100):
+    train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.1, random_state=i)
 
-	knn.fit(train_samples,train_targets)
+    knn = KNeighborsClassifier(n_neighbors=1)
 
-	predictions = knn.predict(test_samples)
-	score = knn.score(test_samples,test_targets)
-	print(score)
+    knn.fit(train_samples,train_targets)
+
+    predictions = knn.predict(test_samples)
+    score = knn.score(test_samples,test_targets)
+    b = b + score
+    print(score)
+  print(b/100)
 
