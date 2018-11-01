@@ -10,7 +10,7 @@ def runRandomGMM():
   features, targets = read_stored_data()
   features = features[:,1:]
   # features = normalise(features)
-  features_mean, grouped_targets = mean_var_by_song(features, targets)
+  features_mean, grouped_targets = mean_by_song(features)
 
   grouped_targets = np.array(grouped_targets)
   
@@ -65,11 +65,11 @@ def runFaultFilteredGMM():
   # train_samples = normalise(train_samples)
   # test_samples = normalise(test_samples)
 
-  train_samples = mean_var_by_song(train_samples)
+  train_samples = mean_by_song(train_samples)
   train_targets = train_samples[:,0]
   print(train_targets.shape())
   train_samples = train_samples[:,1:]
-  test_samples, test_targets = mean_var_by_song(test_samples)
+  test_samples, test_targets = mean_by_song(test_samples)
   test_targets = test_samples[:,0]
   test_samples = test_samples[:,1:]
 
@@ -102,22 +102,22 @@ def runFaultFilteredGMM():
   print(a)
 
 def run_gmm_k_fold():
-  features, targets = read_stored_data()
-  features = features[:,1:]
+  features, _ = read_stored_data('features_targets/afe_feat_and_targ.txt')
   # features = normalise(features)
-  features_mean, grouped_targets = mean_var_by_song(features, targets)
-  feature_partition, target_partition = k_fold_initialization(features_mean, grouped_targets, 10)
+  #features = features[:, 1:]
+  features_mean = mean_by_song(features)
 
   k = 10
   num_genres = 10
-  num_iterations = 100
+  num_iterations = 20
 
   iteration_accuracies = []
   for e in range(num_iterations):
+    feature_partition = make_k_fold_partition(features_mean, 10)
     print("Iteration: ", e)
     accuracy_per_partition = []
     for i in range(k):
-      train_samples, train_targets, test_samples, test_targets = get_cross_validate_partitions(feature_partition, target_partition, i)
+      train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(feature_partition, i)
       score = np.empty((test_samples.shape[0], 10))
       for j in range(num_genres):
         predictor = GaussianMixture(
@@ -146,9 +146,9 @@ def run_gmm_k_fold():
 
 if __name__ == '__main__':
 
-  runFaultFilteredGMM()
-  # runRandomGMM()
-  # run_gmm_k_fold()
+  #runFaultFilteredGMM()
+  #runRandomGMM()
+  run_gmm_k_fold()
 
 
 # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
