@@ -29,10 +29,9 @@ def rms_energy(frames):
   percentage = np.count_nonzero(np.where(frames[e_idx,:] > mean, 1, 0))/frames.shape[1]
   return percentage
 
-if __name__ == '__main__':
-  samples, targets = read_directories()
+def faultfiltered(path,featurefilename,targetfilename):
+  sample_rate, samples, targets = read_partition(path)
   seg_size = 512
-  sample_rate = 22050
   f_vectors = []
 
   for i in range(len(samples)):
@@ -40,4 +39,21 @@ if __name__ == '__main__':
     frames, f_names = afe.stFeatureExtraction(samples[i], sample_rate, seg_size, seg_size)
     f_vectors.append(all_feature_vectors(frames))
 
+  write_afe_to_file(f_vectors, targets,featurefilename,targetfilename)
+
+if __name__ == '__main__':
+  # samples, targets = read_directories()
+  # seg_size = 512
+  # sample_rate = 22050
+  # f_vectors = []
+
+  # for i in range(len(samples)):
+  #   print(i)
+  #   frames, f_names = afe.stFeatureExtraction(samples[i], sample_rate, seg_size, seg_size)
+  #   f_vectors.append(all_feature_vectors(frames))
+
   # write_afe_to_file(f_vectors, targets)
+  faultfiltered('features_targets/train_fault.txt','features_targets/afe_featuresF.txt','features_targets/afe_targetsF.txt')
+  faultfiltered('features_targets/test_fault.txt','features_targets/afe_featuresFT.txt','features_targets/afe_targetsFT.txt')
+  faultfiltered('features_targets/valid_fault.txt','features_targets/afe_featuresFV.txt','features_targets/afe_targetsFV.txt')
+

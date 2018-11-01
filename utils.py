@@ -83,17 +83,17 @@ def write_targes_to_file(targets, file_name='targets.txt'):
       file.write(str(int(item[0])))
       file.write('\n')
   
-  def write_afe_to_file(songs, targets, f_name_feats='afe_features.txt', f_name_trg='afe_targets.txt'):
-    with open(f_name_feats, 'w') as f_t, open(f_name_trg, 'w') as t_f:
-      c = 0
-      for song in songs:
-        for vector in song:
-          f_t.write(str(c) + ' ')
-          for feat in vector:
-            f_t.write(str(feat) + ' ') 
-          f_t.write('\n')
-          t_f.write(str(targets[c][0]) + '\n')
-        c += 1
+def write_afe_to_file(songs, targets, f_name_feats='afe_features.txt', f_name_trg='afe_targets.txt'):
+  with open(f_name_feats, 'w') as f_t, open(f_name_trg, 'w') as t_f:
+    c = 0
+    for song in songs:
+      for vector in song:
+        f_t.write(str(c) + ' ')
+        for feat in vector:
+          f_t.write(str(feat) + ' ') 
+        f_t.write('\n')
+        t_f.write(str(targets[c][0]) + '\n')
+      c += 1
 
 
 
