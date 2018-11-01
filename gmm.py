@@ -69,55 +69,27 @@ def plot_feature_vectors(features, targets):
       c += 1
   plt.show()
 
-if __name__ == '__main__':
+def runRandomGMM():
   features, targets = read_stored_data()
-  print(features.shape)
-  # train_samples, train_targets = read_stored_data('featuresF.txt','targetsF.txt')
-  # train_samples = normalise(train_samples)
-  # test_samples, test_targets = read_stored_data('featuresFT.txt','targetsFT.txt')
-  # test_samples = normalise(test_samples)
-  # print(train_samples.shape)
-  # print(test_samples.shape)
+  
   features = normalise(features)
-
-  # grouped_features, grouped_targets = group_by_song(features, targets)
-
   features_mean, grouped_targets = mean_var_by_song(features, targets)
 
-  # train_samples, test_samples, train_targets, test_targets = train_test_split(
-  #  features,
-  #  targets,
-  #  test_size=0.33,
-  #  random_state=42)
-
-
-  # grouped_train_samples, grouped_test_samples, grouped_train_targets, grouped_test_targets = train_test_split(
-  #  grouped_features,
-  #  grouped_targets,
-  #  test_size=0.33,
-  #  random_state=42)
-
-  #train_samples, train_targets = ungroup(grouped_train_samples, grouped_train_targets)
-  #test_samples, test_targets = ungroup(grouped_test_samples, grouped_test_targets)
-
   grouped_targets = np.array(grouped_targets)
-  train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.33, random_state=42)
+  train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.1, random_state=39)
 
-  # gmm = GaussianMixture(n_components=10)
-  # gmm.fit(train_samples)
-
-  # res = gmm.predict(train_samples)
-  # print(np.count_nonzero(res==train_targets)/len(train_samples))
-
+# b = 0
+  # for o in range(1):
+  #   for k in range(1):
   score = np.empty((test_samples.shape[0], 10))
   predictor_list = []
   for i in range(10):
     predictor = GaussianMixture(
       n_components=3,
       covariance_type='full',
-      tol=0.00001,
-      max_iter=1000,
-      n_init=3,
+      tol=0.000001,
+      max_iter=500,
+      n_init=2,
       init_params='kmeans'
       )
     predictor.fit(train_samples[train_targets==i])
@@ -131,4 +103,73 @@ if __name__ == '__main__':
   # print(Y_predicted.size)
   # print([i for i in(Y_predicted)])
   a = np.count_nonzero(Y_predicted == test_targets)/len(test_targets)
+  # if(a > 0.57):
+  #   print(o)
+  print('Prediction')
   print(a)
+  #     b = b + a 
+  # print(b/250)
+
+def runFaultFilteredGMM():
+  train_samples, train_targets = read_stored_data('featuresF.txt','targetsF.txt')
+  train_samples = normalise(train_samples)
+  test_samples, test_targets = read_stored_data('featuresFT.txt','targetsFT.txt')
+  test_samples = normalise(test_samples)
+  vali_samples, vali_targets = read_stored_data('featuresFV.txt','targetsFV.txt')
+  # print(train_samples.shape)
+  # print(vali_samples.shape)
+  train_samples = np.concatenate([train_samples,vali_samples],0)
+  train_targets = np.concatenate([train_targets,vali_targets],0)
+
+
+  # grouped_features, grouped_targets = group_by_song(features, targets)
+
+
+  train_samples = normalise(train_samples)
+  test_samples = normalise(test_samples)
+
+  train_samples, train_targets = mean_var_by_song(train_samples, train_targets)
+  test_samples, test_targets = mean_var_by_song(test_samples, test_targets)
+  test_targets = np.array(test_targets)
+  train_targets = np.array(train_targets)
+  score = np.empty((test_samples.shape[0], 10))
+  predictor_list = []
+  for i in range(10):
+    predictor = GaussianMixture(
+      n_components=3,
+      covariance_type='full',
+      tol=0.000001,
+      max_iter=500,
+      n_init=2,
+      init_params='kmeans'
+      )
+    predictor.fit(train_samples[train_targets==i])
+    predictor_list.append(predictor)
+    score[:, i] = predictor.score_samples(test_samples)
+  # print(score)
+  # print(score.shape)
+
+  Y_predicted = np.argmax(score, axis=1)
+  
+  # print(Y_predicted.size)
+  # print([i for i in(Y_predicted)])
+  a = np.count_nonzero(Y_predicted == test_targets)/len(test_targets)
+
+  print('Prediction')
+  print(a)
+
+if __name__ == '__main__':
+
+  runFaultFilteredGMM()
+  runRandomGMM()
+
+
+
+  #train_samples, train_targets = ungroup(grouped_train_samples, grouped_train_targets)
+  #test_samples, test_targets = ungroup(grouped_test_samples, grouped_test_targets)
+
+
+
+  # res = gmm.predict(train_samples)
+  # print(np.count_nonzero(res==train_targets)/len(train_samples))
+
