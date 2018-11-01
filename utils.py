@@ -260,7 +260,7 @@ def mean_by_song(features):
 ##############
 ### k fold ###
 
-def k_fold_initialization(samples, targets, k):
+def make_k_fold_partition(samples, k):
   """
   :param samples: All samples that are used for training and testing
   :param targets: Targets corresponding to each sample
@@ -270,48 +270,37 @@ def k_fold_initialization(samples, targets, k):
   """
   partition_size = samples.shape[0]//k
   partitions = np.zeros((partition_size, samples.shape[1], k))
-  partition_targets = np.zeros((k, partition_size), dtype="int64")
   shuffle_array = [x for x in random.sample(range(samples.shape[0]), samples.shape[0])]
 
   # Shuffling the data
   shuffled_samples = np.take(samples, shuffle_array, 0)
-  shuffled_targets = np.take(targets, shuffle_array)
-
-  """ Tests
-  print(samples[shuffle_array[0]] == shuffled_samples[0])
-  print(samples[shuffle_array[440]] == shuffled_samples[440])
-  print(samples[shuffle_array[500]] == shuffled_samples[500])
-  print(samples[shuffle_array[337]] == shuffled_samples[337])
-  print(samples[shuffle_array[993]] == shuffled_samples[993])
-  print(targets[shuffle_array[0]] == shuffled_targets[0])
-  print(targets[shuffle_array[440]] == shuffled_targets[440])
-  print(targets[shuffle_array[500]] == shuffled_targets[500])
-  print(targets[shuffle_array[337]] == shuffled_targets[337])
-  print(targets[shuffle_array[993]] == shuffled_targets[993])
-  """
 
   for i in range(k):
     partitions[:, :, i] = shuffled_samples[i*partition_size:(i+1)*partition_size, :]
-    partition_targets[i, :] = shuffled_targets[i*partition_size:(i+1)*partition_size]
-  return partitions, partition_targets
+  return partitions
 
 
-def get_cross_validate_partitions(partitioned_samples, partitioned_targets, partition_num):
+def get_k_fold_partitions(partitioned_samples, partition_num):
   """
   :param paritioned_samples: All samples partitioned into equal sized partitions (stored as 3D matrix)
-  :param partition_num: The partition to be training set
+  :param partition_num: The partition to be testing set
   :return: training set and test set
   """
+
+  ## REMEMBER TO MAKE THE TARGETS OF DTYP INT64!!!!!
   k = partitioned_samples.shape[2]
   N = partitioned_samples.shape[0]
-  test_samples = partitioned_samples[:, :, partition_num]
-  train_samples_ = np.zeros((N*(k-1), partitioned_samples.shape[1]))
-  test_targets = partitioned_targets[partition_num, :]
-  train_targets = np.delete(partitioned_targets, np.s_[partition_num*N:(partition_num+1)*N], None)
+  train_samples = np.zeros((N*(k-1), partitioned_samples.shape[1]))
+  test_samples = partitioned_samples[:, 1:, partition_num]
+  test_targets = partitioned_samples[:, 0, partition_num].astype("int64")
+
   j = 0
   for i in range(k):
     if i != partition_num:
-      partitioned = partitioned_samples[:, :, i]
-      train_samples_[j*N:(j+1)*N, :] = partitioned
+      train_samples[j*N:(j+1)*N, :] = partitioned_samples[:, :, i]
       j += 1
-  return train_samples_, train_targets, test_samples, test_targets
+
+  train_targets = train_samples[:, 0].astype("int64")
+  train_samples = train_samples[:, 1:]
+
+  return train_samples, train_targets, test_samples, test_targets
