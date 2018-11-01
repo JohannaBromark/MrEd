@@ -146,39 +146,39 @@ def runRandomGMM():
   features_mean, grouped_targets = mean_var_by_song(features, targets)
 
   grouped_targets = np.array(grouped_targets)
-  train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.1, random_state=39)
-
-# b = 0
-  # for o in range(1):
-  #   for k in range(1):
-  score = np.empty((test_samples.shape[0], 10))
-  predictor_list = []
-  for i in range(10):
-    predictor = GaussianMixture(
-      n_components=3,
-      covariance_type='full',
-      tol=0.000001,
-      max_iter=500,
-      n_init=2,
-      init_params='kmeans'
-      )
-    predictor.fit(train_samples[train_targets==i])
-    predictor_list.append(predictor)
-    score[:, i] = predictor.score_samples(test_samples)
-  # print(score)
-  # print(score.shape)
-
-  Y_predicted = np.argmax(score, axis=1)
   
-  # print(Y_predicted.size)
-  # print([i for i in(Y_predicted)])
-  a = np.count_nonzero(Y_predicted == test_targets)/len(test_targets)
-  # if(a > 0.57):
-  #   print(o)
-  print('Prediction')
-  print(a)
-  #     b = b + a 
-  # print(b/250)
+
+  b = 0
+  for o in range(1000):
+    train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.1, random_state=o)
+    score = np.empty((test_samples.shape[0], 10))
+    predictor_list = []
+    for i in range(10):
+      predictor = GaussianMixture(
+        n_components=3,
+        covariance_type='full',
+        tol=0.000001,
+        max_iter=500,
+        n_init=2,
+        init_params='kmeans'
+        )
+      predictor.fit(train_samples[train_targets==i])
+      predictor_list.append(predictor)
+      score[:, i] = predictor.score_samples(test_samples)
+    # print(score)
+    # print(score.shape)
+
+    Y_predicted = np.argmax(score, axis=1)
+    
+    # print(Y_predicted.size)
+    # print([i for i in(Y_predicted)])
+    a = np.count_nonzero(Y_predicted == test_targets)/len(test_targets)
+    # if(a > 0.57):
+    #   print(o)
+    print('Prediction')
+    print(a)
+    b = b + a 
+  print(b/1000)
 
 def runFaultFilteredGMM():
   train_samples, train_targets = read_stored_data('featuresF.txt','targetsF.txt')
