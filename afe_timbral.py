@@ -40,4 +40,4 @@ if __name__ == '__main__':
     frames, f_names = afe.stFeatureExtraction(samples[i], sample_rate, seg_size, seg_size)
     f_vectors.append(all_feature_vectors(frames))
 
-  # write_afe_to_file(f_vectors, targets)
+  write_afe_to_file(f_vectors, targets, 'afe_feat_and_targ.txt')
