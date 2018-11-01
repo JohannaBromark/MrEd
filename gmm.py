@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from timbral_texture import get_label
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 def read_stored_data(filename1 = 'features_targets/featuresO.txt',filename2 = 'features_targets/targetsO.txt'):
   """Return feature vectors and corr labels from stored txt file"""
@@ -79,11 +80,32 @@ def k_fold_initialization(samples, targets, k):
   """
   partition_size = samples.shape[0]//k
   partitions = np.zeros((partition_size, samples.shape[1], k))
-  partition_targets = np.zeros((k, partition_size))
+  partition_targets = np.zeros((k, partition_size), dtype="int64")
+  shuffle_array = [x for x in random.sample(range(samples.shape[0]), samples.shape[0])]
+
+  # Shuffling the data
+  shuffled_samples = np.take(samples, shuffle_array, 0)
+  shuffled_targets = np.take(targets, shuffle_array)
+
+  """ Tests
+  print(samples[shuffle_array[0]] == shuffled_samples[0])
+  print(samples[shuffle_array[440]] == shuffled_samples[440])
+  print(samples[shuffle_array[500]] == shuffled_samples[500])
+  print(samples[shuffle_array[337]] == shuffled_samples[337])
+  print(samples[shuffle_array[993]] == shuffled_samples[993])
+  print(targets[shuffle_array[0]] == shuffled_targets[0])
+  print(targets[shuffle_array[440]] == shuffled_targets[440])
+  print(targets[shuffle_array[500]] == shuffled_targets[500])
+  print(targets[shuffle_array[337]] == shuffled_targets[337])
+  print(targets[shuffle_array[993]] == shuffled_targets[993])
+  """
+
   for i in range(k):
-    partitions[:, :, i] = samples[i*partition_size:(i+1)*partition_size, :]
-    partition_targets[i, :] = targets[i*partition_size:(i+1)*partition_size]
+    partitions[:, :, i] = shuffled_samples[i*partition_size:(i+1)*partition_size, :]
+    partition_targets[i, :] = shuffled_targets[i*partition_size:(i+1)*partition_size]
   return partitions, partition_targets
+
+
 def get_cross_validate_partitions(partitioned_samples, partitioned_targets, partition_num):
   """
   :param paritioned_samples: All samples partitioned into equal sized partitions (stored as 3D matrix)
@@ -92,41 +114,7 @@ def get_cross_validate_partitions(partitioned_samples, partitioned_targets, part
   """
   k = partitioned_samples.shape[2]
   N = partitioned_samples.shape[0]
-  test_samples = partitioned_samples[:, : partition_num]
-  train_samples_ = np.zeros((N*(k-1), partitioned_samples.shape[1]))
-  test_targets = partitioned_targets[partition_num, :]
-  train_targets = np.delete(partitioned_targets, np.s_[partition_num*N:(partition_num+1)*N], None)
-  j = 0
-  for i in range(k):
-    if i != partition_num:
-      partitioned = partitioned_samples[:, :, i]
-      train_samples_[j*N:(j+1)*N, :] = partitioned
-      j += 1
-  return train_samples_, train_targets, test_samples, test_targets
-def k_fold_initialization(samples, targets, k):
-  """
-  :param samples: All samples that are used for training and testing
-  :param targets: Targets corresponding to each sample
-  :param k: Integer to decide number of partitions
-  :return: partitions: 3D matrix (3D layers correspond to the partitions),
-           partition_targets: matrix where each row is target for each partitions
-  """
-  partition_size = samples.shape[0]//k
-  partitions = np.zeros((partition_size, samples.shape[1], k))
-  partition_targets = np.zeros((k, partition_size))
-  for i in range(k):
-    partitions[:, :, i] = samples[i*partition_size:(i+1)*partition_size, :]
-    partition_targets[i, :] = targets[i*partition_size:(i+1)*partition_size]
-  return partitions, partition_targets
-def get_cross_validate_partitions(partitioned_samples, partitioned_targets, partition_num):
-  """
-  :param paritioned_samples: All samples partitioned into equal sized partitions (stored as 3D matrix)
-  :param partition_num: The partition to be training set
-  :return: training set and test set
-  """
-  k = partitioned_samples.shape[2]
-  N = partitioned_samples.shape[0]
-  test_samples = partitioned_samples[:, : partition_num]
+  test_samples = partitioned_samples[:, :, partition_num]
   train_samples_ = np.zeros((N*(k-1), partitioned_samples.shape[1]))
   test_targets = partitioned_targets[partition_num, :]
   train_targets = np.delete(partitioned_targets, np.s_[partition_num*N:(partition_num+1)*N], None)
@@ -181,11 +169,11 @@ def runRandomGMM():
   print(b/1000)
 
 def runFaultFilteredGMM():
-  train_samples, train_targets = read_stored_data('featuresF.txt','targetsF.txt')
+  train_samples, train_targets = read_stored_data('features_targets/featuresF.txt','features_targets/targetsF.txt')
   train_samples = normalise(train_samples)
-  test_samples, test_targets = read_stored_data('featuresFT.txt','targetsFT.txt')
+  test_samples, test_targets = read_stored_data('features_targets/featuresFT.txt','features_targets/targetsFT.txt')
   test_samples = normalise(test_samples)
-  vali_samples, vali_targets = read_stored_data('featuresFV.txt','targetsFV.txt')
+  vali_samples, vali_targets = read_stored_data('features_targets/featuresFV.txt','features_targets/targetsFV.txt')
   # print(train_samples.shape)
   # print(vali_samples.shape)
   train_samples = np.concatenate([train_samples,vali_samples],0)
@@ -228,10 +216,54 @@ def runFaultFilteredGMM():
   print('Prediction')
   print(a)
 
+def run_gmm_k_fold():
+  features, targets = read_stored_data()
+  features = normalise(features)
+  features_mean, grouped_targets = mean_var_by_song(features, targets)
+  feature_partition, target_partition = k_fold_initialization(features_mean, grouped_targets, 10)
+
+  k = 10
+  num_genres = 10
+  num_iterations = 100
+
+  iteration_accuracies = []
+  for e in range(num_iterations):
+    print("Iteration: ", e)
+    accuracy_per_partition = []
+    for i in range(k):
+      train_samples, train_targets, test_samples, test_targets = get_cross_validate_partitions(feature_partition, target_partition, i)
+      score = np.empty((test_samples.shape[0], 10))
+      for j in range(num_genres):
+        predictor = GaussianMixture(
+          n_components=3,
+          covariance_type='full',
+          tol=0.000001,
+          max_iter=500,
+          n_init=2,
+          init_params='kmeans'
+          )
+        predictor.fit(train_samples[train_targets == j])
+        score[:, j] = predictor.score_samples(test_samples)
+      Y_predicted = np.argmax(score, axis=1)
+      a = np.count_nonzero(Y_predicted == test_targets) / len(test_targets)
+      accuracy_per_partition.append(a)
+    iteration_accuracy = np.mean(accuracy_per_partition)
+    iteration_accuracies.append(iteration_accuracy)
+    print("Accuracy: ", iteration_accuracy)
+
+  final_accuracy = np.mean(iteration_accuracies)
+  print(iteration_accuracies)
+  print(final_accuracy)
+
+
+
 if __name__ == '__main__':
 
-  runFaultFilteredGMM()
-  runRandomGMM()
+  #runFaultFilteredGMM()
+  #runRandomGMM()
+  run_gmm_k_fold()
+
+
 # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
   # (each 3D layer correspond to a partition)
   # partitioned_samples, partitioned_targets = k_fold_initialization(features_mean, grouped_targets, 10)
