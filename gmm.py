@@ -4,7 +4,7 @@ from timbral_texture import get_label
 import matplotlib.pyplot as plt
 import numpy as np
 
-def read_stored_data(filename1 = 'featuresO.txt',filename2 = 'targetsO.txt'):
+def read_stored_data(filename1 = 'features_targets/featuresO.txt',filename2 = 'features_targets/targetsO.txt'):
   """Return feature vectors and corr labels from stored txt file"""
   with open(filename1) as f:
     lines = f.readlines()

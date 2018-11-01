@@ -8,14 +8,14 @@ import numpy as np
 
 def read_stored_data():
   """Return feature vectors and corr labels from stored txt file"""
-  with open('features.txt') as f:
+  with open('features_targets/features.txt') as f:
     lines = f.readlines()
     features = [[0]] * len(lines)
     for i in range(len(lines)):
       features[i] = [float(i) for i in lines[i].split()]
     features = np.array(features)
 
-  with open('targets.txt') as f:
+  with open('features_targets/targets.txt') as f:
     targets = np.array([int(i) for i in f.readlines()])
     # with brackets
     # targets = np.array([[int(i)] for i in f.readlines()])
