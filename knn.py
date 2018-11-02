@@ -7,12 +7,15 @@ import numpy as np
 from utils import *
   
 if __name__ == '__main__':
-  features, targets = read_stored_data()
-  features = normalise(features)
+  features, targets = read_stored_data('features_targets/afe_feat_and_targ.txt')
+  # features = normalise(features)
+  features_mean = mean_by_song(features)
+  grouped_targets = features_mean[:,0]
+  features_mean = features_mean [:,1:]
 
-  features_mean, grouped_targets = mean_var_by_song(features, targets)
 
   grouped_targets = np.array(grouped_targets)
+
   b = 0
 
   for i in range(100):

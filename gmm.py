@@ -8,16 +8,16 @@ from utils import *
 
 def runRandomGMM():
   features, targets = read_stored_data()
-  features = features[:,1:]
   # features = normalise(features)
-  features_mean, grouped_targets = mean_by_song(features)
-
+  features_mean = mean_by_song(features)
+  grouped_targets = features_mean[:,0]
+  features_mean = features_mean[:,1:]
   grouped_targets = np.array(grouped_targets)
   
 
   b = 0
-  for o in range(100):
-    train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.05, random_state=o)
+  for k in range(100):
+    train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets, test_size=0.1, random_state=k)
     score = np.empty((test_samples.shape[0], 10))
     predictor_list = []
     for i in range(10):
@@ -145,8 +145,8 @@ def run_gmm_k_fold():
 
 if __name__ == '__main__':
 
-  runFaultFilteredGMM()
-  #runRandomGMM()
+  # runFaultFilteredGMM()
+  runRandomGMM()
   # run_gmm_k_fold()
 
 
