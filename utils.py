@@ -217,8 +217,8 @@ def normalise(features):
   used_means, used_stds = np.zeros(n_feats), np.zeros(n_feats)
   for i in range(n_feats):
     used_means[i] = np.sum(features[:,i])/n_vec
-    features[:,i] -= used_means[i]
     used_stds[i] = np.std(features[:,i])
+    features[:,i] -= used_means[i]
     features[:,i] /= used_stds[i]
 
   return features, used_means, used_stds
