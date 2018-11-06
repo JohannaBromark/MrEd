@@ -108,9 +108,10 @@ def run_gmm_k_fold():
 
   k = 10
   num_genres = 10
-  num_iterations = 20
+  num_iterations = 10
 
   iteration_accuracies = []
+  confusion_matrix = np.zeros((num_genres, num_genres))
   for e in range(num_iterations):
     feature_partition = make_k_fold_partition(features_mean, 10)
     print("Iteration: ", e)
@@ -130,6 +131,8 @@ def run_gmm_k_fold():
         predictor.fit(train_samples[train_targets == j])
         score[:, j] = predictor.score_samples(test_samples)
       Y_predicted = np.argmax(score, axis=1)
+      for p in range(len(Y_predicted)):
+        confusion_matrix[Y_predicted[p], test_targets[p]] += 1
       a = np.count_nonzero(Y_predicted == test_targets) / len(test_targets)
       accuracy_per_partition.append(a)
     iteration_accuracy = np.mean(accuracy_per_partition)
@@ -140,6 +143,7 @@ def run_gmm_k_fold():
   final_accuracy_variance = np.var(iteration_accuracies)
   print("Final accuracy: ", final_accuracy)
   print("Final variance: ", final_accuracy_variance)
+  confusion_matrix /= 10
 
 
 

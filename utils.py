@@ -280,6 +280,41 @@ def make_k_fold_partition(samples, k):
   return partitions
 
 
+def make_k_fold_partition_equal(samples, k):
+  """
+  :param samples: All samples that are used for training and testing
+  :param targets: Targets corresponding to each sample
+  :param k: Integer to decide number of partitions
+  :return: partitions: 3D matrix (3D layers correspond to the partitions),
+           partition_targets: matrix where each row is target for each partitions
+  """
+  partition_size = samples.shape[0]//k
+  genres = np.unique(samples[:, 0]).astype("int64")
+
+  partitions = np.zeros((partition_size, samples.shape[1], k))
+  partitions_final = np.zeros((partition_size, samples.shape[1], k))
+  last_filled_idx = 0
+
+  for genre_idx in genres:
+      idx = np.where(samples[:, 0] == genre_idx)[0]
+      same_genres_samples = samples[idx]
+      same_genres_samples = np.take(same_genres_samples, [x for x in random.sample(range(same_genres_samples.shape[0]), same_genres_samples.shape[0])], 0)
+      genre_split = np.split(same_genres_samples, k)
+
+      # Divided now holds the songs for each partition
+      for i in range(k):
+
+          partitions[last_filled_idx:last_filled_idx+genre_split[i].shape[0], :, i] = genre_split[i]
+
+      last_filled_idx += genre_split[0].shape[0]
+
+  for i in range(k):
+    partitions_final[:, :, i] = np.take(partitions[:,:,i], [x for x in random.sample(range(partitions.shape[0]), partitions.shape[0])], 0)
+
+
+  return partitions_final
+
+
 def get_k_fold_partitions(partitioned_samples, partition_num):
   """
   :param paritioned_samples: All samples partitioned into equal sized partitions (stored as 3D matrix)
