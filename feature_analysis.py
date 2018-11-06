@@ -35,16 +35,27 @@ if __name__ == '__main__':
         min_dist = np.append(min_dist, np.argmin(dist[i,:]))
     
     print(np.sort(min_dist)) 
+    
+    averageDist(dist)
 
 
+    
+def histogramish(dist):
 
-    mu, sigma = 100, 15
-
-    # the histogram of the data
+    the histogram of the data
     n, bins, patches = plt.hist(dist[78,:], bins=100, facecolor='green')
 
-  
+
     plt.axis([0, 15, 0, 70])
-    
+
     plt.show()
+
+def averageDist(dist):
+    avg_dist = []
+    for i in range(len(test_set)):
+        avg_dist = np.append(avg_dist, np.average(dist[i,:]))
+    
+    plt.hist(avg_dist, bins=20)
+    plt.show()
+
     
