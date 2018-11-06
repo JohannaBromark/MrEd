@@ -17,7 +17,13 @@ if __name__ == '__main__':
             dist = np.append(dist, euclidean_dist(test_set[i,2:],train_set[k,2:]))
 
     dist = dist.reshape(len(test_set),len(train_set))
-    print(dist.shape)
+
+    MaxMinDist(dist)
+    averageDist(dist)
+    histogramish(dist)
+
+def MaxMinDist(dist):
+
     maxx = 0
     minn = 999
     for i in range(len(test_set)):
@@ -30,13 +36,15 @@ if __name__ == '__main__':
     print("Min distance")
     print(minn)
 
+
+def closeByTracks(dist):
+
     min_dist = [] #Get a sorted list of all indexes. Can spot if 2 or more songs are closest to the same training track.
     for i in range(len(test_set)):
         min_dist = np.append(min_dist, np.argmin(dist[i,:]))
     
     print(np.sort(min_dist)) 
-    
-    averageDist(dist)
+
 
 
     
