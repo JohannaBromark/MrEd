@@ -1,6 +1,7 @@
 from utils import *
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 
 
 
@@ -17,10 +18,33 @@ if __name__ == '__main__':
 
     dist = dist.reshape(len(test_set),len(train_set))
     print(dist.shape)
+    maxx = 0
+    minn = 999
+    for i in range(len(test_set)):
+        if maxx < max(dist[i,:]):
+            maxx = max(dist[i,:])
+        if minn > min(dist[i,:]):
+            minn = min(dist[i,:])
+    print("Max distance")
+    print(maxx)
+    print("Min distance")
+    print(minn)
 
     min_dist = [] #Get a sorted list of all indexes. Can spot if 2 or more songs are closest to the same training track.
     for i in range(len(test_set)):
         min_dist = np.append(min_dist, np.argmin(dist[i,:]))
     
     print(np.sort(min_dist)) 
+
+
+
+    mu, sigma = 100, 15
+
+    # the histogram of the data
+    n, bins, patches = plt.hist(dist[78,:], bins=100, facecolor='green')
+
+  
+    plt.axis([0, 15, 0, 70])
+    
+    plt.show()
     
