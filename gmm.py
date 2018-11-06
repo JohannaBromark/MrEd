@@ -10,8 +10,8 @@ def runRandomGMM():
   features, targets = read_stored_data()
   # features = normalise(features)
   features_mean = mean_by_song(features)
-  grouped_targets = features_mean[:,0]
-  features_mean = features_mean[:,1:]
+  grouped_targets = features_mean[:,1]
+  features_mean = features_mean[:,2:]
   grouped_targets = np.array(grouped_targets)
   
 
@@ -56,16 +56,16 @@ def runFaultFilteredGMM():
 
 
   train_samples = mean_by_song(train_samples)
-  train_targets = train_samples[:,0]
-  train_samples = train_samples[:,1:]
+  train_targets = train_samples[:,1]
+  train_samples = train_samples[:,2:]
 
   vali_samples = mean_by_song(vali_samples)
-  vali_samples = vali_samples[:,1:]
-  vali_targets = vali_samples[:,0]
+  vali_samples = vali_samples[:,2:]
+  vali_targets = vali_samples[:,1]
   
   test_samples = mean_by_song(test_samples)
-  test_targets = test_samples[:,0]
-  test_samples = test_samples[:,1:]
+  test_targets = test_samples[:,1]
+  test_samples = test_samples[:,2:]
   
 
   train_samples = np.concatenate([train_samples,vali_samples],0)
@@ -150,8 +150,8 @@ def run_gmm_k_fold():
 if __name__ == '__main__':
 
   # runFaultFilteredGMM()
-  runRandomGMM()
-  # run_gmm_k_fold()
+  # runRandomGMM()
+  run_gmm_k_fold()
 
 
 # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
