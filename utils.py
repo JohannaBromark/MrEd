@@ -214,15 +214,14 @@ def normalise(features):
   
   :return: features, means and stds for each dimension"""
   n_vec, n_feats = features.shape
-  means, stds = np.zeros(n_feats), np.zeros(n_feats)
+  used_means, used_stds = np.zeros(n_feats), np.zeros(n_feats)
   for i in range(n_feats):
-    means[i] = np.sum(features[:,i])/n_vec
-    features[:,i] -= means[i]
-    stds[i] = np.std(features[:,i])
-    features[:,i] /= stds[i]
+    used_means[i] = np.sum(features[:,i])/n_vec
+    features[:,i] -= used_means[i]
+    used_stds[i] = np.std(features[:,i])
+    features[:,i] /= used_stds[i]
 
-  return features, means, stds
-
+  return features, used_means, used_stds
 
 ###############################
 ### Grouping and ungrouping ###
