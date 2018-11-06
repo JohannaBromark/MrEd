@@ -339,3 +339,17 @@ def get_k_fold_partitions(partitioned_samples, partition_num):
   train_samples = train_samples[:, 1:]
 
   return train_samples, train_targets, test_samples, test_targets
+
+
+##################
+### Get songs directly from import ###
+
+def get_songs_feature_set(filename):
+  """
+  Takes a filename and returns the feature vectors for each song
+  :param filename: file for the stored features
+  :return: feature vectors for each song
+  """
+  features, _ = read_stored_data(filename)
+
+  return mean_by_song(features)
