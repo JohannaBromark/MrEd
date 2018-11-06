@@ -210,10 +210,18 @@ def plot_feature_vectors(features, targets):
 ### Normalise ###
 
 def normalise(features):
-  for i in range(len(features[1])):
-    features[:,i] = np.interp(features[:,i], (features[:,i].min(), features[:,i].max()), (0, 1))
-  return features
+  """Normalise by subtracting mean and dividing std for each dimension for whole set
+  
+  :return: features, means and stds for each dimension"""
+  n_vec, n_feats = features.shape
+  means, stds = np.zeros(n_feats), np.zeros(n_feats)
+  for i in range(n_feats):
+    means[i] = np.sum(features[:,i])/n_vec
+    features[:,i] -= means[i]
+    stds[i] = np.std(features[:,i])
+    features[:,i] /= stds[i]
 
+  return features, means, stds
 
 
 ###############################
