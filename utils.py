@@ -8,6 +8,7 @@ from sklearn.preprocessing import normalize
 from sklearn.mixture import GaussianMixture
 import os
 import random
+from sklearn.model_selection import train_test_split
 
 ##################
 ### Read files ###
@@ -360,3 +361,26 @@ def get_songs_feature_set(filename):
   features, _ = read_stored_data(filename)
 
   return mean_by_song(features)
+
+
+def get_test_train_sets(filename):
+  """
+  Takes filename and return training and test set (partitioned 90-10)
+  :param filename:
+  :return:
+  """
+  songs = get_songs_feature_set(filename)
+
+  train_samples, test_samples, train_targets, test_targets = train_test_split(songs[:, 1:], songs[:, 0].astype("int64"),
+                                                                              test_size=0.1, random_state=1)
+
+  train_set = np.zeros((train_targets.shape[0], train_samples.shape[1]+1))
+  train_set[:, 0] = train_targets
+  train_set[:, 1:] = train_samples
+
+  test_set = np.zeros((test_targets.shape[0], test_samples.shape[1]+1))
+  test_set[:, 0] = test_targets
+  test_set[:, 1:] = test_samples
+
+
+  return train_set, test_set
