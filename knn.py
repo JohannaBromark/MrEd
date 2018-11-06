@@ -46,8 +46,8 @@ if __name__ == '__main__':
   features, targets = read_stored_data('features_targets/afe_feat_and_targ.txt')
   # features = normalise(features)
   features_mean = mean_by_song(features)
-  grouped_targets = features_mean[:,0]
-  features_mean = features_mean [:,1:]
+  grouped_targets = features_mean[:,1]
+  features_mean = features_mean [:,2:]
 
 
   grouped_targets = np.array(grouped_targets)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     knn.fit(train_samples,train_targets)
 
     predictions = knn.predict(test_samples)
-    score = knn.score(test_samples,test_targets)
+    score = knn.score(test_samples, test_targets)
     b = b + score
     print(score)
   print(b/100)

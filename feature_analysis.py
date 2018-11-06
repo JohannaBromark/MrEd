@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
 def euclidean_dist(v1, v2):
     return np.linalg.norm(v1 - v2)
+
 
 if __name__ == '__main__':
     train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt")
@@ -13,7 +13,7 @@ if __name__ == '__main__':
     dist = []
     for i in range(len(test_set)):
         for k in range(len(train_set)):
-            dist = np.append(dist, euclidean_dist(test_set[i,:],train_set[k,:]))
+            dist = np.append(dist, euclidean_dist(test_set[i,2:],train_set[k,2:]))
 
     dist = dist.reshape(len(test_set),len(train_set))
     print(dist.shape)

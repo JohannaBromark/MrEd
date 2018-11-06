@@ -256,16 +256,13 @@ def ungroup(grouped_features, grouped_targets):
 
 def mean_by_song(features):
   num_songs = len(np.unique(features[:, 0]))
-  songs = np.zeros((num_songs, features.shape[1]-1))
-  
-  
+  songs = np.zeros((num_songs, features.shape[1]))
 
   for song_num in range(num_songs):
     song_idx = np.where(features[:, 0] == song_num)[0]
-    song_matrix = np.take(features[:, 1:], song_idx, 0)
+    song_matrix = np.take(features, song_idx, 0)
     songs[song_num, :] = np.mean(song_matrix, 0)
-    
-      
+
   return songs
 
 
@@ -335,9 +332,14 @@ def get_k_fold_partitions(partitioned_samples, partition_num):
   :return: training set and test set
   """
 
-  ## REMEMBER TO MAKE THE TARGETS OF DTYP INT64!!!!!
   k = partitioned_samples.shape[2]
   N = partitioned_samples.shape[0]
+
+  # If the samples have more than 19 columns, take the last 19 columns
+  if partitioned_samples.shape[1] > 19:
+    idx_start = partitioned_samples.shape[1] - 19
+    partitioned_samples = partitioned_samples[:, idx_start:, :]
+
   train_samples = np.zeros((N*(k-1), partitioned_samples.shape[1]))
   test_samples = partitioned_samples[:, 1:, partition_num]
   test_targets = partitioned_samples[:, 0, partition_num].astype("int64")
@@ -352,6 +354,29 @@ def get_k_fold_partitions(partitioned_samples, partition_num):
   train_samples = train_samples[:, 1:]
 
   return train_samples, train_targets, test_samples, test_targets
+
+
+def get_set_from_partitions(partitioned_samples, partition_num = 0):
+  """
+  Keeps the track number and the target
+  :param partitioned_samples: Samples divided into partitions
+  :return: test set (one of the partitions) and training set (the rest of the partitions)
+  """
+
+  k = partitioned_samples.shape[2]
+  N = partitioned_samples.shape[0]
+
+  test_set = partitioned_samples[:, :, partition_num]
+
+  train_set = np.zeros((N*(k-1), partitioned_samples.shape[1]))
+
+  j = 0
+  for i in range(k):
+    if i != partition_num:
+      train_set[j * N:(j + 1) * N, :] = partitioned_samples[:, :, i]
+      j += 1
+
+  return train_set, test_set
 
 
 ##################
@@ -376,16 +401,8 @@ def get_test_train_sets(filename):
   """
   songs = get_songs_feature_set(filename)
 
-  train_samples, test_samples, train_targets, test_targets = train_test_split(songs[:, 1:], songs[:, 0].astype("int64"),
-                                                                              test_size=0.1, random_state=1)
+  partitions = make_k_fold_partition(songs, 10)
 
-  train_set = np.zeros((train_targets.shape[0], train_samples.shape[1]+1))
-  train_set[:, 0] = train_targets
-  train_set[:, 1:] = train_samples
-
-  test_set = np.zeros((test_targets.shape[0], test_samples.shape[1]+1))
-  test_set[:, 0] = test_targets
-  test_set[:, 1:] = test_samples
-
+  train_set, test_set = get_set_from_partitions(partitions)
 
   return train_set, test_set
