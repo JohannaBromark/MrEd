@@ -49,7 +49,7 @@ def get_path(txt):
         paths.append(line)
   return paths
 
-def read_stored_data(feat_name='features_targets/afe_feat_and_targ.txt', tar_name='features_targets/afe_targets.txt'):
+def read_stored_data(feat_name='features_targets/afe_feat_and_targ.txt'):
   """Return feature vectors and corr labels from stored txt file"""
   with open(feat_name) as f:
     lines = f.readlines()
@@ -57,11 +57,6 @@ def read_stored_data(feat_name='features_targets/afe_feat_and_targ.txt', tar_nam
     for i in range(len(lines)):
       features[i] = [float(i) for i in lines[i].split()]
     features = np.array(features)
-
-  with open(tar_name) as f:
-    targets = np.array([int(i) for i in f.readlines()])
-    # with brackets
-    # targets = np.array([[int(i)] for i in f.readlines()])
 
   return features, features[:,1]
 
