@@ -65,7 +65,9 @@ def distance_measure():
             idx_tets_close = indx_test[idx_close_train]
             test_sets_close.append([test_set[idx_tets_close, :]])
 
-        createCsv("analysis_docs/distance_"+str(partition_num)+"("+str(seed)+").csv", train_tracks_close, test_sets_close, [seed, partition_num])
+        createCsv("analysis_docs/max_distance_"+str(dist_threshold)+
+                  "_part_nr_"+str(partition_num)+"("+str(seed)+").csv",
+                  train_tracks_close, test_sets_close, [seed, partition_num])
     print("help")
 
 
