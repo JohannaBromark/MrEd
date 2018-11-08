@@ -215,13 +215,13 @@ def normalise(features):
     raise ValueError("Wrong number of feature dimensions for normalisation: " + str(n_feats))
 
   used_means, used_stds = np.zeros(n_feats), np.zeros(n_feats)
+  norm_features = np.zeros(features.shape)
   for i in range(n_feats):
     used_means[i] = np.sum(features[:,i])/n_vec
-    features[:,i] -= used_means[i]
     used_stds[i] = np.std(features[:,i])
-    features[:,i] /= used_stds[i]
+    norm_features[:, i] = (features[:, i] - used_means[i]) / used_stds[i]
 
-  return features, used_means, used_stds
+  return norm_features, used_means, used_stds
 
 
 ###############################
@@ -265,7 +265,7 @@ def mean_by_song(features):
 ##############
 ### k fold ###
 
-def make_k_fold_partition(samples, k):
+def make_k_fold_partition(samples, k, seed = None):
   """
   :param samples: All samples that are used for training and testing
   :param targets: Targets corresponding to each sample
@@ -273,6 +273,8 @@ def make_k_fold_partition(samples, k):
   :return: partitions: 3D matrix (3D layers correspond to the partitions),
            partition_targets: matrix where each row is target for each partitions
   """
+  if seed is not None:
+    random.seed(seed)
   partition_size = samples.shape[0]//k
   partitions = np.zeros((partition_size, samples.shape[1], k))
   shuffle_array = [x for x in random.sample(range(samples.shape[0]), samples.shape[0])]
@@ -388,7 +390,7 @@ def get_songs_feature_set(filename):
   return mean_by_song(features)
 
 
-def get_test_train_sets(filename):
+def get_test_train_sets(filename, partition_num = 0, seed = None):
   """
   Takes filename and return training and test set (partitioned 90-10)
   :param filename:
@@ -396,8 +398,43 @@ def get_test_train_sets(filename):
   """
   songs = get_songs_feature_set(filename)
 
-  partitions = make_k_fold_partition(songs, 10)
+  partitions = make_k_fold_partition(songs, 10, seed)
 
-  train_set, test_set = get_set_from_partitions(partitions)
+  train_set, test_set = get_set_from_partitions(partitions, partition_num)
 
   return train_set, test_set
+
+
+# Function for create dictionary with colors
+def createColorDict():
+    colorDict = {}
+    colorDict[1] = "#0000ff"  # Blue
+    colorDict[2] = "#000099"  # Dark blue
+    colorDict[3] = "#0099cc"  # Light blue
+    colorDict[4] = "#33cc33"  # Green
+    colorDict[5] = "#006600"  # Dark Green
+    colorDict[6] = "#99ff33"  # Light green
+    colorDict[7] = "#9900ff"  # Purple
+    colorDict[8] = "#6600cc"  # Dark Purple
+    colorDict[9] = "#9966ff"  # Light purple
+    colorDict[10] = "#cc00cc"  # Pink
+    colorDict[11] = "#990099"  # Dark pink
+    colorDict[12] = "#ff66ff"  # Light pink
+    colorDict[13] = "#ff0000"  # Red
+    colorDict[14] = "#800000"  # Dark red
+    colorDict[15] = "#ff5050"  # Light red
+    colorDict[16] = "#ffff00"  # Yellow
+    colorDict[17] = "#996600"  # light brown
+    colorDict[18] = "#ffff66"  # Light Yellow
+    colorDict[19] = "#666666"  # Grey
+    colorDict[20] = "#262626"  # Dark grey
+    colorDict[21] = "#cccccc"  # Light Grey
+    colorDict[22] = "#4d2600"  # Brown
+    colorDict[23] = "#ff9900"  # Orange
+    colorDict[24] = "#ff9933"  # Light orange
+    colorDict[25] = "#00e6e6"  # Turquoise
+    colorDict[26] = "#004d4d"  # Dark turquoise
+    colorDict[27] = "#333300"  # Strange green
+    colorDict[28] = "#cc3300"  # Orange/red
+    colorDict[29] = "#000000"  # Black
+    return colorDict
