@@ -145,13 +145,48 @@ def run_gmm_k_fold():
   print("Final variance: ", final_accuracy_variance)
   confusion_matrix /= 10
 
+def gmm_props(m):
+  return m.means_, m.covariances_, m.weights_
+
+def avg_mean(means, weights):
+  matrices = [means[i]*weights[i] for i in range(len(means))]
+  avg = means[0]+means[1]
+  for i in range(2, len(weights)):
+    avg += means[i]
+  return avg
+
+def mean_covar_weights_for_classes():
+  # read features
+  read_feats, _ = read_stored_data('features_targets/afe_feat_and_targ.txt')
+  # norm_read_feats = normalise(read_feats[:,2:])
+  feats = read_feats[:,2:]
+  targs = read_feats[:,1]
+  n_genres = np.unique(targs).shape[0]
+  all_props = []
+  avg_means = []
+  models = []
+  models_props = []
+
+  for i in range(n_genres):
+    models.append(GaussianMixture(n_components=3))
+    models[i].fit(feats[targs == i])
+    all_props.append(gmm_props(models[i]))
+    avg_means.append(avg_mean(all_props[i][0], all_props[i][2]))
+
+  distances = np.array([
+    [np.linalg.norm(avg_means[i]-avg_means[j]) for j in range(n_genres)] 
+    for i in range(n_genres)])
+
+  print(np.array(distances))
+
 
 
 if __name__ == '__main__':
 
   # runFaultFilteredGMM()
   # runRandomGMM()
-  run_gmm_k_fold()
+  # run_gmm_k_fold()
+  mean_covar_weights_for_classes()
 
 
 # Partition all the samples into 10 equally sized partition, resulting in a 3D matrix
