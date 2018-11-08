@@ -43,14 +43,14 @@ def run_knn_k_fold():
   iteration_accuracies = []
   heat_map = np.zeros((num_genres, num_genres))
   for e in range(num_iterations):
-    feature_partition = make_k_fold_partition_equal(features_mean, 10)
+    feature_partition = make_k_fold_partition(features_mean, 10)
     print("Iteration: ", e)
     s = 0
     predictions_matrix = np.zeros((num_genres, num_genres))
     for i in range(k):
       train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(feature_partition, i)
-      train_samples = normalise(train_samples)
-      test_samples = normalise(test_samples)
+      train_samples, mu, std = normalise(train_samples)
+      test_samples = (test_samples - mu)/std
 
       knn = KNeighborsClassifier(n_neighbors=1)
 
@@ -114,8 +114,8 @@ def run_knn_find_neighbors():
 if __name__ == '__main__':
 
 
-  #run_knn_k_fold()
-  run_knn_find_neighbors()
+  run_knn_k_fold()
+  #run_knn_find_neighbors()
 
 
 

@@ -332,14 +332,9 @@ def get_k_fold_partitions(partitioned_samples, partition_num):
   k = partitioned_samples.shape[2]
   N = partitioned_samples.shape[0]
 
-  # If the samples have more than 19 columns, take the last 19 columns
-  if partitioned_samples.shape[1] > 19:
-    idx_start = partitioned_samples.shape[1] - 19
-    partitioned_samples = partitioned_samples[:, idx_start:, :]
 
-  train_samples = np.zeros((N*(k-1), partitioned_samples.shape[1]))
-  test_samples = partitioned_samples[:, 1:, partition_num]
-  test_targets = partitioned_samples[:, 0, partition_num].astype("int64")
+  # If the samples have more than 19 columns, take the last 19 columns
+  train_samples = np.zeros((N * (k - 1), partitioned_samples.shape[1]))
 
   j = 0
   for i in range(k):
@@ -347,8 +342,18 @@ def get_k_fold_partitions(partitioned_samples, partition_num):
       train_samples[j*N:(j+1)*N, :] = partitioned_samples[:, :, i]
       j += 1
 
-  train_targets = train_samples[:, 0].astype("int64")
-  train_samples = train_samples[:, 1:]
+  if partitioned_samples.shape[1] == 21:
+    test_targets = partitioned_samples[:, 1, partition_num].astype("int64")
+    test_samples = partitioned_samples[:, 2:, partition_num]
+    train_targets = train_samples[:, 1].astype("int64")
+    train_samples = train_samples[:, 2:]
+  elif partitioned_samples.shape[1] == 20:
+    test_samples = partitioned_samples[:, 1:, partition_num]
+    test_targets = partitioned_samples[:, 0, partition_num].astype("int64")
+    train_targets = train_samples[:, 0].astype("int64")
+    train_samples = train_samples[:, 1:]
+  else:
+    raise ValueError("Wrong dimension of input. Missing targets")
 
   return train_samples, train_targets, test_samples, test_targets
 
