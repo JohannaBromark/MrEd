@@ -403,3 +403,38 @@ def get_test_train_sets(filename, partition_num = 0, seed = None):
   train_set, test_set = get_set_from_partitions(partitions, partition_num)
 
   return train_set, test_set
+
+
+# Function for create dictionary with colors
+def createColorDict():
+    colorDict = {}
+    colorDict[1] = "#0000ff"  # Blue
+    colorDict[2] = "#000099"  # Dark blue
+    colorDict[3] = "#0099cc"  # Light blue
+    colorDict[4] = "#33cc33"  # Green
+    colorDict[5] = "#006600"  # Dark Green
+    colorDict[6] = "#99ff33"  # Light green
+    colorDict[7] = "#9900ff"  # Purple
+    colorDict[8] = "#6600cc"  # Dark Purple
+    colorDict[9] = "#9966ff"  # Light purple
+    colorDict[10] = "#cc00cc"  # Pink
+    colorDict[11] = "#990099"  # Dark pink
+    colorDict[12] = "#ff66ff"  # Light pink
+    colorDict[13] = "#ff0000"  # Red
+    colorDict[14] = "#800000"  # Dark red
+    colorDict[15] = "#ff5050"  # Light red
+    colorDict[16] = "#ffff00"  # Yellow
+    colorDict[17] = "#996600"  # light brown
+    colorDict[18] = "#ffff66"  # Light Yellow
+    colorDict[19] = "#666666"  # Grey
+    colorDict[20] = "#262626"  # Dark grey
+    colorDict[21] = "#cccccc"  # Light Grey
+    colorDict[22] = "#4d2600"  # Brown
+    colorDict[23] = "#ff9900"  # Orange
+    colorDict[24] = "#ff9933"  # Light orange
+    colorDict[25] = "#00e6e6"  # Turquoise
+    colorDict[26] = "#004d4d"  # Dark turquoise
+    colorDict[27] = "#333300"  # Strange green
+    colorDict[28] = "#cc3300"  # Orange/red
+    colorDict[29] = "#000000"  # Black
+    return colorDict
