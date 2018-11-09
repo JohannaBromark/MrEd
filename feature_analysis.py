@@ -241,22 +241,22 @@ if __name__ == '__main__':
     dist = distfunc(train_set, test_set)
     distP = distfunc(train_setP, test_setP,0)
 
+    
+
+    # MaxMinDist(dist)
+    # averageDist(dist)
+
+    # Plottar ett histogram för en test sample till all tränings_samples. Random
+    # histogramish(dist)
+
+
+    # Plottar 2 kurvor som representerar alla test samples distanser till träning. Random vs Fault
     # X = averageHist(dist, test_set)
     # Y = averageHist(distP, test_setP)
-
-
     # plt.subplot(1,2,1)
     # plt.plot(X)
     # plt.subplot(1,2,2)
     # plt.plot(Y)
     # plt.show()
-
-
-    # MaxMinDist(dist)
-    # averageDist(dist)
-    # histogramish(dist)
-
-
-
 
 
