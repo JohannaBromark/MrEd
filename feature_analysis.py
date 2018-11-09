@@ -31,6 +31,7 @@ def averageDist(dist):
 def distance_measure():
     partition_num = 6
     seed = 1
+    colorDict = createColorDict()
     for partition_num in range(10):
         train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt", partition_num=partition_num, seed=seed)
 
@@ -81,7 +82,15 @@ def distance_measure():
                     train_tracks_close, test_sets_close, [seed, partition_num], verbose)
 
         # Plot the mean distances to the test tracks for each train track
+        for idx, train_track in enumerate(train_tracks_close):
+            dist_diff = np.zeros(train_track[2:].shape)
+            for test_track in test_sets_close[idx][0]:
+                dist_diff += abs(train_track[2:] - test_track[2:])
+            dist_diff /= len(test_sets_close[idx][0])
+            plt.plot([int(x)+1 for x in range(len(dist_diff))], dist_diff, c=colorDict[idx+1])
+            plt.plot([int(x)+1 for x in range(len(dist_diff))], dist_diff, "o", c=colorDict[idx+1])
 
+        plt.show()
 
     print("help")
 
