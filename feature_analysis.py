@@ -26,6 +26,55 @@ def averageDist(dist):
     plt.hist(avg_dist, bins=20)
     plt.show()
 
+def averageHist(dist, test_set):
+    avg_hist = []
+    maxx, minn = MaxMinDist(dist, test_set)
+    nr_buck = 100
+    bucket_size = maxx / nr_buck
+    bucket = 0
+    counter = 0
+    number_of_weights = []
+    dist2 = np.array(dist)
+    # print(dist2.shape)
+    for a in range(1,nr_buck,1):
+        # print(a)
+        for i in range(dist2.shape[0]):
+            for k in range(dist2.shape[1]):
+                if((dist2[i,k] > bucket) and (dist2[i,k] < (bucket_size*a))):
+                    counter = counter +1
+
+        number_of_weights = np.append(number_of_weights, counter)
+        bucket = (bucket_size*a)
+        counter = 0
+    
+    print(number_of_weights)
+    print(sum(number_of_weights))
+    return number_of_weights
+
+
+
+
+def MaxMinDist(dist, test_set):
+    maxx = 0
+    minn = 999
+    for i in range(len(test_set)):
+        if maxx < max(dist[i, :]):
+            maxx = max(dist[i, :])
+        if minn > min(dist[i, :]):
+            minn = min(dist[i, :])
+    print("Max distance")
+    print(maxx)
+    print("Min distance")
+    print(minn)
+    return maxx, minn
+
+
+def closeByTracks(dist):
+    min_dist = []  # Get a sorted list of all indexes. Can spot if 2 or more songs are closest to the same training track.
+    for i in range(len(test_set)):
+        min_dist = np.append(min_dist, np.argmin(dist[i, :]))
+
+    print(np.sort(min_dist))
 
 
 def distance_measure():
@@ -144,47 +193,70 @@ def knn_neighbor_count():
 
     print("")
 
+def partdata():
+    train_samples, train_targets = read_stored_data('features_targets/afe_feat_and_tarF.txt')
 
-def MaxMinDist(dist):
-    maxx = 0
-    minn = 999
+    test_samples, test_targets = read_stored_data('features_targets/afe_feat_and_tarFT.txt')
+
+    vali_samples, vali_targets = read_stored_data('features_targets/afe_feat_and_tarFV.txt')
+
+
+    train_samples = mean_by_song(train_samples)
+    train_targets = train_samples[:,1]
+    train_samples = train_samples[:,2:]
+
+    vali_samples = mean_by_song(vali_samples)
+    vali_samples = vali_samples[:,2:]
+    vali_targets = vali_samples[:,1]
+
+    test_samples = mean_by_song(test_samples)
+    test_targets = test_samples[:,1]
+    test_samples = test_samples[:,2:]
+
+
+    train_samples = np.concatenate([train_samples,vali_samples],0)
+    train_targets = np.concatenate([train_targets,vali_targets],0)
+
+    test_targets = np.array(test_targets)
+    train_targets = np.array(train_targets)
+
+    return train_samples, test_samples
+
+def distfunc(train_set, test_set, remove = 2):
+    dist = []
+
     for i in range(len(test_set)):
-        if maxx < max(dist[i, :]):
-            maxx = max(dist[i, :])
-        if minn > min(dist[i, :]):
-            minn = min(dist[i, :])
-    print("Max distance")
-    print(maxx)
-    print("Min distance")
-    print(minn)
+        for k in range(len(train_set)):
+            dist = np.append(dist, euclidean_dist(test_set[i,remove:], train_set[k,remove:]))
 
-
-def closeByTracks(dist):
-    min_dist = []  # Get a sorted list of all indexes. Can spot if 2 or more songs are closest to the same training track.
-    for i in range(len(test_set)):
-        min_dist = np.append(min_dist, np.argmin(dist[i, :]))
-
-    print(np.sort(min_dist))
+    return dist.reshape(len(test_set),len(train_set))
 
 
 if __name__ == '__main__':
     #knn_neighbor_count()
-    distance_measure()
-    """
-    train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt")
+    # distance_measure()
+    
+    train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
+    train_setP, test_setP = partdata()
+    dist = distfunc(train_set, test_set)
+    distP = distfunc(train_setP, test_setP,0)
 
-    dist = []
-    for i in range(len(test_set)):
-        for k in range(len(train_set)):
-            dist = np.append(dist, euclidean_dist(test_set[i, 2:], train_set[k, 2:]))
+    # X = averageHist(dist, test_set)
+    # Y = averageHist(distP, test_setP)
 
-    dist = dist.reshape(len(test_set),len(train_set))
 
-    MaxMinDist(dist)
-    averageDist(dist)
-    histogramish(dist)
+    # plt.subplot(1,2,1)
+    # plt.plot(X)
+    # plt.subplot(1,2,2)
+    # plt.plot(Y)
+    # plt.show()
 
-"""
+
+    # MaxMinDist(dist)
+    # averageDist(dist)
+    # histogramish(dist)
+
+
 
 
 
