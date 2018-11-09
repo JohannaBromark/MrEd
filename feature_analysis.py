@@ -58,27 +58,52 @@ def distance_measure():
         counted_tracks = counted_train[indx_frequent_train]
         train_tracks_close = train_set[track_idx_train, :]
 
-        # The test tracks that are close to the train tracks with many close train
+        # Find the test tracks that are close to the train tracks with many close train
         test_sets_close = []
         for i in track_idx_train:
             idx_close_train = np.where(indx_train == i)
             idx_tets_close = indx_test[idx_close_train]
             test_sets_close.append([test_set[idx_tets_close, :]])
 
-        createCsv("analysis_docs/max_distance_"+str(dist_threshold)+
-                  "_part_nr_"+str(partition_num)+"("+str(seed)+").csv",
-                  train_tracks_close, test_sets_close, [seed, partition_num])
+        # Save to file
+        save_to_file = False
+        verbose = True
+
+        if save_to_file:
+            folder = "analysis_docs"
+            if verbose:
+                filename = "verbose_max_distance_"
+            else:
+                filename = "max_difference"
+
+            createCsv(folder+"/"+filename+str(dist_threshold)+
+                    "_part_nr_"+str(partition_num)+"("+str(seed)+").csv",
+                    train_tracks_close, test_sets_close, [seed, partition_num], verbose)
+
+        # Plot the mean distances to the test tracks for each train track
+
+
     print("help")
 
 
-def createCsv(filename, train_tracks, corresponding_test_tracks, settings):
+def createCsv(filename, train_tracks, corresponding_test_tracks, settings, verbose = False):
     with open(filename, "w") as file:
         file.write("Random seed "+str(settings[0])+","+"Test set partition "+str(settings[1])+"\n")
-        file.write("Train track nr,"+ "Class train,"+"Test track nr,"+"Class test"+"\n")
+        file.write("Train track nr,"+ "Class train,"+"Test track nr,"+"Class test")
+        if verbose:
+            file.write(",Feature distances from train track to each test track")
+        file.write("\n")
         for idx, train_track in enumerate(train_tracks):
-            file.write(str(int(train_track[0]))+","+str(int(train_track[1]))+"("+get_label(int(train_track[1]))+")"+"\n")
+            file.write(str(int(train_track[0]))+","+str(int(train_track[1]))+"("+get_label(int(train_track[1]))+")")
+            if verbose:
+                file.write(","+","+","+",".join(list(map(lambda x: str(x), train_track[2:]))))
+            file.write("\n")
             for test_track in corresponding_test_tracks[idx][0]:
-                file.write(","+","+str(int(test_track[0]))+","+str(int(test_track[1]))+"("+get_label(int(test_track[1]))+")"+"\n")
+                file.write(","+","+str(int(test_track[0]))+","+str(int(test_track[1]))+"("+get_label(int(test_track[1]))+"),")
+                if verbose:
+                    file.write(",".join(list(map(lambda x: str(x), test_track[2:]))))
+                    file.write(","+","+",".join(list(map(lambda x: str(x), abs(train_track[2:] - test_track[2:])))))
+                file.write("\n")
             file.write("\n")
 
 
