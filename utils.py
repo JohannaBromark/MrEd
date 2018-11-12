@@ -91,6 +91,13 @@ def write_afe_to_file(songs, targets, f_name):
         f_t.write('\n')
       c += 1
 
+def save_confusion_matrix(filename, confusion_matrix):
+  with open(filename, "w") as file:
+    file.write("," + ",".join([get_label(i) for i in range(10)]))
+    file.write("\n")
+    for row_idx, row in enumerate(confusion_matrix):
+      file.write(get_label(row_idx) + ",")
+      file.write(",".join(list(map(lambda r: str(r), row))) + "\n")
 
 
 ##################
@@ -395,13 +402,16 @@ def get_songs_feature_set(filename):
   return mean_by_song(features)
 
 
-def get_test_train_sets(filename, partition_num = 0, seed = None):
+def get_test_train_sets(features, partition_num = 0, seed = None):
   """
   Takes filename and return training and test set (partitioned 90-10)
-  :param filename:
+  :param features:
   :return:
   """
-  songs = get_songs_feature_set(filename)
+  if isinstance(features, str):
+    songs = get_songs_feature_set(features)
+  else:
+    songs = features
 
   partitions = make_k_fold_partition(songs, 10, seed)
 
