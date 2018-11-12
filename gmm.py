@@ -143,9 +143,9 @@ def run_gmm_k_fold():
   final_accuracy_variance = np.var(iteration_accuracies)
   print("Final accuracy: ", final_accuracy)
   print("Final variance: ", final_accuracy_variance)
-  confusion_matrix /= 10
+  confusion_matrix = (confusion_matrix / 10).astype("int64")
 
-
+  #save_confusion_matrix("analysis_docs/confusion_matrix_gmm.csv", confusion_matrix)
 
 if __name__ == '__main__':
 

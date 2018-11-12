@@ -41,7 +41,8 @@ def run_knn_k_fold():
   num_iterations = 100
 
   iteration_accuracies = []
-  heat_map = np.zeros((num_genres, num_genres))
+  confusion_matrix = np.zeros((num_genres, num_genres))
+
   for e in range(num_iterations):
     feature_partition = make_k_fold_partition(features_mean, 10)
     print("Iteration: ", e)
@@ -61,11 +62,16 @@ def run_knn_k_fold():
         predictions_matrix[predictions[j], test_targets[j] ] += 1
       score = knn.score(test_samples, test_targets)
       s += score
-    heat_map += (predictions_matrix / k)
+    confusion_matrix += (predictions_matrix / k)
     iteration_accuracies.append(s/k)
     print(s/k)
-  heat_map /= num_iterations
+  confusion_matrix = (confusion_matrix/num_genres).astype("int64")
+
+  # Save the confusion matrix to file
+  #save_confusion_matrix("analysis_docs/confusion_matrix_knn.csv", confusion_matrix)
+
   print(np.mean(iteration_accuracies))
+
 
 def run_knn_find_neighbors():
   train_set, test_set = get_test_train_sets('features_targets/afe_feat_and_targ.txt')
