@@ -251,8 +251,16 @@ def allDistance(train_set,test_set):
 
     return dist.reshape(len(train_set),len(train_set)+2)
     
-  
-    
+def classDistance(alldist):
+    a = []
+    for i in range(1,11,1):
+        a = np.append(a,np.average(alldist[(i-1)*100:i*100,:]))
+
+    print(a)
+    return a
+
+
+                
 
 
 
@@ -267,9 +275,9 @@ if __name__ == '__main__':
     
     allDist, a = read_stored_data('features_targets/Alldistances.txt')
     allDist = np.array(allDist)
-    print(allDist[:,0:2])
+    # print(allDist[:,0:2])
     # write_features_to_file(allDist, 'AllDistances.txt')
-
+    classDistance(allDist)
 
     # train_set_norm, mean, std = normalise(train_set[:, 2:])
     # test_set_norm = (test_set[:, 2:] - mean) / std
