@@ -9,6 +9,44 @@ def euclidean_dist(v1, v2):
     return np.linalg.norm(v1 - v2)
 
 
+def knn_distance_measure_correct():
+    """Measure the distance between one sample and all other samples"""
+    nearest_neghbor = np.zeros((1000, 2))
+
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+
+    allDist, a = read_stored_data('features_targets/AllDistances.txt')
+    allDist = np.array(allDist)[:, 2:]
+
+    for idx, distances in enumerate(allDist):
+        neighbor_dist = min([dist for dist in distances if dist > 0])
+        neighbor_index = np.argwhere(distances ==neighbor_dist)
+        nearest_neghbor[int(features[idx, 0]), 0] = int(features[neighbor_index, 0])
+        nearest_neghbor[int(features[idx, 0]), 1] = neighbor_dist
+
+    # Save to file
+    #filename = "analysis_docs/nearest_neighbor_dist.csv"
+    #with open(filename, "w") as file:
+    #    file.write("Track,,Nearest Neighbor,,Distance")
+    #    file.write("\n")
+    #    file.write("Track nr," + "Class," + "Track nr," + "Class,"+"Distance")
+    #    file.write("\n")
+    #    for idx, track in enumerate(features):
+    #        file.write(str(int(track[0])) + "," + str(int(track[1])) + "(" + get_label(
+    #            int(track[1])) + ")")
+    #        neighbor = int(nearest_neghbor[idx, 0])
+    #        file.write("," + str(int(features[neighbor, :][0])) + "," + str(
+    #            int(features[neighbor, :][1])) + "(" + get_label(
+    #            int(features[neighbor, :][1])) + "),")
+    #        file.write(str(nearest_neghbor[idx, 1]))
+    #        file.write("\n")
+    #    file.write("\n")
+
+    pass
+
+
+
+
 def histogramish(dist):
     #the histogram of the data
     n, bins, patches = plt.hist(dist[78, :], bins=100, facecolor='green')
@@ -76,9 +114,8 @@ def closeByTracks(dist):
 
     print(np.sort(min_dist))
 
-
-def distance_measure():
-    partition_num = 6
+def knn_distance_measure():
+    partition_num = 0
     seed = 1
     colorDict = createColorDict()
     for partition_num in range(10):
@@ -90,7 +127,8 @@ def distance_measure():
 
         dist_norm = np.zeros((len(test_set_norm), len(train_set_norm)))
 
-        dist_threshold = 2.0
+        dist_threshold = 1.5
+        min_num_neghbors = 3
 
         for i in range(len(test_set_norm)):
             for k in range(len(train_set_norm)):
@@ -103,17 +141,20 @@ def distance_measure():
 
         # Pick the tracks in the training set that are close to at least 4 other tracks
         # The indices return will map to the index in unique_train, which maps to the song
-        indx_frequent_train = np.where(counted_train > 3)
+        indx_frequent_train = np.where(counted_train >= min_num_neghbors)
         track_idx_train = unique_train[indx_frequent_train]
         counted_tracks = counted_train[indx_frequent_train]
         train_tracks_close = train_set[track_idx_train, :]
+        train_tracks_close_norm = train_set_norm[track_idx_train, :]
 
         # Find the test tracks that are close to the train tracks with many close train
         test_sets_close = []
+        test_sets_close_norm = []
         for i in track_idx_train:
             idx_close_train = np.where(indx_train == i)
             idx_tets_close = indx_test[idx_close_train]
             test_sets_close.append([test_set[idx_tets_close, :]])
+            test_sets_close_norm.append([test_set_norm[idx_tets_close, :]])
 
         # Save to file
         save_to_file = False
@@ -124,22 +165,25 @@ def distance_measure():
             if verbose:
                 filename = "verbose_max_distance_"
             else:
-                filename = "max_difference"
-
+                filename = "max_difference_"
+            filename += ">"+str(min_num_neghbors)+"_"
             createCsv(folder+"/"+filename+str(dist_threshold)+
                     "_part_nr_"+str(partition_num)+"("+str(seed)+").csv",
                     train_tracks_close, test_sets_close, [seed, partition_num], verbose)
 
-        # Plot the mean distances to the test tracks for each train track
-        for idx, train_track in enumerate(train_tracks_close):
-            dist_diff = np.zeros(train_track[2:].shape)
-            for test_track in test_sets_close[idx][0]:
-                dist_diff += abs(train_track[2:] - test_track[2:])
+        # Plot the mean distances to the test tracks for each train track using normalised data
+        """
+        for idx, train_track in enumerate(train_tracks_close_norm):
+            dist_diff = np.zeros(train_track.shape)
+            for test_track in test_sets_close_norm[idx][0]:
+                dist_diff += abs(train_track - test_track)
             dist_diff /= len(test_sets_close[idx][0])
             plt.plot([int(x)+1 for x in range(len(dist_diff))], dist_diff, c=colorDict[idx+1])
             plt.plot([int(x)+1 for x in range(len(dist_diff))], dist_diff, "o", c=colorDict[idx+1])
 
         plt.show()
+        """
+
 
     print("help")
 
@@ -190,8 +234,7 @@ def knn_neighbor_count():
         #    plt.plot(j, neighbors_dist[j], "o", c=colorDict[int((test_targets[i])+1)*2])
 
 
-
-    print("")
+    pass
 
 def partdata():
     train_samples, train_targets = read_stored_data('features_targets/afe_feat_and_tarF.txt')
@@ -246,10 +289,11 @@ def allDistance(train_set,test_set):
         dist = np.append(dist, i)
 
         for k in range(len(train_set)):
-            
+
             dist = np.append(dist, euclidean_dist(train_set[i,:], train_set[k,:]))
 
     return dist.reshape(len(train_set),len(train_set)+2)
+<<<<<<< HEAD
     
 def classDistance(alldist):
     a = []
@@ -263,16 +307,18 @@ def classDistance(alldist):
                 
 
 
+=======
+>>>>>>> 92689dace816ebb3af4d7582eed09bbf30712c3d
 
 
 if __name__ == '__main__':
     #knn_neighbor_count()
-    # distance_measure()
+    knn_distance_measure_correct()
     
     train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     train_setP, test_setP = partdata()
 
-    
+
     allDist, a = read_stored_data('features_targets/Alldistances.txt')
     allDist = np.array(allDist)
     # print(allDist[:,0:2])
@@ -286,8 +332,8 @@ if __name__ == '__main__':
 
     # dist = distfunc(train_set_norm, test_set_norm,0)
     # distP = distfunc(train_setP_norm, test_setP_norm,0)
-  
-    
+
+
     # # Plottar ett histogram för en test sample till all tränings_samples. Random
     # histogramish(dist)
 
