@@ -231,6 +231,31 @@ def distfunc(train_set, test_set, remove = 2):
 
     return dist.reshape(len(test_set),len(train_set))
 
+def allDistance(train_set,test_set):
+    train_set = np.concatenate((train_set,test_set), axis=0)
+    train_set = (train_set[train_set[:,0].argsort()])
+    print(train_set[:,1])
+    dist = []
+    targets = train_set[:,1]
+    train_set, mean, std = normalise(train_set[:, 2:])
+    print(len(train_set))
+
+    for i in range(len(train_set)):
+        print(i)
+        dist = np.append(dist, targets[i])
+        dist = np.append(dist, i)
+
+        for k in range(len(train_set)):
+            
+            dist = np.append(dist, euclidean_dist(train_set[i,:], train_set[k,:]))
+
+    return dist.reshape(len(train_set),len(train_set)+2)
+    
+  
+    
+
+
+
 
 if __name__ == '__main__':
     #knn_neighbor_count()
@@ -239,41 +264,33 @@ if __name__ == '__main__':
     train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     train_setP, test_setP = partdata()
 
-    train_set_norm, mean, std = normalise(train_set[:, 2:])
-    test_set_norm = (test_set[:, 2:] - mean) / std
-    train_setP_norm, mean, std = normalise(train_setP[:, :])
-    test_setP_norm = (test_setP[:, :] - mean) / std
-
-    # dist = distfunc(train_set, test_set)
-    # distP = distfunc(train_setP, test_setP,0)
     
-    # distN = distfunc(train_set_norm, test_set_norm)
-    # distPN = distfunc(train_setP_norm, test_setP_norm,0)
+    allDist, a = read_stored_data('features_targets/Alldistances.txt')
+    allDist = np.array(allDist)
+    print(allDist[:,0:2])
+    # write_features_to_file(allDist, 'AllDistances.txt')
 
-    train_set_norm, mean, std = normalise(train_set[:, 2:])
-    test_set_norm = (test_set[:, 2:] - mean) / std
-    train_setP_norm, mean, std = normalise(train_setP[:, :])
-    test_setP_norm = (test_setP[:, :] - mean) / std
 
-    dist = distfunc(train_set_norm, test_set_norm,0)
-    distP = distfunc(train_setP_norm, test_setP_norm,0)
+    # train_set_norm, mean, std = normalise(train_set[:, 2:])
+    # test_set_norm = (test_set[:, 2:] - mean) / std
+    # train_setP_norm, mean, std = normalise(train_setP[:, :])
+    # test_setP_norm = (test_setP[:, :] - mean) / std
+
+    # dist = distfunc(train_set_norm, test_set_norm,0)
+    # distP = distfunc(train_setP_norm, test_setP_norm,0)
   
     
-
-    # MaxMinDist(dist)
-    # averageDist(dist)
-
-    # Plottar ett histogram för en test sample till all tränings_samples. Random
-    histogramish(dist)
+    # # Plottar ett histogram för en test sample till all tränings_samples. Random
+    # histogramish(dist)
 
 
-    # Plottar 2 kurvor som representerar alla test samples distanser till träning. Random vs Fault
-    X = averageHist(dist, test_set_norm)
-    Y = averageHist(distP, test_setP_norm)
-    plt.subplot(1,2,1)
-    plt.plot(X)
-    plt.subplot(1,2,2)
-    plt.plot(Y)
-    plt.show()
+    # # Plottar 2 kurvor som representerar alla test samples distanser till träning. Random vs Fault
+    # X = averageHist(dist, test_set_norm)
+    # Y = averageHist(distP, test_setP_norm)
+    # plt.subplot(1,2,1)
+    # plt.plot(X)
+    # plt.subplot(1,2,2)
+    # plt.plot(Y)
+    # plt.show()
 
 

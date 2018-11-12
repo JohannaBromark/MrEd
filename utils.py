@@ -65,8 +65,8 @@ def read_stored_data(feat_name='features_targets/afe_feat_and_targ.txt'):
 ##################
 ### Write files ###
 
-def write_features_to_file(features, file_name='features.txt'):
-  with open('features.txt','w') as file:
+def write_features_to_file(features, f_name):
+  with open('features_targets/' + f_name, 'w') as file:
     for item in features:
       for element in item:
         file.write(str(element))
