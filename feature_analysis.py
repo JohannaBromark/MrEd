@@ -327,8 +327,7 @@ def allDistance(train_set,test_set):
             dist = np.append(dist, euclidean_dist(train_set[i,:], train_set[k,:]))
 
     return dist.reshape(len(train_set),len(train_set)+2)
-<<<<<<< HEAD
-    
+
 def classDistance(alldist):
     a = []
     for i in range(1,11,1):
@@ -336,13 +335,6 @@ def classDistance(alldist):
 
     print(a)
     return a
-
-
-                
-
-
-=======
->>>>>>> 92689dace816ebb3af4d7582eed09bbf30712c3d
 
 
 if __name__ == '__main__':
