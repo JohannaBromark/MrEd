@@ -11,7 +11,9 @@ def euclidean_dist(v1, v2):
 
 def knn_distance_measure_correct():
     """Measure the distance between one sample and all other samples"""
-    nearest_neghbor = np.zeros((1000, 2))
+
+    # Computes a vector of nearest neighbors
+    nearest_neghbors = np.zeros((1000, 2))
 
     features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
 
@@ -21,8 +23,8 @@ def knn_distance_measure_correct():
     for idx, distances in enumerate(allDist):
         neighbor_dist = min([dist for dist in distances if dist > 0])
         neighbor_index = np.argwhere(distances ==neighbor_dist)
-        nearest_neghbor[int(features[idx, 0]), 0] = int(features[neighbor_index, 0])
-        nearest_neghbor[int(features[idx, 0]), 1] = neighbor_dist
+        nearest_neghbors[int(features[idx, 0]), 0] = int(features[neighbor_index, 0])
+        nearest_neghbors[int(features[idx, 0]), 1] = neighbor_dist
 
     # Save to file
     #filename = "analysis_docs/nearest_neighbor_dist.csv"
@@ -42,9 +44,41 @@ def knn_distance_measure_correct():
     #        file.write("\n")
     #    file.write("\n")
 
+     # Find of some sample occures more often than others
+
+    unique_samples, sample_count = np.unique(nearest_neghbors[:, 0], return_counts=True)
+
+    max_sample_idx = np.argmax(sample_count)
+    max_sample_song_idx = int(unique_samples[max_sample_idx])
+
+    popular_track = features[max_sample_song_idx, :]
+
+    # Find the samples that are close to 6 other neigbors
+    popular_tracks_6 = get_popular_tracks(features, unique_samples, sample_count, 6)
+    popular_tracks_5 = get_popular_tracks(features, unique_samples, sample_count, 5)
+    popular_tracks_4 = get_popular_tracks(features, unique_samples, sample_count, 4)
+
+
+
+
     pass
 
+def get_popular_tracks(features, unique_samples, sample_count, num_close):
+    """
+    Find the tracks that are close to the specified number of tracks
+    :param features: feature set
+    :param unique_samples: the unique samples in the nearest_neighbors
+    :param sample_count: the number of times the track is neighbor to other samples
+    :param num_close: the number of tracks the track should have to get selected
+    :return: The tracks that are close ot num_close other tracks
+    """
+    num_neighbor = np.where(sample_count == num_close)
+    popular_tracks_idx = unique_samples[num_neighbor]
+    popular_tracks = np.zeros((len(popular_tracks_idx), 21))
+    for idx, track_idx in enumerate(popular_tracks_idx):
+        popular_tracks[int(idx), :] = features[int(track_idx), :]
 
+    return popular_tracks
 
 
 def histogramish(dist):
