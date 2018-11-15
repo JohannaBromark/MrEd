@@ -146,6 +146,9 @@ def run_gmm_k_fold():
   print("Final accuracy: ", final_accuracy)
   print("Final variance: ", final_accuracy_variance)
   confusion_matrix /= 10
+  confusion_matrix = (confusion_matrix / 10).astype("int64")
+
+  #save_confusion_matrix("analysis_docs/confusion_matrix_gmm.csv", confusion_matrix)
 
 def gmm_props(m):
   return m.means_, m.covariances_, m.weights_
@@ -155,11 +158,9 @@ def train_gmm_models(features, targets, n_components=3):
   all_models = []
   n_genres = np.unique(targets).shape[0]
   for i in range(n_genres):
-    all_models.append(GaussianMixture(
-      n_components=3))
+    all_models.append(GaussianMixture(n_components=3))
     all_models[i].fit(features[targets == i])
   return np.array(all_models)
-
 
 def kl_divergence(m0, cov0, m1, cov1, n_dim=19):
   """Compute the KL divergence of two gaussian distributions"""

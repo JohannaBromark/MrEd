@@ -65,8 +65,8 @@ def read_stored_data(feat_name='features_targets/afe_feat_and_targ.txt'):
 ##################
 ### Write files ###
 
-def write_features_to_file(features, file_name='features.txt'):
-  with open('features.txt','w') as file:
+def write_features_to_file(features, f_name):
+  with open('features_targets/' + f_name, 'w') as file:
     for item in features:
       for element in item:
         file.write(str(element))
@@ -91,6 +91,13 @@ def write_afe_to_file(songs, targets, f_name):
         f_t.write('\n')
       c += 1
 
+def save_confusion_matrix(filename, confusion_matrix):
+  with open(filename, "w") as file:
+    file.write("," + ",".join([get_label(i) for i in range(10)]))
+    file.write("\n")
+    for row_idx, row in enumerate(confusion_matrix):
+      file.write(get_label(row_idx) + ",")
+      file.write(",".join(list(map(lambda r: str(r), row))) + "\n")
 
 
 ##################
@@ -332,14 +339,9 @@ def get_k_fold_partitions(partitioned_samples, partition_num):
   k = partitioned_samples.shape[2]
   N = partitioned_samples.shape[0]
 
-  # If the samples have more than 19 columns, take the last 19 columns
-  if partitioned_samples.shape[1] > 19:
-    idx_start = partitioned_samples.shape[1] - 19
-    partitioned_samples = partitioned_samples[:, idx_start:, :]
 
-  train_samples = np.zeros((N*(k-1), partitioned_samples.shape[1]))
-  test_samples = partitioned_samples[:, 1:, partition_num]
-  test_targets = partitioned_samples[:, 0, partition_num].astype("int64")
+  # If the samples have more than 19 columns, take the last 19 columns
+  train_samples = np.zeros((N * (k - 1), partitioned_samples.shape[1]))
 
   j = 0
   for i in range(k):
@@ -347,8 +349,18 @@ def get_k_fold_partitions(partitioned_samples, partition_num):
       train_samples[j*N:(j+1)*N, :] = partitioned_samples[:, :, i]
       j += 1
 
-  train_targets = train_samples[:, 0].astype("int64")
-  train_samples = train_samples[:, 1:]
+  if partitioned_samples.shape[1] == 21:
+    test_targets = partitioned_samples[:, 1, partition_num].astype("int64")
+    test_samples = partitioned_samples[:, 2:, partition_num]
+    train_targets = train_samples[:, 1].astype("int64")
+    train_samples = train_samples[:, 2:]
+  elif partitioned_samples.shape[1] == 20:
+    test_samples = partitioned_samples[:, 1:, partition_num]
+    test_targets = partitioned_samples[:, 0, partition_num].astype("int64")
+    train_targets = train_samples[:, 0].astype("int64")
+    train_samples = train_samples[:, 1:]
+  else:
+    raise ValueError("Wrong dimension of input. Missing targets")
 
   return train_samples, train_targets, test_samples, test_targets
 
@@ -390,13 +402,16 @@ def get_songs_feature_set(filename):
   return mean_by_song(features)
 
 
-def get_test_train_sets(filename, partition_num = 0, seed = None):
+def get_test_train_sets(features, partition_num = 0, seed = None):
   """
   Takes filename and return training and test set (partitioned 90-10)
-  :param filename:
+  :param features:
   :return:
   """
-  songs = get_songs_feature_set(filename)
+  if isinstance(features, str):
+    songs = get_songs_feature_set(features)
+  else:
+    songs = features
 
   partitions = make_k_fold_partition(songs, 10, seed)
 
