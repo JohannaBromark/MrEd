@@ -293,22 +293,20 @@ def allDistance(train_set,test_set):
             dist = np.append(dist, euclidean_dist(train_set[i,:], train_set[k,:]))
 
     return dist.reshape(len(train_set),len(train_set)+2)
-<<<<<<< HEAD
     
 def classDistance(alldist):
     a = []
+    classes = [7,6,3,0,8,1,9,4,2,5]
     for i in range(1,11,1):
         a = np.append(a,np.average(alldist[(i-1)*100:i*100,:]))
+    
+    adict = dict(zip(classes, a))
 
-    print(a)
-    return a
-
-
-                
+    return a, adict
 
 
-=======
->>>>>>> 92689dace816ebb3af4d7582eed09bbf30712c3d
+
+
 
 
 if __name__ == '__main__':
@@ -323,7 +321,9 @@ if __name__ == '__main__':
     allDist = np.array(allDist)
     # print(allDist[:,0:2])
     # write_features_to_file(allDist, 'AllDistances.txt')
-    classDistance(allDist)
+    values, ClassDict = classDistance(allDist)
+ 
+    print(ClassDict)
 
     # train_set_norm, mean, std = normalise(train_set[:, 2:])
     # test_set_norm = (test_set[:, 2:] - mean) / std
