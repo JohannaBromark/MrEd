@@ -12,8 +12,7 @@ def euclidean_dist(v1, v2):
 def save_track_features_to_file():
 
     track_pairs_similar = [[57, 66], [53, 75], [108, 137], [123, 165], [126, 160], [612, 177], [748, 767],
-                           [28, 86], [158, 147], [204, 746], [346, 360], [355, 466], [419, 61], [701, 204],
-                           ]
+                           [28, 86], [158, 147], [204, 746], [346, 360], [355, 466], [419, 61], [701, 204]]
 
     features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
     norm_features = normalise(features[:, 2:])[0]
@@ -28,6 +27,91 @@ def save_track_features_to_file():
             file.write("\n")
             file.write(",".join(list(map(lambda x: str(x), all_norm_features[track_pair[1], :]))))
             file.write("\n\n\n")
+
+
+def compare_popular_song_neighbors():
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    nearest_neighbors = get_nearest_neighbors()
+
+    idx = 296 # The popular song index
+
+    neighbors = np.where(nearest_neighbors[:, 0] == idx)[0]
+
+    pop_song_features = features[idx:idx+1, :]
+    neighbor_features = features[neighbors, :]
+
+    neighbor_batch = np.concatenate((features[idx:idx+1, :], features[neighbors, :]))
+
+    # Save the neighbors to file
+    pass
+
+
+
+def get_nearest_neighbors():
+    nearest_neghbors = np.zeros((1000, 2))
+
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+
+    allDist, a = read_stored_data('features_targets/AllDistances.txt')
+    allDist = np.array(allDist)[:, 2:]
+
+    for idx, distances in enumerate(allDist):
+        neighbor_dist = min([dist for dist in distances if dist > 0])
+        neighbor_index = np.argwhere(distances ==neighbor_dist)
+        nearest_neghbors[int(features[idx, 0]), 0] = int(features[neighbor_index, 0])
+        nearest_neghbors[int(features[idx, 0]), 1] = neighbor_dist
+
+    return nearest_neghbors
+
+
+def view_wrongly_classified():
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    nearest_neighbors = get_nearest_neighbors()
+
+
+    i = 1
+    for idx, nearest_neghbor in enumerate(nearest_neighbors[:, 0]):
+        sample = features[idx, :]
+        neighbor = features[int(nearest_neghbor), :]
+        if sample[1] != neighbor[1]:
+            diff = abs(sample - neighbor)[2:]
+            pic = np.append(diff, np.mean(diff)).reshape(4, 5)
+            plt.subplot(20, 20, i)
+            plt.imshow(pic, cmap="gray")
+            plt.axis("off")
+            i += 1
+    plt.show()
+
+
+def plot_features():
+    """Plots the feature values for each sample"""
+    colors = createColorDict()
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    norm_features = normalise(features[:, 2:])[0]
+
+    sub = 1
+    for i, feature_vector in enumerate(norm_features):
+        if i%100 == 0:
+            plt.subplot(5, 2, sub)
+            plt.title(get_label(features[i, 1]))
+            sub += 1
+        for f, feature in enumerate(feature_vector):
+            plt.plot(i, feature, "o", c=colors[f+1])
+
+        #if i%100 == 0:
+        #    # Draw a line between the classes
+        #    plt.plot([i-0.5]*20, [y for y in range(20)], c="r")
+
+    plt.show()
+
+    # Describe the colors
+    patches = []
+    for g in range(19):
+        patch = mpatches.Patch(color=colors[g+1], label="Feature"+str(g+1))
+        patches.append(patch)
+
+    plt.legend(handles=patches)
+    plt.show()
 
 
 def knn_distance_measure_correct():
@@ -65,8 +149,23 @@ def knn_distance_measure_correct():
     #        file.write("\n")
     #    file.write("\n")
 
-     # Find of some sample occures more often than others
 
+    # Divide the into two sets with correct and incorrect tracks
+    correct_set = []
+    incorrect_set = []
+    for idx, nearest_neghbor in enumerate(nearest_neghbors[:, 0]):
+        if features[idx, 1] == features[int(nearest_neghbor), 1]:
+            correct_set.append(idx)
+        else:
+            incorrect_set.append(idx)
+
+    correct_features = features[correct_set, :]
+    incorrect_features = features[incorrect_set, :]
+
+    write_features_to_file(correct_features, "all_correct_features.txt")
+    write_features_to_file(incorrect_features, "all_incorrect_features.txt")
+
+    # Find of some sample occures more often than others
     unique_samples, sample_count = np.unique(nearest_neghbors[:, 0], return_counts=True)
 
     max_sample_idx = np.argmax(sample_count)
@@ -183,8 +282,6 @@ def averageHist(dist,bucket_size=100):
     return number_of_weights
 
 
-
-
 def MaxMinDist(dist):
     maxx = 0
     minn = 999
@@ -274,7 +371,7 @@ def classDistance(alldist):
 
     return a, adict
 
-def classHistograms(alldist): 
+def classHistograms(alldist):
     a = 0
     classes = [7,6,3,0,8,1,9,4,2,5]
   
@@ -302,13 +399,13 @@ def classInternalDistance(alldist):
         plt.xlabel('Bucket number')
         plt.plot(averageHist(alldist[0+a*100:100+a*100,0+a*100:100+a*100],30))
         plt.title(get_label(classes[a]))
-    
+
     plt.show()
 
 def allCorrectPlotDist(alldist):
     allCorrect, a = read_stored_data('features_targets/all_correct_features.txt')
-  
-    allCorrectDist = [] 
+
+    allCorrectDist = []
     start = 0
     for i in range(allCorrect.shape[0]):
         for k in range(start, alldist.shape[0],1):
@@ -323,8 +420,8 @@ def allCorrectPlotDist(alldist):
 
 def allInCorrectPlotDist(alldist):
     allInCorrect, a = read_stored_data('features_targets/all_incorrect_features.txt')
-    
-    allInCorrectDist = [] 
+
+    allInCorrectDist = []
     start = 0
     for i in range(allInCorrect.shape[0]):
         for k in range(start,alldist.shape[0],1):
@@ -356,8 +453,13 @@ def correct_incorrectDistPlot(allCorrect, allInCorrect):
 if __name__ == '__main__':
     #knn_neighbor_count()
     #save_track_features_to_file()
-    # plot_all_track_dist_to_origo()
-    # knn_distance_measure_correct()
+    #plot_all_track_dist_to_origo()
+    #knn_distance_measure_correct()
+    #view_wrongly_classified()
+    plot_features()
+    #compare_popular_song_neighbors()
+    #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
+    #train_setP, test_setP = partdata()
 
     train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     train_setP, test_setP = partdata()
@@ -368,7 +470,7 @@ if __name__ == '__main__':
     a = allCorrectPlotDist(allDist)
     b = allInCorrectPlotDist(allDist)
     correct_incorrectDistPlot(a,b)
-   
+
     # classInternalDistance(allDist[:,2:])
     # classHistograms(allDist[:,2:])
     # values, ClassDict = classDistance(allDist)
