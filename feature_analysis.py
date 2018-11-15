@@ -83,7 +83,7 @@ def get_popular_tracks(features, unique_samples, sample_count, num_close):
 
 def histogramish(dist):
     #the histogram of the data
-    n, bins, patches = plt.hist(dist[78, :], bins=100, facecolor='green')
+    n, bins, patches = plt.hist(dist[740, :], bins=100, facecolor='green')
 
     plt.axis([0, 15, 0, 70])
 
@@ -98,9 +98,9 @@ def averageDist(dist):
     plt.hist(avg_dist, bins=20)
     plt.show()
 
-def averageHist(dist, test_set):
+def averageHist(dist):
     avg_hist = []
-    maxx, minn = MaxMinDist(dist, test_set)
+    maxx, minn = MaxMinDist(dist)
     nr_buck = 100
     bucket_size = maxx / nr_buck
     bucket = 0
@@ -126,10 +126,10 @@ def averageHist(dist, test_set):
 
 
 
-def MaxMinDist(dist, test_set):
+def MaxMinDist(dist):
     maxx = 0
     minn = 999
-    for i in range(len(test_set)):
+    for i in range(len(dist[:,0])):
         if maxx < max(dist[i, :]):
             maxx = max(dist[i, :])
         if minn > min(dist[i, :]):
@@ -337,6 +337,18 @@ def classDistance(alldist):
 
     return a, adict
 
+def classHistograms(alldist): #funkar nog inte.
+    a = 0
+    classes = [7,6,3,0,8,1,9,4,2,5]
+  
+    for i in range(2):
+        for k in range(5):
+            plt.plot(averageHist(alldist[0+a*100:100+a*100,:]))
+            # plt.titel(get_label(classes[a]))
+            plt.subplot(2,5,a)
+            a += 1
+
+    plt.show()
 
 if __name__ == '__main__':
     #knn_neighbor_count()
@@ -348,11 +360,12 @@ if __name__ == '__main__':
 
     allDist, a = read_stored_data('features_targets/Alldistances.txt')
     allDist = np.array(allDist)
+    classHistograms(allDist[:,2:])
+    # values, ClassDict = classDistance(allDist)
+
     # print(allDist[:,0:2])
     # write_features_to_file(allDist, 'AllDistances.txt')
-    values, ClassDict = classDistance(allDist)
  
-    print(ClassDict)
 
     # train_set_norm, mean, std = normalise(train_set[:, 2:])
     # test_set_norm = (test_set[:, 2:] - mean) / std
@@ -364,14 +377,14 @@ if __name__ == '__main__':
 
 
     # # Plottar ett histogram för en test sample till all tränings_samples. Random
-    # histogramish(dist)
+    # histogramish(allDist)
 
 
     # # Plottar 2 kurvor som representerar alla test samples distanser till träning. Random vs Fault
     # X = averageHist(dist, test_set_norm)
     # Y = averageHist(distP, test_setP_norm)
     # plt.subplot(1,2,1)
-    # plt.plot(X)
+    # plt.plot(averageHist(allDist[:,2:]))
     # plt.subplot(1,2,2)
     # plt.plot(Y)
     # plt.show()
