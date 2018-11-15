@@ -157,10 +157,10 @@ def averageDist(dist):
     plt.hist(avg_dist, bins=20)
     plt.show()
 
-def averageHist(dist):
+def averageHist(dist,bucket_size=100):
     avg_hist = []
     maxx, minn = MaxMinDist(dist)
-    nr_buck = 100
+    nr_buck = bucket_size
     bucket_size = maxx / nr_buck
     bucket = 0
     counter = 0
@@ -178,8 +178,8 @@ def averageHist(dist):
         bucket = (bucket_size*a)
         counter = 0
     
-    print(number_of_weights)
-    print(sum(number_of_weights))
+    # print(number_of_weights)
+    # print(sum(number_of_weights))
     return number_of_weights
 
 
@@ -274,24 +274,45 @@ def classDistance(alldist):
 
     return a, adict
 
-def classHistograms(alldist): #funkar nog inte.
+def classHistograms(alldist): 
     a = 0
     classes = [7,6,3,0,8,1,9,4,2,5]
   
-    for i in range(2):
-        for k in range(5):
+    for i in range(10):
+            print(a)
+            plt.subplot(2,5,a+1)
+            plt.ylim(0,6000)
+            plt.ylabel('Number of tracks')
+            plt.xlabel('Bucket number')
             plt.plot(averageHist(alldist[0+a*100:100+a*100,:]))
-            # plt.titel(get_label(classes[a]))
-            plt.subplot(2,5,a)
+            plt.title(get_label(classes[a]))
             a += 1
 
+
     plt.show()
+def classInternalDistance(alldist):
+    classes = [7,6,3,0,8,1,9,4,2,5]
+    a = 0
+
+    for i in range(10):
+        a = classes[i]
+        plt.subplot(2,5,i+1)
+        plt.ylim(0,2000)
+        plt.ylabel('Number of tracks')
+        plt.xlabel('Bucket number')
+        plt.plot(averageHist(alldist[0+a*100:100+a*100,0+a*100:100+a*100],30))
+        plt.title(get_label(classes[a]))
+    
+    plt.show()
+
+
+
 
 if __name__ == '__main__':
     #knn_neighbor_count()
     #save_track_features_to_file()
-    plot_all_track_dist_to_origo()
-    knn_distance_measure_correct()
+    # plot_all_track_dist_to_origo()
+    # knn_distance_measure_correct()
 
     train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     train_setP, test_setP = partdata()
@@ -299,7 +320,8 @@ if __name__ == '__main__':
 
     allDist, a = read_stored_data('features_targets/Alldistances.txt')
     allDist = np.array(allDist)
-    classHistograms(allDist[:,2:])
+    # classInternalDistance(allDist[:,2:])
+    # classHistograms(allDist[:,2:])
     # values, ClassDict = classDistance(allDist)
 
     # print(allDist[:,0:2])
