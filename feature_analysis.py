@@ -340,6 +340,7 @@ def correct_incorrectDistPlot(allCorrect, allInCorrect):
     plt.subplot(1,2,1)
     plt.plot(averageHist(allCorrect[:,2:]))
     plt.ylim(0,)
+    plt.xlim(0,)
     plt.ylabel('Number of tracks')
     plt.xlabel('Bucket number')
     plt.title('All Correct Dist')
@@ -347,6 +348,7 @@ def correct_incorrectDistPlot(allCorrect, allInCorrect):
     plt.subplot(1,2,2)
     plt.plot(averageHist(allInCorrect[:,2:]))
     plt.ylim(0,)
+    plt.xlim(0,)
     plt.ylabel('Number of tracks')
     plt.xlabel('Bucket number')
     plt.title('All Incorrect Dist')
@@ -365,9 +367,15 @@ if __name__ == '__main__':
 
     allDist, a = read_stored_data('features_targets/Alldistances.txt')
     allDist = np.array(allDist)
-    a = allCorrectPlotDist(allDist)
-    b = allInCorrectPlotDist(allDist)
-    correct_incorrectDistPlot(a,b)
+
+
+    # a = allCorrectPlotDist(allDist)
+    # b = allInCorrectPlotDist(allDist)
+    # CorrectAvg = np.average(a)
+    # InCorrectAvg = np.average(b)
+    # print(CorrectAvg)
+    # print(InCorrectAvg)
+    # correct_incorrectDistPlot(a,b)
    
     # classInternalDistance(allDist[:,2:])
     # classHistograms(allDist[:,2:])
