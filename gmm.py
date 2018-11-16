@@ -204,7 +204,7 @@ def kl_distances_matrix(models):
   return np.array(distance_matrix)
 
 def compare_gmms():
-  read_feats = read_stored_data('features_targets/afe_feat_and_targ.txt')
+  read_feats = read_stored_data()
   feats = read_feats[:,2:]
   feats, _, _ = normalise(feats)
   targs = read_feats[:,1]

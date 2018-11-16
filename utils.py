@@ -52,7 +52,7 @@ def get_path(txt):
         paths.append(line)
   return paths
 
-def read_stored_data(feat_name='features_targets/features_and_targets.txt'):
+def read_stored_data(feat_name='features_targets/all_vectors.txt'):
   """Return feature vectors and corr labels from stored txt file"""
   with open(feat_name) as f:
     lines = f.readlines()
@@ -73,6 +73,8 @@ def write_afe_to_file(songs, targets, song_names, f_name):
     c = 0
     for song, name in zip(songs, song_names):
       for vector in song:
+        print(targets[c][0])
+        print(str(targets[c][0]) + str(name[-6:-4]))
         f_t.write(str(targets[c][0]) + str(name[-6:-4]) + ' ')
         f_t.write(str(targets[c][0]) + ' ')
         for feat in vector:
@@ -122,23 +124,23 @@ def read_partition(path):
   path = get_path(path)
   all_songs = []
   all_labels = np.zeros(len(path))
-  # all_samples = np.zeros(len(path))
   all_samples = [[0]] * len([f for f in range(len(path))])
+  all_names = []
 
   i = 0
   for p in path:
     sample_rate, all_samples[i] = read_file('genres/' + p.strip())
-    label = get_label(p.split('/')[0])
-    all_labels[i] = label
+    all_labels[i] = get_label(p.split('/')[0])
+    all_names.append(p.strip().split('/')[1])
     i += 1
-
+  
   all_labels = np.array(all_labels)
   all_labels = all_labels.reshape(all_labels.size,1)
+  all_labels = [[int(i[0])] for i in all_labels]
+  
+  all_names = np.array(all_names)
 
-  # all_samples = np.array(all_samples)
-  return sample_rate, all_samples, all_labels
-
-
+  return sample_rate, all_samples, all_labels, all_names
 
   ################
   ### Plotting ###
