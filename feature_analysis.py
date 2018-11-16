@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
-from sklearn.neighbors import KNeighborsClassifier
 import networkx as nx
 
 
@@ -47,7 +46,6 @@ def compare_popular_song_neighbors():
     pass
 
 
-
 def get_nearest_neighbors():
     nearest_neghbors = np.zeros((1000, 2))
 
@@ -84,27 +82,100 @@ def view_wrongly_classified():
     plt.show()
 
 
+def find_k_nearest_neighbors():
+    """
+    Find the k nearest neighbors for each sample
+    :return:
+    """
+
+    k = 3
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    alldist, _ = read_stored_data("features_targets/AllDistances.txt")
+    alldist = alldist[:, 2:]
+
+    nearest_neighbors = np.zeros((1000, 2*k))
+
+    for idx, distances in enumerate(alldist):
+        neighbor_idxs = np.argpartition(distances, k+1)[:k+1]  # The smallest will be to the elemnet itself, compensating
+
+        k_near_neighbors = np.concatenate((neighbor_idxs.reshape(-1, 1), np.take(distances, neighbor_idxs).reshape(-1, 1)), axis=1)
+        sorted_neighbors = k_near_neighbors[k_near_neighbors[:, 1].argsort()]
+        neighbor_idxs = sorted_neighbors[1:, 0]
+
+        for nidx, neighbor in enumerate(neighbor_idxs):
+            nidx *= 2
+            nearest_neighbors[idx, nidx] = int(features[int(neighbor), 0])
+            nearest_neighbors[idx, nidx+1] = distances[int(neighbor)]
+
+    # Save to file
+    filename = "analysis_docs/"+str(k)+"-nearest_neighbor_dist.csv"
+    with open(filename, "w") as file:
+        file.write("Track,,Nearest Neighbor,,Distance")
+        file.write("\n")
+        file.write("Track nr," + "Class," + "Track nr," + "Class,"+"Distance")
+        file.write("\n")
+        for idx, track in enumerate(features):
+            file.write(str(int(track[0])) + "," + str(int(track[1])) + " (" + get_label(
+                int(track[1])) + ")")
+            nearest_neighbor = nearest_neighbors[idx, :]
+            for nidx in range(0, len(nearest_neighbor), 2):
+                neighbor = int(features[int(nearest_neighbor[nidx]), 0])
+                file.write("," + str(int(features[neighbor, :][0])) + "," + str(
+                    int(features[neighbor, :][1])) + " (" + get_label(
+                    int(features[neighbor, :][1])) + "),")
+                file.write(str(nearest_neighbor[nidx+1]))
+            file.write("\n")
+
+    pass
+
+
 def plot_features():
     """Plots the feature values for each sample"""
     colors = createColorDict()
     features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
     norm_features = normalise(features[:, 2:])[0]
+    nearest_neighbors = get_nearest_neighbors()
 
-    sub = 1
-    for i, feature_vector in enumerate(norm_features):
-        if i%100 == 0:
-            plt.subplot(5, 2, sub)
-            plt.title(get_label(features[i, 1]))
-            sub += 1
-        for f, feature in enumerate(feature_vector):
-            plt.plot(i, feature, "o", c=colors[f+1])
-
+    # Create subplots
+    #sub = 1
+    #for i, feature_vector in enumerate(norm_features):
+    #    if i%100 == 0:
+    #        plt.subplot(5, 2, sub)
+    #        plt.title(get_label(features[i, 1]))
+    #        sub += 1
+    #    for f, feature in enumerate(feature_vector):
+    #        plt.plot(i, feature, "x", c=colors[f+1])
         #if i%100 == 0:
         #    # Draw a line between the classes
         #    plt.plot([i-0.5]*20, [y for y in range(20)], c="r")
+    #plt.show()
 
-    plt.show()
 
+    # Create one plot per genre
+    #for g in range(10):
+    #    for i, feature_vector in enumerate(norm_features[g*100:(g+1)*100, :]):
+    #        for f, feature in enumerate(feature_vector):
+    #            plt.plot(i, feature, "o", c=colors[f+1])
+    #        if features[i, 1] != features[int(nearest_neighbors[i, 0]), 1]:
+    #            max_y_value = max(feature_vector)
+    #            min_y_value = min(feature_vector)
+    #            y = np.linspace(min_y_value, max_y_value)
+    #            plt.plot([i]*len(y), y, c="r")
+    #    plt.title(get_label(int(features[g*100, 1])))
+    #    plt.show()
+
+    # Plot the feature of a wrongly classified sample and its neighbor
+    for i, feature in enumerate(norm_features):
+        neighbor = int(nearest_neighbors[i, 0])
+        if features[i, 1] != features[neighbor, 1]:
+            diff = abs(feature - norm_features[neighbor, :])
+            for f in range(len(feature)):
+                plt.plot(1, feature[f], "o", c=colors[f+1])
+                plt.plot(1.5, norm_features[neighbor, f], "o", c=colors[f+1])
+                if diff[f] < 0.1:
+                    plt.plot([1, 1.5], [feature[f], norm_features[neighbor, f]], c=colors[f+1])
+                plt.title("Sample " + str(i) + " (" + get_label(int(features[i, 1])) + ") classified by " + str(neighbor) + " ("+get_label(int(features[neighbor, 1]))+")")
+            plt.show()
     # Describe the colors
     patches = []
     for g in range(19):
@@ -201,6 +272,7 @@ def plot_track_distances(track_id, distance_vector, features):
 
     plt.title("Neighbor distances for "+str(track_id))
     plt.show()
+
 
 def plot_all_track_dist_to_origo():
     colors = createColorDict()
@@ -468,9 +540,39 @@ def create_neighbor_graph():
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
     # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
-    
+
+
+def compute_knn_adjecency_matrix():
+
+    all_distances = read_stored_data('features_targets/AllDistances.txt')[0]
+    all_distances = all_distances[:, 2:]
+    genre_adjecency_matrix = np.zeros((10, 10))
+
+    for g in range(10):
+        for g2 in range(10):
+            tot_dist = 0
+            for s in range(100):
+                tot_dist += np.mean(all_distances[g*100 + s, g2*100:(g2*100)+19])
+            genre_adjecency_matrix[g, g2] = tot_dist/100
+
+    return genre_adjecency_matrix
+
+
+def create_knn_graph():
+    adjecency_matrix = compute_knn_adjecency_matrix()
+    class_order = [7,6,3,0,8,1,9,4,2,5]
+
+    G = nx.from_numpy_matrix(adjecency_matrix)
+    name_mapping = dict(zip(G.nodes, [get_label(label) for label in class_order]))
+    G = nx.relabel_nodes(G, name_mapping)
+    G = nx.drawing.nx_agraph.to_agraph(G)
+    G.node_attr.update(colors="red", style="filled")
+    G.draw('analysis_docs/knn_distances_visualized.png', format='png', prog='neato')
+
+
 
 if __name__ == '__main__':
+    create_knn_graph()
     #knn_neighbor_count()
     #save_track_features_to_file()
     #plot_all_track_dist_to_origo()
@@ -480,16 +582,16 @@ if __name__ == '__main__':
     #compare_popular_song_neighbors()
     #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     #train_setP, test_setP = partdata()
-    create_neighbor_graph()
+    #create_neighbor_graph()
 
-    train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
-    train_setP, test_setP = partdata()
+    #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
+    #train_setP, test_setP = partdata()
 
 
-    allDist, a = read_stored_data('features_targets/Alldistances.txt')
-    allDist = np.array(allDist)
+    #allDist, a = read_stored_data('features_targets/Alldistances.txt')
+    #allDist = np.array(allDist)
 
-    
+
     # a = allCorrectPlotDist(allDist)
     # b = allInCorrectPlotDist(allDist)
     # CorrectAvg = np.average(a)
