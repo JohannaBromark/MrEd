@@ -42,19 +42,20 @@ def faultfiltered(path,filename):
   write_afe_to_file(f_vectors, targets,filename)
 
 if __name__ == '__main__':
-  # samples, targets = read_directories()
-  # seg_size = 512
-  # sample_rate = 22050
-  # f_vectors = []
+  samples, targets, names = read_directories()
+  seg_size = 512
+  sample_rate = 22050
+  f_vectors = []
+  for i in range(len(samples)):
+    print(i)
+    frames, f_names = afe.stFeatureExtraction(samples[i], sample_rate, seg_size, seg_size)
+    f_vectors.append(all_feature_vectors(frames))
 
-  # for i in range(len(samples)):
-  #   print(i)
-  #   frames, f_names = afe.stFeatureExtraction(samples[i], sample_rate, seg_size, seg_size)
-  #   f_vectors.append(all_feature_vectors(frames))
+  # write_afe_to_file(f_vectors, targets, names, 'features_and_targets.txt')
 
-  # write_afe_to_file(f_vectors, targets, 'afe_feat_and_targ.txt')
 
-  faultfiltered('features_targets/train_fault.txt','afe_feat_and_tarF.txt')
-  faultfiltered('features_targets/test_fault.txt','afe_feat_and_tarFT.txt')
-  faultfiltered('features_targets/valid_fault.txt','afe_feat_and_tarFV.txt')
+
+  # faultfiltered('features_targets/train_fault.txt','afe_feat_and_tarF.txt')
+  # faultfiltered('features_targets/test_fault.txt','afe_feat_and_tarFT.txt')
+  # faultfiltered('features_targets/valid_fault.txt','afe_feat_and_tarFV.txt')
 

@@ -204,7 +204,7 @@ def kl_distances_matrix(models):
   return np.array(distance_matrix)
 
 def compare_gmms():
-  read_feats, _ = read_stored_data('features_targets/afe_feat_and_targ.txt')
+  read_feats = read_stored_data('features_targets/afe_feat_and_targ.txt')
   feats = read_feats[:,2:]
   feats, _, _ = normalise(feats)
   targs = read_feats[:,1]
@@ -212,16 +212,16 @@ def compare_gmms():
   models = train_gmm_models(feats, targs, n_components=1)
   kl_distances = kl_distances_matrix(models)
 
-  # Plot graph
-  plot_distances(kl_distances)
+  ### Plot graph
+  # plot_distances(kl_distances)
 
-  # Print results
+  ### Print results
   # for i, dist in enumerate(kl_distances):
   #   print(get_label(i) + ' is closest to ' + get_label(np.argsort(dist)[0]) + get_label(np.argsort(dist)[1]) + get_label(np.argsort(dist)[2]))
   # plt.imshow(kl_distances, cmap='gray')
   # plt.show()
 
-  # Save result to CSV
+  ### Save result to CSV
   # write_gmm_distance_to_csv('analysis_docs/file.csv', kl_distances)
 
 def write_gmm_distance_to_csv(file_name, kl_distances):
@@ -252,16 +252,14 @@ def plot_distances(kl_distances):
   # Set up adjacency matrix
   # Much faster with smaller values, divide by 100
   dt = [('len', float)]
-  tuple_distances = np.array([tuple(dist) for dist in kl_distances]) / 100
+  tuple_distances = np.array([tuple(dist) for dist in kl_distances]) / 10
   A = tuple_distances.view(dt)
   
   # Create and draw graph
   G = nx.from_numpy_matrix(A)
+  labels = dict(zip([i for i in range(10)], [get_label(i) for i in range(10)]))
+  G = nx.relabel_nodes(G, labels)
   G = nx.drawing.nx_agraph.to_agraph(G)
-
-  # Cant get relabeling of nodes to work
-  # labels = dict(zip([i for i in range(10)], [get_label(i) for i in range(10)]))
-  # G = nx.relabel_nodes(G, labels)
 
   # Save fig
   G.node_attr.update(color="red", style="filled")
@@ -272,5 +270,5 @@ if __name__ == '__main__':
   # runFaultFilteredGMM()
   # runRandomGMM()
   # run_gmm_k_fold()
-  compare_gmms()
+  # compare_gmms()
 

@@ -27,20 +27,23 @@ def read_directory(genre='rock'):
     i += 1
   all_samples = np.array(all_samples)
   labels = np.full((100,1), get_label(genre))
-  return all_samples, labels
+  return all_samples, labels, np.array(os.listdir(path))
 
 def read_directories():
   all_songs = []
   all_labels = []
+  all_names = []
   i = 0
   for name in os.listdir('genres/'):
-    songs, labels = read_directory(name)
+    songs, labels, file_names = read_directory(name)
     all_songs[i*100:(i+1)*100] = songs
     all_labels[i*100:(i+1)*100] = labels
+    all_names[i*100:(i+1)*100] = file_names
     i += 1
   all_songs = np.array(all_songs)
   all_labels = np.array(all_labels)
-  return all_songs, all_labels
+  all_names = np.array(all_names)
+  return all_songs, all_labels, all_names
 
 def get_path(txt):
   with open(txt, "r") as ins:
@@ -49,42 +52,28 @@ def get_path(txt):
         paths.append(line)
   return paths
 
-def read_stored_data(feat_name='features_targets/afe_feat_and_targ.txt'):
+def read_stored_data(feat_name='features_targets/features_and_targets.txt'):
   """Return feature vectors and corr labels from stored txt file"""
   with open(feat_name) as f:
     lines = f.readlines()
     features = [[0]] * len(lines)
     for i in range(len(lines)):
       features[i] = [float(i) for i in lines[i].split()]
+      features[i][:2] = [int(i) for i in features[i][:2]]
     features = np.array(features)
-
-  return features, features[:,1]
+  return features
 
 
 
 ##################
 ### Write files ###
-
-def write_features_to_file(features, f_name):
-  with open('features_targets/' + f_name, 'w') as file:
-    for item in features:
-      for element in item:
-        file.write(str(element))
-        file.write(' ')
-      file.write('\n')
-
-def write_targes_to_file(targets, file_name='targets.txt'):
-  with open('targets.txt', 'w') as file:
-    for item in targets:
-      file.write(str(int(item[0])))
-      file.write('\n')
   
-def write_afe_to_file(songs, targets, f_name):
+def write_afe_to_file(songs, targets, song_names, f_name):
   with open('features_targets/' + f_name, 'w') as f_t:
     c = 0
-    for song in songs:
+    for song, name in zip(songs, song_names):
       for vector in song:
-        f_t.write(str(c) + ' ')
+        f_t.write(str(targets[c][0]) + str(name[-6:-4]) + ' ')
         f_t.write(str(targets[c][0]) + ' ')
         for feat in vector:
           f_t.write(str(feat) + ' ') 
