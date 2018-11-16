@@ -158,7 +158,7 @@ def train_gmm_models(features, targets, n_components=3):
   all_models = []
   n_genres = np.unique(targets).shape[0]
   for i in range(n_genres):
-    all_models.append(GaussianMixture(n_components=3))
+    all_models.append(GaussianMixture(n_components))
     all_models[i].fit(features[targets == i])
   return np.array(all_models)
 
@@ -175,7 +175,7 @@ def kl_divergence(m0, cov0, m1, cov1, n_dim=19):
 def kl_distance_between(model1, model2):
   """Compute KL distance between two GMMs.
   Distance = D(GMM1 || GMM2) + D(GMM2 || GMM1) where
-  D(GMM1 || GMM2) = 
+  In GMM3, D(GMM1 || GMM2) = 
   Aw1Aw2 D(A1 || A2) + Aw1Bw2 D(A1 || B2) + Aw1Cw2 D(A1 || C2) 
   Bw1Aw2 D(B1 || A2) + Bw1Bw2 D(B1 || B2) + Bw1Cw2 D(B1 || C2) 
   Cw1Aw2 D(C1 || A2) + Cw1Bw2 D(C1 || B2) + Cw1Cw2 D(C1 || C2)
@@ -210,9 +210,39 @@ def compare_gmms():
 
   models = train_gmm_models(feats, targs, n_components=3)
   kl_distances = kl_distances_matrix(models)
-  plt.imshow(kl_distances, cmap='gray')
-  
-  plt.show()
+
+  # Print results
+  # for i, dist in enumerate(kl_distances):
+  #   print(get_label(i) + ' is closest to ' + get_label(np.argsort(dist)[0]) + get_label(np.argsort(dist)[1]) + get_label(np.argsort(dist)[2]))
+  # plt.imshow(kl_distances, cmap='gray')
+  # plt.show()
+
+  # Save res to CSV
+  # write_gmm_distance_to_csv('analysis_docs/file.csv', kl_distances)
+
+def write_gmm_distance_to_csv(file_name, kl_distances):
+  with open(file_name, 'w') as f:
+    f.write(',')
+    for i in range(10):
+      f.write(get_label(i) + ',')
+    f.write('\n')
+
+    c = 0
+    for i, distance in enumerate(kl_distances):
+      f.write(get_label(i) + ',')
+      for j in distance:
+        f.write(str(j) + ',')
+      f.write('\n')
+    f.write('\n')
+
+    f.write('Nearest classes\nGenre,Nearest,2nd nearest,3rd nearest\n')
+    for j, dist in enumerate(kl_distances):
+      sort = np.argsort(dist)
+      f.write(get_label(j) + ',')
+      for i in range(3):
+        f.write(get_label(sort[i]) + ',')
+      f.write('\n')
+
 
 if __name__ == '__main__':
 
