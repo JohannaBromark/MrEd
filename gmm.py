@@ -4,6 +4,7 @@ from timbral_texture import get_label
 from scipy.stats import entropy as entropy
 import matplotlib.pyplot as plt
 import numpy as np
+import networkx as nx
 
 
 from utils import *
@@ -208,8 +209,11 @@ def compare_gmms():
   feats, _, _ = normalise(feats)
   targs = read_feats[:,1]
 
-  models = train_gmm_models(feats, targs, n_components=3)
+  models = train_gmm_models(feats, targs, n_components=1)
   kl_distances = kl_distances_matrix(models)
+
+  # Plot graph
+  plot_distances(kl_distances)
 
   # Print results
   # for i, dist in enumerate(kl_distances):
@@ -217,7 +221,7 @@ def compare_gmms():
   # plt.imshow(kl_distances, cmap='gray')
   # plt.show()
 
-  # Save res to CSV
+  # Save result to CSV
   # write_gmm_distance_to_csv('analysis_docs/file.csv', kl_distances)
 
 def write_gmm_distance_to_csv(file_name, kl_distances):
@@ -243,6 +247,25 @@ def write_gmm_distance_to_csv(file_name, kl_distances):
         f.write(get_label(sort[i]) + ',')
       f.write('\n')
 
+def plot_distances(kl_distances):
+
+  # Set up adjacency matrix
+  # Much faster with smaller values, divide by 100
+  dt = [('len', float)]
+  tuple_distances = np.array([tuple(dist) for dist in kl_distances]) / 100
+  A = tuple_distances.view(dt)
+  
+  # Create and draw graph
+  G = nx.from_numpy_matrix(A)
+  G = nx.drawing.nx_agraph.to_agraph(G)
+
+  # Cant get relabeling of nodes to work
+  # labels = dict(zip([i for i in range(10)], [get_label(i) for i in range(10)]))
+  # G = nx.relabel_nodes(G, labels)
+
+  # Save fig
+  G.node_attr.update(color="red", style="filled")
+  # G.draw('analysis_docs/gmm1_distances_visualized.png', format='png', prog='neato')
 
 if __name__ == '__main__':
 
