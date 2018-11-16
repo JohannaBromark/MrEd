@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
 from sklearn.neighbors import KNeighborsClassifier
+import networkx as nx
 
 
 def euclidean_dist(v1, v2):
@@ -452,16 +453,34 @@ def correct_incorrectDistPlot(allCorrect, allInCorrect):
 
     plt.show()
 
+def create_neighbor_graph():
+    nearest_neighbors = get_nearest_neighbors()
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    G = nx.DiGraph()
+    colors = createColorDict()
+    for idx, neighbor_i in enumerate(nearest_neighbors[:, 0]):
+        if idx not in G:
+            G.add_node(idx, color=colors[int(features[idx, 1])+1])
+        if int(neighbor_i) not in G:
+            G.add_node(int(neighbor_i), color=colors[int(features[int(neighbor_i), 1])+1])
+        G.add_edge(idx, int(neighbor_i))
+
+    G = nx.drawing.nx_agraph.to_agraph(G)
+    G.node_attr.update(style="filled")
+    # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
+    
+
 if __name__ == '__main__':
     #knn_neighbor_count()
     #save_track_features_to_file()
     #plot_all_track_dist_to_origo()
     #knn_distance_measure_correct()
     #view_wrongly_classified()
-    plot_features()
+    # plot_features()
     #compare_popular_song_neighbors()
     #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     #train_setP, test_setP = partdata()
+    create_neighbor_graph()
 
     train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     train_setP, test_setP = partdata()
@@ -470,7 +489,7 @@ if __name__ == '__main__':
     allDist, a = read_stored_data('features_targets/Alldistances.txt')
     allDist = np.array(allDist)
 
-
+    
     # a = allCorrectPlotDist(allDist)
     # b = allInCorrectPlotDist(allDist)
     # CorrectAvg = np.average(a)
@@ -479,9 +498,9 @@ if __name__ == '__main__':
     # print(InCorrectAvg)
     # correct_incorrectDistPlot(a,b)
    
-    a = allCorrectPlotDist(allDist)
-    b = allInCorrectPlotDist(allDist)
-    correct_incorrectDistPlot(a,b)
+    # a = allCorrectPlotDist(allDist)
+    # b = allInCorrectPlotDist(allDist)
+    # correct_incorrectDistPlot(a,b)
 
     # classInternalDistance(allDist[:,2:])
     # classHistograms(allDist[:,2:])
