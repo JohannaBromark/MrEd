@@ -27,20 +27,23 @@ def read_directory(genre='rock'):
     i += 1
   all_samples = np.array(all_samples)
   labels = np.full((100,1), get_label(genre))
-  return all_samples, labels
+  return all_samples, labels, np.array(os.listdir(path))
 
 def read_directories():
   all_songs = []
   all_labels = []
+  all_names = []
   i = 0
   for name in os.listdir('genres/'):
-    songs, labels = read_directory(name)
+    songs, labels, file_names = read_directory(name)
     all_songs[i*100:(i+1)*100] = songs
     all_labels[i*100:(i+1)*100] = labels
+    all_names[i*100:(i+1)*100] = file_names
     i += 1
   all_songs = np.array(all_songs)
   all_labels = np.array(all_labels)
-  return all_songs, all_labels
+  all_names = np.array(all_names)
+  return all_songs, all_labels, all_names
 
 def get_path(txt):
   with open(txt, "r") as ins:
@@ -49,42 +52,30 @@ def get_path(txt):
         paths.append(line)
   return paths
 
-def read_stored_data(feat_name='features_targets/afe_feat_and_targ.txt'):
+def read_stored_data(feat_name='features_targets/all_vectors.txt'):
   """Return feature vectors and corr labels from stored txt file"""
   with open(feat_name) as f:
     lines = f.readlines()
     features = [[0]] * len(lines)
     for i in range(len(lines)):
       features[i] = [float(i) for i in lines[i].split()]
+      features[i][:2] = [int(i) for i in features[i][:2]]
     features = np.array(features)
-
-  return features, features[:,1]
+  return features
 
 
 
 ##################
 ### Write files ###
-
-def write_features_to_file(features, f_name):
-  with open('features_targets/' + f_name, 'w') as file:
-    for item in features:
-      for element in item:
-        file.write(str(element))
-        file.write(' ')
-      file.write('\n')
-
-def write_targes_to_file(targets, file_name='targets.txt'):
-  with open('targets.txt', 'w') as file:
-    for item in targets:
-      file.write(str(int(item[0])))
-      file.write('\n')
   
-def write_afe_to_file(songs, targets, f_name):
+def write_afe_to_file(songs, targets, song_names, f_name):
   with open('features_targets/' + f_name, 'w') as f_t:
     c = 0
-    for song in songs:
+    for song, name in zip(songs, song_names):
       for vector in song:
-        f_t.write(str(c) + ' ')
+        print(targets[c][0])
+        print(str(targets[c][0]) + str(name[-6:-4]))
+        f_t.write(str(targets[c][0]) + str(name[-6:-4]) + ' ')
         f_t.write(str(targets[c][0]) + ' ')
         for feat in vector:
           f_t.write(str(feat) + ' ') 
@@ -99,6 +90,12 @@ def save_confusion_matrix(filename, confusion_matrix):
       file.write(get_label(row_idx) + ",")
       file.write(",".join(list(map(lambda r: str(r), row))) + "\n")
 
+
+def save_matrix(filename, matrix):
+  with open(filename, "w") as file:
+    for row in matrix:
+      file.write(" ".join(list(map(lambda r: str(r), row))))
+      file.write("\n")
 
 ##################
 ### Labels ###
@@ -133,23 +130,23 @@ def read_partition(path):
   path = get_path(path)
   all_songs = []
   all_labels = np.zeros(len(path))
-  # all_samples = np.zeros(len(path))
   all_samples = [[0]] * len([f for f in range(len(path))])
+  all_names = []
 
   i = 0
   for p in path:
     sample_rate, all_samples[i] = read_file('genres/' + p.strip())
-    label = get_label(p.split('/')[0])
-    all_labels[i] = label
+    all_labels[i] = get_label(p.split('/')[0])
+    all_names.append(p.strip().split('/')[1])
     i += 1
-
+  
   all_labels = np.array(all_labels)
   all_labels = all_labels.reshape(all_labels.size,1)
+  all_labels = [[int(i[0])] for i in all_labels]
+  
+  all_names = np.array(all_names)
 
-  # all_samples = np.array(all_samples)
-  return sample_rate, all_samples, all_labels
-
-
+  return sample_rate, all_samples, all_labels, all_names
 
   ################
   ### Plotting ###
@@ -218,8 +215,8 @@ def normalise(features):
   :return: features, means and stds for each dimension"""
   n_vec, n_feats = features.shape
 
-  if n_feats != 19:
-    raise ValueError("Wrong number of feature dimensions for normalisation: " + str(n_feats))
+  # if n_feats != 19:
+  #   raise ValueError("Wrong number of feature dimensions for normalisation: " + str(n_feats))
 
   used_means, used_stds = np.zeros(n_feats), np.zeros(n_feats)
   norm_features = np.zeros(features.shape)
@@ -397,7 +394,7 @@ def get_songs_feature_set(filename):
   :param filename: file for the stored features
   :return: feature vectors for each song
   """
-  features, _ = read_stored_data(filename)
+  features = read_stored_data(filename)
 
   return mean_by_song(features)
 
@@ -418,6 +415,29 @@ def get_test_train_sets(features, partition_num = 0, seed = None):
   train_set, test_set = get_set_from_partitions(partitions, partition_num)
 
   return train_set, test_set
+
+
+
+##################
+## Vector calculations ##
+
+def euclidean_dist(v1, v2):
+  return np.linalg.norm(v1 - v2)
+
+
+def angle(v1, v2):
+  """ Computes the angle between two vectors. Returns the angle in radians"""
+  v1_norm = v1/np.linalg.norm(v1)
+  v2_norm = v2/np.linalg.norm(v2)
+  dot_product = np.dot(v1_norm, v2_norm)
+  if -1 <= dot_product <= 1:
+    angle = np.arccos(dot_product)
+  else:
+    if dot_product > 0:
+      angle = np.arccos(1.0)
+    else:
+      angle = np.arccos(-1.0)
+  return angle
 
 
 # Function for create dictionary with colors

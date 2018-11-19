@@ -163,7 +163,7 @@ def train_gmm_models(features, targets, n_components=3):
     all_models[i].fit(features[targets == i])
   return np.array(all_models)
 
-def kl_divergence(m0, cov0, m1, cov1, n_dim=19):
+def kl_divergence(m0, cov0, m1, cov1, n_dim):
   """Compute the KL divergence of two gaussian distributions"""
   # https://en.wikipedia.org/wiki/Multivariate_normal_distribution#Kullback%E2%80%93Leibler_divergence
 
@@ -183,13 +183,14 @@ def kl_distance_between(model1, model2):
   """
   means_m1, covars_m1, weights_m1 = gmm_props(model1)
   means_m2, covars_m2, weights_m2 = gmm_props(model2)
+  n_dim = means_m1.shape[1]
   n_comp = len(means_m1)
 
   dist = 0
   for i in range(n_comp):
     for j in range(n_comp):
-      dist += weights_m1[i] * weights_m2[j] * kl_divergence(means_m1[i], covars_m1[i], means_m2[j], covars_m2[j])
-      dist += weights_m2[i] * weights_m1[j] * kl_divergence(means_m2[i], covars_m2[i], means_m1[j], covars_m1[j])
+      dist += weights_m1[i] * weights_m2[j] * kl_divergence(means_m1[i], covars_m1[i], means_m2[j], covars_m2[j], n_dim)
+      dist += weights_m2[i] * weights_m1[j] * kl_divergence(means_m2[i], covars_m2[i], means_m1[j], covars_m1[j], n_dim)
   return dist
 
 def kl_distances_matrix(models):
@@ -203,28 +204,36 @@ def kl_distances_matrix(models):
     distance_matrix[i] = distances
   return np.array(distance_matrix)
 
-def compare_gmms():
-  read_feats, _ = read_stored_data('features_targets/afe_feat_and_targ.txt')
-  feats = read_feats[:,2:]
-  feats, _, _ = normalise(feats)
-  targs = read_feats[:,1]
+def read_all_vectors():
+  return read_stored_data()
 
-  models = train_gmm_models(feats, targs, n_components=1)
+def read_and_combine_fault_filtered_train_and_val():
+  training = read_stored_data('features_targets/fault_filtered_vectors_train.txt')
+  val = read_stored_data('features_targets/fault_filtered_vectors_valid.txt')
+  return np.concatenate((training,val))
+
+def mfcc_only(vectors):
+  filtered = [0,1,10,11,12,13,14,15,16,17,18,19]
+  return vectors[:,filtered]
+
+def compare_gmms():
+  # f_vectors = read_all_vectors()
+  f_vectors = read_and_combine_fault_filtered_train_and_val()
+  f_vectors = mfcc_only(f_vectors)
+  features = f_vectors[:,2:]
+  features, _, _ = normalise(features)
+  targets = f_vectors[:,1]
+
+  models = train_gmm_models(features, targets, n_components=1)
   kl_distances = kl_distances_matrix(models)
 
-  # Plot graph
-  plot_distances(kl_distances)
+  ### Save graph to .png
+  # plot_distances(kl_distances, 'analysis_docs/gmm_comparisons/mfcc_only/fault_filtered/gmm1_distances_vis.png')
 
-  # Print results
-  # for i, dist in enumerate(kl_distances):
-  #   print(get_label(i) + ' is closest to ' + get_label(np.argsort(dist)[0]) + get_label(np.argsort(dist)[1]) + get_label(np.argsort(dist)[2]))
-  # plt.imshow(kl_distances, cmap='gray')
-  # plt.show()
+  ### Save distances to .csv
+  # write_gmm_distance_to_csv(kl_distances, 'analysis_docs/gmm_comparisons/mfcc_only/fault_filtered/gmm1_distances.csv', )
 
-  # Save result to CSV
-  # write_gmm_distance_to_csv('analysis_docs/file.csv', kl_distances)
-
-def write_gmm_distance_to_csv(file_name, kl_distances):
+def write_gmm_distance_to_csv(kl_distances, file_name):
   with open(file_name, 'w') as f:
     f.write(',')
     for i in range(10):
@@ -247,25 +256,23 @@ def write_gmm_distance_to_csv(file_name, kl_distances):
         f.write(get_label(sort[i]) + ',')
       f.write('\n')
 
-def plot_distances(kl_distances):
+def plot_distances(kl_distances, f_name):
 
   # Set up adjacency matrix
-  # Much faster with smaller values, divide by 100
+  # Much faster with smaller values -> divide or multiply with factor if bad results
   dt = [('len', float)]
-  tuple_distances = np.array([tuple(dist) for dist in kl_distances]) / 100
+  tuple_distances = np.array([tuple(dist) for dist in kl_distances])
   A = tuple_distances.view(dt)
   
   # Create and draw graph
   G = nx.from_numpy_matrix(A)
+  labels = dict(zip([i for i in range(10)], [get_label(i) for i in range(10)]))
+  G = nx.relabel_nodes(G, labels)
   G = nx.drawing.nx_agraph.to_agraph(G)
-
-  # Cant get relabeling of nodes to work
-  # labels = dict(zip([i for i in range(10)], [get_label(i) for i in range(10)]))
-  # G = nx.relabel_nodes(G, labels)
 
   # Save fig
   G.node_attr.update(color="red", style="filled")
-  # G.draw('analysis_docs/gmm1_distances_visualized.png', format='png', prog='neato')
+  G.draw(f_name, format='png', prog='neato')
 
 if __name__ == '__main__':
 
@@ -273,4 +280,4 @@ if __name__ == '__main__':
   # runRandomGMM()
   # run_gmm_k_fold()
   compare_gmms()
-
+  pass
