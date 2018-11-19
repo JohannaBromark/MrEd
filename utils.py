@@ -91,6 +91,12 @@ def save_confusion_matrix(filename, confusion_matrix):
       file.write(",".join(list(map(lambda r: str(r), row))) + "\n")
 
 
+def save_matrix(filename, matrix):
+  with open(filename, "w") as file:
+    for row in matrix:
+      file.write(" ".join(list(map(lambda r: str(r), row))))
+      file.write("\n")
+
 ##################
 ### Labels ###
 
@@ -388,7 +394,7 @@ def get_songs_feature_set(filename):
   :param filename: file for the stored features
   :return: feature vectors for each song
   """
-  features, _ = read_stored_data(filename)
+  features = read_stored_data(filename)
 
   return mean_by_song(features)
 
@@ -409,6 +415,29 @@ def get_test_train_sets(features, partition_num = 0, seed = None):
   train_set, test_set = get_set_from_partitions(partitions, partition_num)
 
   return train_set, test_set
+
+
+
+##################
+## Vector calculations ##
+
+def euclidean_dist(v1, v2):
+  return np.linalg.norm(v1 - v2)
+
+
+def angle(v1, v2):
+  """ Computes the angle between two vectors. Returns the angle in radians"""
+  v1_norm = v1/np.linalg.norm(v1)
+  v2_norm = v2/np.linalg.norm(v2)
+  dot_product = np.dot(v1_norm, v2_norm)
+  if -1 <= dot_product <= 1:
+    angle = np.arccos(dot_product)
+  else:
+    if dot_product > 0:
+      angle = np.arccos(1.0)
+    else:
+      angle = np.arccos(-1.0)
+  return angle
 
 
 # Function for create dictionary with colors

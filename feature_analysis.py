@@ -4,54 +4,40 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
 import networkx as nx
+import pygraphviz
 
 
-def euclidean_dist(v1, v2):
-    return np.linalg.norm(v1 - v2)
 
-def save_track_features_to_file():
+########################### Neighbor computations ###############################
 
-    track_pairs_similar = [[57, 66], [53, 75], [108, 137], [123, 165], [126, 160], [612, 177], [748, 767],
-                           [28, 86], [158, 147], [204, 746], [346, 360], [355, 466], [419, 61], [701, 204]]
+def get_k_nearest_neighbors(matrix, k):
+    """
+    Computes the k-nearest neighbor from the matrix.
+    The matrix should not include track number and label!
+    """
+    nearest_neghbors = np.zeros((1000, k))
 
-    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
-    norm_features = normalise(features[:, 2:])[0]
-    all_norm_features = np.zeros(features.shape)
-    all_norm_features[:, 0:2] = features[:, 0:2]
-    all_norm_features[:, 2:] = norm_features
+    for idx, distances in enumerate(matrix):
+        neighbor_idxs_temp = np.argpartition(distances, k + 1)[:k + 1]
 
-    # Save to file
-    with open("similar_tracks_norm.csv", "w") as file:
-        for track_pair in track_pairs_similar:
-            file.write(",".join(list(map(lambda x: str(x), all_norm_features[track_pair[0], :]))))
-            file.write("\n")
-            file.write(",".join(list(map(lambda x: str(x), all_norm_features[track_pair[1], :]))))
-            file.write("\n\n\n")
+        # Remove itself from the neighbor list
+        neighbor_idxs = np.delete(neighbor_idxs_temp, np.argwhere(neighbor_idxs_temp == idx))
 
+        # Sort neighbors based on distance
+        k_near_neighbors = np.concatenate(
+            (neighbor_idxs.reshape(-1, 1), np.take(distances, neighbor_idxs).reshape(-1, 1)), axis=1)
+        sorted_neighbors = k_near_neighbors[k_near_neighbors[:, 1].argsort()]
+        nearest_neghbors[idx, :] = sorted_neighbors[:, 0]
 
-def compare_popular_song_neighbors():
-    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
-    nearest_neighbors = get_nearest_neighbors()
-
-    idx = 296 # The popular song index
-
-    neighbors = np.where(nearest_neighbors[:, 0] == idx)[0]
-
-    pop_song_features = features[idx:idx+1, :]
-    neighbor_features = features[neighbors, :]
-
-    neighbor_batch = np.concatenate((features[idx:idx+1, :], features[neighbors, :]))
-
-    # Save the neighbors to file
-    pass
+    return nearest_neghbors
 
 
 def get_nearest_neighbors():
     nearest_neghbors = np.zeros((1000, 2))
 
-    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
 
-    allDist, a = read_stored_data('features_targets/AllDistances.txt')
+    allDist = read_stored_data('features_targets/AllDistances.txt')
     allDist = np.array(allDist)[:, 2:]
 
     for idx, distances in enumerate(allDist):
@@ -63,11 +49,11 @@ def get_nearest_neighbors():
     return nearest_neghbors
 
 
+################################# Other #############################
+
 def view_wrongly_classified():
     features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
     nearest_neighbors = get_nearest_neighbors()
-
-
     i = 1
     for idx, nearest_neghbor in enumerate(nearest_neighbors[:, 0]):
         sample = features[idx, :]
@@ -80,53 +66,6 @@ def view_wrongly_classified():
             plt.axis("off")
             i += 1
     plt.show()
-
-
-def find_k_nearest_neighbors():
-    """
-    Find the k nearest neighbors for each sample
-    :return:
-    """
-
-    k = 3
-    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
-    alldist, _ = read_stored_data("features_targets/AllDistances.txt")
-    alldist = alldist[:, 2:]
-
-    nearest_neighbors = np.zeros((1000, 2*k))
-
-    for idx, distances in enumerate(alldist):
-        neighbor_idxs = np.argpartition(distances, k+1)[:k+1]  # The smallest will be to the elemnet itself, compensating
-
-        k_near_neighbors = np.concatenate((neighbor_idxs.reshape(-1, 1), np.take(distances, neighbor_idxs).reshape(-1, 1)), axis=1)
-        sorted_neighbors = k_near_neighbors[k_near_neighbors[:, 1].argsort()]
-        neighbor_idxs = sorted_neighbors[1:, 0]
-
-        for nidx, neighbor in enumerate(neighbor_idxs):
-            nidx *= 2
-            nearest_neighbors[idx, nidx] = int(features[int(neighbor), 0])
-            nearest_neighbors[idx, nidx+1] = distances[int(neighbor)]
-
-    # Save to file
-    filename = "analysis_docs/"+str(k)+"-nearest_neighbor_dist.csv"
-    with open(filename, "w") as file:
-        file.write("Track,,Nearest Neighbor,,Distance")
-        file.write("\n")
-        file.write("Track nr," + "Class," + "Track nr," + "Class,"+"Distance")
-        file.write("\n")
-        for idx, track in enumerate(features):
-            file.write(str(int(track[0])) + "," + str(int(track[1])) + " (" + get_label(
-                int(track[1])) + ")")
-            nearest_neighbor = nearest_neighbors[idx, :]
-            for nidx in range(0, len(nearest_neighbor), 2):
-                neighbor = int(features[int(nearest_neighbor[nidx]), 0])
-                file.write("," + str(int(features[neighbor, :][0])) + "," + str(
-                    int(features[neighbor, :][1])) + " (" + get_label(
-                    int(features[neighbor, :][1])) + "),")
-                file.write(str(nearest_neighbor[nidx+1]))
-            file.write("\n")
-
-    pass
 
 
 def plot_features():
@@ -254,6 +193,7 @@ def knn_distance_measure_correct():
 
     pass
 
+############################# Plots #############################
 
 def plot_track_distances(track_id, distance_vector, features):
     """Plots the distances to all the neighbors of specified track. The different classes are colorcoded"""
@@ -355,6 +295,20 @@ def averageHist(dist,bucket_size=100):
     return number_of_weights
 
 
+################################ Distance computations ##################
+
+def compute_distances():
+    """Compute the distance between each feature and save to file"""
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    distances = np.zeros((len(features), len(features) + 2))
+    norm_features = normalise(features[:, 2:])[0]
+    distances[:, :2] = features[:, :2]
+    for idx, feature in enumerate(norm_features):
+        for o_idx, other_feature in enumerate(norm_features):
+            distances[idx, o_idx + 2] = euclidean_dist(feature, other_feature)
+    save_matrix("features_targets/all_distances.txt", distances)
+
+
 def MaxMinDist(dist):
     maxx = 0
     minn = 999
@@ -434,6 +388,7 @@ def allDistance(train_set,test_set):
             dist = np.append(dist, euclidean_dist(train_set[i,:], train_set[k,:]))
 
     return dist.reshape(len(train_set),len(train_set)+2)
+
 def classDistance(alldist):
     a = []
     classes = [7,6,3,0,8,1,9,4,2,5]
@@ -527,7 +482,7 @@ def correct_incorrectDistPlot(allCorrect, allInCorrect):
 
 def create_neighbor_graph():
     nearest_neighbors = get_nearest_neighbors()
-    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
     G = nx.DiGraph()
     colors = createColorDict()
     for idx, neighbor_i in enumerate(nearest_neighbors[:, 0]):
@@ -539,12 +494,12 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
-    # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
+    #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
 
 def compute_knn_adjecency_matrix():
 
-    all_distances = read_stored_data('features_targets/AllDistances.txt')[0]
+    all_distances = read_stored_data("features_targets/AllDistances.txt")
     all_distances = all_distances[:, 2:]
     genre_adjecency_matrix = np.zeros((10, 10))
 
@@ -559,20 +514,98 @@ def compute_knn_adjecency_matrix():
 
 
 def create_knn_graph():
+    """ RESULTS IN A CRAPPY DRAWING!!! don't know why :'("""
     adjecency_matrix = compute_knn_adjecency_matrix()
+    adjecency_matrix[1,0] = adjecency_matrix[1,0] * 100
     class_order = [7,6,3,0,8,1,9,4,2,5]
 
     G = nx.from_numpy_matrix(adjecency_matrix)
+
     name_mapping = dict(zip(G.nodes, [get_label(label) for label in class_order]))
     G = nx.relabel_nodes(G, name_mapping)
     G = nx.drawing.nx_agraph.to_agraph(G)
-    G.node_attr.update(colors="red", style="filled")
+    G.node_attr.update(color="red", style="filled")
+
     G.draw('analysis_docs/knn_distances_visualized.png', format='png', prog='neato')
+
+########################### Angles ####################################
+
+def create_angle_neighbor_graph():
+    angles = read_stored_data("features_targets/all_angles.txt")
+    nearest_neighbors = get_k_nearest_neighbors(angles[:, 2:], 1)
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    G = nx.DiGraph()
+    colors = createColorDict()
+    for idx, neighbor_i in enumerate(nearest_neighbors):
+        if idx not in G:
+            G.add_node(idx, color=colors[int(features[idx, 1])+1])
+        if int(neighbor_i) not in G:
+            G.add_node(int(neighbor_i), color=colors[int(features[int(neighbor_i), 1])+1])
+        G.add_edge(idx, int(neighbor_i))
+
+    G = nx.drawing.nx_agraph.to_agraph(G)
+    G.node_attr.update(style="filled")
+    G.draw('analysis_docs/knn_angle_neighbor_visualized.png', format='png', prog='neato')
+
+
+########################## Save stuff to file ##################################
+
+
+def save_neighbors_to_csv(filename, neighbors, neighbor_distances):
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+
+    # Save to file
+    with open(filename, "w") as file:
+        file.write("Track,,Nearest Neighbor,,Distance")
+        file.write("\n")
+        file.write("Track nr," + "Class," + "Track nr," + "Class,"+"Distance")
+        file.write("\n")
+        for idx, track_neighbors in enumerate(neighbors):
+            file.write(str(int(neighbor_distances[idx, 0])) + "," + str(int(neighbor_distances[idx, 1])) + " (" + get_label(
+                int(neighbor_distances[idx, 1])) + ")")
+            for nidx in track_neighbors:
+                neighbor = int(features[int(nidx), 0])
+                file.write("," + str(int(features[neighbor, 0])) + "," + str(
+                    int(features[neighbor, 1])) + " (" + get_label(
+                    int(features[neighbor, 1])) + "),")
+                file.write(str(neighbor_distances[idx, int(nidx)+2]))
+            file.write("\n")
+
+
+def save_angle_neighbors_to_file():
+
+    angles = read_stored_data("features_targets/all_angles.txt")
+    distance_matrix = get_k_nearest_neighbors(angles[:, 2:], 1)
+
+    save_neighbors_to_csv("analysis_docs/nearest_neighbor_angle.csv",
+                          distance_matrix,
+                          angles)
+
+
+def compute_angles():
+    """Compute the angles between each feature and save to file"""
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    angles = np.zeros((len(features), len(features) +2))
+    norm_features = normalise(features[:, 2:])[0]
+    angles[:, :2] = features[:, :2]
+
+    for idx, feature in enumerate(norm_features):
+        for o_idx, other_feature in enumerate(norm_features):
+            angles[idx, o_idx+2] = angle(feature, other_feature)
+
+
+    #save_matrix("features_targets/all_angles.txt", angles)
+
 
 
 
 if __name__ == '__main__':
-    create_knn_graph()
+    create_angle_neighbor_graph()
+    #create_knn_graph()
+    #save_angle_neighbors_to_file()
+    #compute_angles()
+    #get_k_nearest_neighbors(read_stored_data("features_targets/AllDistances.txt")[:, 2:], 3)
+    #create_neighbor_graph()
     #knn_neighbor_count()
     #save_track_features_to_file()
     #plot_all_track_dist_to_origo()

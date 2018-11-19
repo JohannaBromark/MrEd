@@ -120,3 +120,86 @@ def knn_neighbor_count():
 
 
     pass
+
+
+def save_track_features_to_file():
+
+    track_pairs_similar = [[57, 66], [53, 75], [108, 137], [123, 165], [126, 160], [612, 177], [748, 767],
+                           [28, 86], [158, 147], [204, 746], [346, 360], [355, 466], [419, 61], [701, 204]]
+
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    norm_features = normalise(features[:, 2:])[0]
+    all_norm_features = np.zeros(features.shape)
+    all_norm_features[:, 0:2] = features[:, 0:2]
+    all_norm_features[:, 2:] = norm_features
+
+    # Save to file
+    with open("similar_tracks_norm.csv", "w") as file:
+        for track_pair in track_pairs_similar:
+            file.write(",".join(list(map(lambda x: str(x), all_norm_features[track_pair[0], :]))))
+            file.write("\n")
+            file.write(",".join(list(map(lambda x: str(x), all_norm_features[track_pair[1], :]))))
+            file.write("\n\n\n")
+
+
+def compare_popular_song_neighbors():
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    nearest_neighbors = get_nearest_neighbors()
+
+    idx = 296 # The popular song index
+
+    neighbors = np.where(nearest_neighbors[:, 0] == idx)[0]
+
+    pop_song_features = features[idx:idx+1, :]
+    neighbor_features = features[neighbors, :]
+
+    neighbor_batch = np.concatenate((features[idx:idx+1, :], features[neighbors, :]))
+
+    # Save the neighbors to file
+    pass
+
+def find_k_nearest_neighbors():
+    """
+    Find the k nearest neighbors for each sample
+    :return:
+    """
+
+    k = 3
+    features = get_songs_feature_set("features_targets/afe_feat_and_targ.txt")
+    alldist, _ = read_stored_data("features_targets/AllDistances.txt")
+    alldist = alldist[:, 2:]
+
+    nearest_neighbors = np.zeros((1000, 2*k))
+
+    for idx, distances in enumerate(alldist):
+        neighbor_idxs = np.argpartition(distances, k+1)[:k+1]  # The smallest will be to the elemnet itself, compensating
+
+        k_near_neighbors = np.concatenate((neighbor_idxs.reshape(-1, 1), np.take(distances, neighbor_idxs).reshape(-1, 1)), axis=1)
+        sorted_neighbors = k_near_neighbors[k_near_neighbors[:, 1].argsort()]
+        neighbor_idxs = sorted_neighbors[1:, 0]
+
+        for nidx, neighbor in enumerate(neighbor_idxs):
+            nidx *= 2
+            nearest_neighbors[idx, nidx] = int(features[int(neighbor), 0])
+            nearest_neighbors[idx, nidx+1] = distances[int(neighbor)]
+
+    # Save to file
+    filename = "analysis_docs/"+str(k)+"-nearest_neighbor_dist.csv"
+    with open(filename, "w") as file:
+        file.write("Track,,Nearest Neighbor,,Distance")
+        file.write("\n")
+        file.write("Track nr," + "Class," + "Track nr," + "Class,"+"Distance")
+        file.write("\n")
+        for idx, track in enumerate(features):
+            file.write(str(int(track[0])) + "," + str(int(track[1])) + " (" + get_label(
+                int(track[1])) + ")")
+            nearest_neighbor = nearest_neighbors[idx, :]
+            for nidx in range(0, len(nearest_neighbor), 2):
+                neighbor = int(features[int(nearest_neighbor[nidx]), 0])
+                file.write("," + str(int(features[neighbor, :][0])) + "," + str(
+                    int(features[neighbor, :][1])) + " (" + get_label(
+                    int(features[neighbor, :][1])) + "),")
+                file.write(str(nearest_neighbor[nidx+1]))
+            file.write("\n")
+
+    pass
