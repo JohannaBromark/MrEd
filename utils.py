@@ -215,8 +215,8 @@ def normalise(features):
   :return: features, means and stds for each dimension"""
   n_vec, n_feats = features.shape
 
-  if n_feats != 19:
-    raise ValueError("Wrong number of feature dimensions for normalisation: " + str(n_feats))
+  # if n_feats != 19:
+  #   raise ValueError("Wrong number of feature dimensions for normalisation: " + str(n_feats))
 
   used_means, used_stds = np.zeros(n_feats), np.zeros(n_feats)
   norm_features = np.zeros(features.shape)

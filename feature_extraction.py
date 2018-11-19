@@ -5,6 +5,15 @@ from pyAudioAnalysis import audioBasicIO
 from utils import *
 
 def feature_vector(frames):
+  # idx -> feature
+  # with song number and target all idx below are pushed by 2
+  # 0-1 centroid
+  # 2-3 rolloff
+  # 4-5 flux
+  # 6-7 zero crossing
+  # 8-17 mfcc
+  # 18 energi
+
   feat_idx = [3,7,6,0,8,9,10,11,12]
   vec = []
   mean = np.sum(frames, axis=1)/frames.shape[1]
@@ -55,7 +64,7 @@ def write_all_vectors():
     frames, f_names = afe.stFeatureExtraction(samples[i], sample_rate, seg_size, seg_size)
     f_vectors.append(all_feature_vectors(frames))
 
-  write_afe_to_file(f_vectors, targets, names, 'features_and_targets.txt')
+  write_afe_to_file(f_vectors, targets, names, 'all_vectors.txt')
 
 if __name__ == '__main__':
   pass
