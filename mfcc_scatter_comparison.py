@@ -49,37 +49,37 @@ def compare_mfccs(genre_1, genre_2):
   f, ax = plt.subplots()
   ax.set_xticks([i for i in range(max(x_2)+1)])
   x_ticks_labels = [
-    'G1, coeff 0 mean', 
-    'G2, coeff 0 mean',
-    'G1, coeff 1 mean', 
-    'G2, coeff 1 mean',
-    'G1, coeff 2 mean', 
-    'G2, coeff 2 mean',
-    'G1, coeff 3 mean', 
-    'G2, coeff 3 mean',
-    'G1, coeff 4 mean', 
-    'G2, coeff 4 mean',
-    'G1, coeff 0 var', 
-    'G2, coeff 0 var',
-    'G1, coeff 1 var', 
-    'G2, coeff 1 var',
-    'G1, coeff 2 var', 
-    'G2, coeff 2 var',
-    'G1, coeff 3 var', 
-    'G2, coeff 3 var',
-    'G1, coeff 4 var', 
-    'G2, coeff 5 var']
+    'G1, coeff 0 means', 
+    'G2, coeff 0 means',
+    'G1, coeff 1 means', 
+    'G2, coeff 1 means',
+    'G1, coeff 2 means', 
+    'G2, coeff 2 means',
+    'G1, coeff 3 means', 
+    'G2, coeff 3 means',
+    'G1, coeff 4 means', 
+    'G2, coeff 4 means',
+    'G1, coeff 0 vars', 
+    'G2, coeff 0 vars',
+    'G1, coeff 1 vars', 
+    'G2, coeff 1 vars',
+    'G1, coeff 2 vars', 
+    'G2, coeff 2 vars',
+    'G1, coeff 3 vars', 
+    'G2, coeff 3 vars',
+    'G1, coeff 4 vars', 
+    'G2, coeff 4 vars']
 
   ax.set_xticklabels(x_ticks_labels, rotation='80', fontsize=8)
   plt.title('MFCC comparison of feature vectors between ' + genre_1 + ' and ' + genre_2)
   plt.xlabel('MFCC features')
   plt.ylabel('Feature values')
-  plt.plot(x_1, y_1, '.', label='G1: ' + genre_1)
-  plt.plot(x_2, y_2, '.', label='G2: ' + genre_2)
+  plt.plot(x_1, y_1, '.', label='G1: ' + genre_1 + ' feature vectors')
+  plt.plot(x_2, y_2, '.', label='G2: ' + genre_2 + ' feature vectors')
   plt.legend(loc='upper left')
   plt.tight_layout()
   plt.show()
 
 if __name__ == "__main__":
-  compare_mfccs('hiphop', 'classical')
+  compare_mfccs('metal', 'rock')
   
