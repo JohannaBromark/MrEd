@@ -398,7 +398,7 @@ def classInternalDistance(alldist):
         plt.ylim(0,2000)
         plt.ylabel('Number of tracks')
         plt.xlabel('Bucket number')
-        plt.plot(averageHist(alldist[0+a*100:100+a*100,0+a*100:100+a*100],30))
+        plt.plot(averageHist(alldist[0+a*100:100+a*100,0+a*100:100+a*100],30)) #KAN VARA FEL, KOLLA OM CLASSES TEKNIKEN INTE ÄR BONKERS
         plt.title(get_label(classes[a]))
 
     plt.show()
@@ -468,7 +468,46 @@ def create_neighbor_graph():
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
     # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
+
+def remove_diagonal(alldist):
+    for i in range(alldist.shape[0]):
+        alldist[i,i+2] = 999
+    return alldist
     
+def get_nearest_neighbors_dist(alldist):
+    nearest = alldist[:,1:3]
+
+    for i in range(alldist.shape[0]):
+        nearest[i,1] = np.argmin(alldist[i,2:])
+
+    return nearest
+
+def get_nearest_correct_neighbors(alldist):
+    nearest = alldist[:,1:3]
+
+    a = 0
+    for i in range(alldist.shape[0]):
+        if((i%100 == 0) and not(i == 0)):
+            a += 1
+
+        nearest[i,1] = np.argmin(alldist[i,2+(a*100):102+(a*100)])+a*100
+
+    return nearest
+
+def get_both_nearest_and_correct_neighbors(alldist):
+    nearest = alldist[:,1:4]
+
+    for i in range(alldist.shape[0]):
+        nearest[i,1] = np.argmin(alldist[i,2:])
+
+    a = 0
+    for i in range(alldist.shape[0]):
+        if((i%100 == 0) and not(i == 0)):
+            a += 1
+
+        nearest[i,2] = np.argmin(alldist[i,2+(a*100):102+(a*100)])+a*100
+
+    return nearest
 
 if __name__ == '__main__':
     #knn_neighbor_count()
@@ -480,7 +519,7 @@ if __name__ == '__main__':
     #compare_popular_song_neighbors()
     #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     #train_setP, test_setP = partdata()
-    create_neighbor_graph()
+    # create_neighbor_graph()
 
     train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     train_setP, test_setP = partdata()
@@ -488,6 +527,18 @@ if __name__ == '__main__':
 
     allDist, a = read_stored_data('features_targets/Alldistances.txt')
     allDist = np.array(allDist)
+
+    alldistNoDiag = remove_diagonal(allDist)
+    nearest = get_nearest_neighbors_dist(alldistNoDiag)
+    nearest_correct = get_nearest_correct_neighbors(alldistNoDiag)
+    both = get_both_nearest_and_correct_neighbors(alldistNoDiag)
+
+    for i in range(1000):
+        print(both[i,:])
+
+    # nearesttracks = np.concatenate((nearest,nearest_correct[:,1]),axis=0) #Får inte skiten att funka. 
+
+
 
     
     # a = allCorrectPlotDist(allDist)
