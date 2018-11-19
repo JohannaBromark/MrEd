@@ -321,6 +321,7 @@ def make_k_fold_partition_equal(samples, k, seed = None):
     genre_samples = samples[genre_samples_idx]
     np.random.shuffle(genre_samples)
     genre_partitions = np.split(genre_samples, k)
+    # genre_partitions = np.array_split(genre_samples, k) Om denna används smäller det på rad 327 istället
 
     for idx, partition in enumerate(genre_partitions):
       partitions[last_filled_idx: (last_filled_idx+partition.shape[0]), :, idx] = partition
