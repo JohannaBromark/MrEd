@@ -291,9 +291,9 @@ def make_k_fold_partition(samples, k, seed = None):
   return partitions
 
 
-def make_k_fold_partition_equal(samples, k, seed = None):
+def make_k_fold_partition_equal(song_features_set, k, seed = None):
   """
-  :param samples: All samples that are used for training and testing
+  :param song_features_set: All samples that are used for training and testing
   :param k: Number of partitions
   :param seed: The seed for the random partition
   :return: partitions: 3D matrix (3D layers correspond to the partitions),
@@ -303,22 +303,22 @@ def make_k_fold_partition_equal(samples, k, seed = None):
   if seed is not None:
     np.random.seed(seed)
 
-  partition_size = samples.shape[0]//k
+  partition_size = song_features_set.shape[0] // k
 
   if 100 % k != 0:
     raise IndexError("Cannot create even partitions!")
 
-  genres = np.unique(samples[:, 0]).astype("int64")
+  genres = np.unique(song_features_set[:, 0]).astype("int64")
 
-  partitions = np.zeros((partition_size, samples.shape[1], k))
-  partitions_final = np.zeros((partition_size, samples.shape[1], k))
+  partitions = np.zeros((partition_size, song_features_set.shape[1], k))
+  partitions_final = np.zeros((partition_size, song_features_set.shape[1], k))
 
   last_filled_idx = 0
 
   # Shuffle the genres and place in partition
   for genre_idx in genres:
-    genre_samples_idx = np.where(samples[:, 1] == genre_idx)[0]
-    genre_samples = samples[genre_samples_idx]
+    genre_samples_idx = np.where(song_features_set[:, 1] == genre_idx)[0]
+    genre_samples = song_features_set[genre_samples_idx]
     np.random.shuffle(genre_samples)
     genre_partitions = np.split(genre_samples, k)
     # genre_partitions = np.array_split(genre_samples, k) Om denna används smäller det på rad 327 istället
@@ -337,7 +337,7 @@ def make_k_fold_partition_equal(samples, k, seed = None):
       for j in range(10):
         num_genre_in_partition = len(np.where(partitions[:, 1, i] == j)[0])
         if num_genre_in_partition != 25:
-          print("FELLLLLLLLLLL", num_genre_in_partition)
+          print("FEEEEEEEEEL", num_genre_in_partition)
   """
 
   return partitions
@@ -405,7 +405,7 @@ def get_set_from_partitions(partitioned_samples, partition_num = 0):
 ##################
 ### Get songs directly from import ###
 
-def get_songs_feature_set(filename):
+def get_songs_feature_set(filename = "features_targets/all_vectors.txt"):
   """
   Takes a filename and returns the feature vectors for each song
   :param filename: file for the stored features
