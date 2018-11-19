@@ -291,39 +291,55 @@ def make_k_fold_partition(samples, k, seed = None):
   return partitions
 
 
-def make_k_fold_partition_equal(samples, k):
+def make_k_fold_partition_equal(samples, k, seed = None):
   """
   :param samples: All samples that are used for training and testing
-  :param targets: Targets corresponding to each sample
-  :param k: Integer to decide number of partitions
+  :param k: Number of partitions
+  :param seed: The seed for the random partition
   :return: partitions: 3D matrix (3D layers correspond to the partitions),
            partition_targets: matrix where each row is target for each partitions
   """
+
+  if seed is not None:
+    np.random.seed(seed)
+
   partition_size = samples.shape[0]//k
+
+  if 100 % k != 0:
+    raise IndexError("Cannot create even partitions!")
+
   genres = np.unique(samples[:, 0]).astype("int64")
 
   partitions = np.zeros((partition_size, samples.shape[1], k))
   partitions_final = np.zeros((partition_size, samples.shape[1], k))
+
   last_filled_idx = 0
 
+  # Shuffle the genres and place in partition
   for genre_idx in genres:
-      idx = np.where(samples[:, 0] == genre_idx)[0]
-      same_genres_samples = samples[idx]
-      same_genres_samples = np.take(same_genres_samples, [x for x in random.sample(range(same_genres_samples.shape[0]), same_genres_samples.shape[0])], 0)
-      genre_split = np.split(same_genres_samples, k)
+    genre_samples_idx = np.where(samples[:, 1] == genre_idx)[0]
+    genre_samples = samples[genre_samples_idx]
+    np.random.shuffle(genre_samples)
+    genre_partitions = np.split(genre_samples, k)
 
-      # Divided now holds the songs for each partition
-      for i in range(k):
+    for idx, partition in enumerate(genre_partitions):
+      partitions[last_filled_idx: (last_filled_idx+partition.shape[0]), :, idx] = partition
 
-          partitions[last_filled_idx:last_filled_idx+genre_split[i].shape[0], :, i] = genre_split[i]
+    last_filled_idx += genre_partitions[0].shape[0]
 
-      last_filled_idx += genre_split[0].shape[0]
-
+  # Shuffle each partition
   for i in range(k):
-    partitions_final[:, :, i] = np.take(partitions[:,:,i], [x for x in random.sample(range(partitions.shape[0]), partitions.shape[0])], 0)
+    np.random.shuffle(partitions[:, :, i])
 
+  """ Litet test bara
+    for i in range(k):
+      for j in range(10):
+        num_genre_in_partition = len(np.where(partitions[:, 1, i] == j)[0])
+        if num_genre_in_partition != 25:
+          print("FELLLLLLLLLLL", num_genre_in_partition)
+  """
 
-  return partitions_final
+  return partitions
 
 
 def get_k_fold_partitions(partitioned_samples, partition_num):
