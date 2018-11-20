@@ -298,17 +298,6 @@ def averageHist(dist,bucket_size=100):
 
 ################################ Distance computations ##################
 
-def compute_distances():
-    """Compute the distance between each feature and save to file"""
-    features = get_songs_feature_set("features_targets/all_vectors.txt")
-    distances = np.zeros((len(features), len(features) + 2))
-    norm_features = normalise(features[:, 2:])[0]
-    distances[:, :2] = features[:, :2]
-    for idx, feature in enumerate(norm_features):
-        for o_idx, other_feature in enumerate(norm_features):
-            distances[idx, o_idx + 2] = euclidean_dist(feature, other_feature)
-    save_matrix("features_targets/all_distances.txt", distances)
-
 
 def MaxMinDist(dist):
     maxx = 0
@@ -690,7 +679,12 @@ def save_angle_neighbors_to_file():
 
 def compute_angles():
     """Compute the angles between each feature and save to file"""
+
     features = get_songs_feature_set("features_targets/all_vectors.txt")
+    only_mfcc = True
+    if only_mfcc:
+        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
+        features = features[:, mfcc_filter]
     angles = np.zeros((len(features), len(features) +2))
     norm_features = normalise(features[:, 2:])[0]
     angles[:, :2] = features[:, :2]
@@ -699,13 +693,26 @@ def compute_angles():
         for o_idx, other_feature in enumerate(norm_features):
             angles[idx, o_idx+2] = angle(feature, other_feature)
 
+    save_matrix("features_targets/all_angles_mfcc.txt", angles)
 
-    #save_matrix("features_targets/all_angles.txt", angles)
-
+def compute_distances():
+    """Compute the distance between each feature and save to file"""
+    only_mfcc = True
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    if only_mfcc:
+        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
+        features = features[:, mfcc_filter]
+    distances = np.zeros((len(features), len(features) + 2))
+    norm_features = normalise(features[:, 2:])[0]
+    distances[:, :2] = features[:, :2]
+    for idx, feature in enumerate(norm_features):
+        for o_idx, other_feature in enumerate(norm_features):
+            distances[idx, o_idx + 2] = euclidean_dist(feature, other_feature)
+    save_matrix("features_targets/all_distances_mfcc.txt", distances)
 
 
 if __name__ == '__main__':
-    distance_vs_angle()
+    compute_distances()
     #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     #train_setP, test_setP = partdata()
 
