@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
 import networkx as nx
-import pygraphviz
+# import pygraphviz
 
 
 
@@ -494,7 +494,6 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
-<<<<<<< HEAD
     # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
 
 def remove_diagonal(alldist):
@@ -536,7 +535,6 @@ def get_both_nearest_and_correct_neighbors(alldist):
         nearest[i,2] = np.argmin(alldist[i,2+(a*100):102+(a*100)])+a*100
 
     return nearest
-=======
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
 
@@ -641,10 +639,10 @@ def compute_angles():
 
 
 
->>>>>>> 37936b7a7f26c642181ca82e6db9beb5e88c7b10
 
 if __name__ == '__main__':
-    create_angle_neighbor_graph()
+
+    # create_angle_neighbor_graph()
     #create_knn_graph()
     #save_angle_neighbors_to_file()
     #compute_angles()
@@ -659,11 +657,8 @@ if __name__ == '__main__':
     #compare_popular_song_neighbors()
     #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     #train_setP, test_setP = partdata()
-<<<<<<< HEAD
     # create_neighbor_graph()
-=======
     #create_neighbor_graph()
->>>>>>> 37936b7a7f26c642181ca82e6db9beb5e88c7b10
 
     #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     #train_setP, test_setP = partdata()
@@ -673,22 +668,19 @@ if __name__ == '__main__':
     #allDist = np.array(allDist)
 
 
-<<<<<<< HEAD
-    alldistNoDiag = remove_diagonal(allDist)
-    nearest = get_nearest_neighbors_dist(alldistNoDiag)
-    nearest_correct = get_nearest_correct_neighbors(alldistNoDiag)
-    both = get_both_nearest_and_correct_neighbors(alldistNoDiag)
+    # alldistNoDiag = remove_diagonal(allDist)
+    # nearest = get_nearest_neighbors_dist(alldistNoDiag)
+    # nearest_correct = get_nearest_correct_neighbors(alldistNoDiag)
+    # both = get_both_nearest_and_correct_neighbors(alldistNoDiag)
 
-    for i in range(1000):
-        print(both[i,:])
+    # for i in range(1000):
+    #     print(both[i,:])
 
     # nearesttracks = np.concatenate((nearest,nearest_correct[:,1]),axis=0) #Får inte skiten att funka. 
 
 
 
     
-=======
->>>>>>> 37936b7a7f26c642181ca82e6db9beb5e88c7b10
     # a = allCorrectPlotDist(allDist)
     # b = allInCorrectPlotDist(allDist)
     # CorrectAvg = np.average(a)
