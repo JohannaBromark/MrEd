@@ -216,23 +216,29 @@ def mfcc_only(vectors):
   return vectors[:,filtered]
 
 def compare_gmms():
-  f_vectors = read_all_vectors()
+  # f_vectors = read_all_vectors()
   # f_vectors = read_and_combine_fault_filtered_train_and_val()
   # f_vectors = mfcc_only(f_vectors)
-  k_fold = make_k_fold_partition_equal(f_vectors, 4)
-  print(get_k_fold_partitions(k_fold, 0))
-  features = f_vectors[:,2:]
-  features, _, _ = normalise(features)
-  targets = f_vectors[:,1]
-
-  models = train_gmm_models(features, targets, n_components=1)
+  # features = f_vectors[:,2:]
+  # features, _, _ = normalise(features)
+  # targets = f_vectors[:,1]
+  
+  all_songs = get_songs_feature_set()
+  # f_songs = normalise(all_songs[:,2:])[0]
+  f_songs = all_songs[:,2:]
+  t_songs = all_songs[:,1]
+  n_comp = 1
+  models = train_gmm_models(f_songs, t_songs, n_comp)
   kl_distances = kl_distances_matrix(models)
 
-  ### Save graph to .png
-  # plot_distances(kl_distances, 'analysis_docs/gmm_comparisons/mfcc_only/fault_filtered/gmm1_distances_vis.png')
+  # np.fill_diagonal(kl_distances, 0) # use for gmm3?
 
   ### Save distances to .csv
-  # write_gmm_distance_to_csv(kl_distances, 'analysis_docs/gmm_comparisons/mfcc_only/fault_filtered/gmm1_distances.csv', )
+  write_gmm_distance_to_csv(kl_distances, 'analysis_docs/gmm_comparisons/song_mean/all_features_included/all_songs/gmm'+str(n_comp)+'_distances.csv')
+
+  ### Save graph to .png
+  plot_distances(kl_distances, 'analysis_docs/gmm_comparisons/song_mean/all_features_included/all_songs/gmm'+str(n_comp)+'_distances_vis.png')
+  
 
 def write_gmm_distance_to_csv(kl_distances, file_name):
   with open(file_name, 'w') as f:
@@ -260,9 +266,8 @@ def write_gmm_distance_to_csv(kl_distances, file_name):
 def plot_distances(kl_distances, f_name):
 
   # Set up adjacency matrix
-  # Much faster with smaller values -> divide or multiply with factor if bad results
   dt = [('len', float)]
-  tuple_distances = np.array([tuple(dist) for dist in kl_distances])
+  tuple_distances = (np.array([tuple(dist) for dist in kl_distances])) / 10
   A = tuple_distances.view(dt)
   
   # Create and draw graph

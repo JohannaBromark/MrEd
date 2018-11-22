@@ -551,7 +551,10 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
+<<<<<<< HEAD
     # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
+=======
+>>>>>>> 53341b3c096c0f75d981804569f4d86860479d19
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
 
@@ -598,6 +601,7 @@ def get_both_nearest_and_correct_neighbors(alldist):
 
     return nearest
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+<<<<<<< HEAD
 
 def get_missclassified_with_nearest_and_correct(alldist):
     missclassified = np.array([])
@@ -614,6 +618,8 @@ def get_missclassified_with_nearest_and_correct(alldist):
     return missclassified
 
 
+=======
+>>>>>>> 53341b3c096c0f75d981804569f4d86860479d19
 
 
 def compute_knn_adjecency_matrix():
@@ -737,6 +743,8 @@ if __name__ == '__main__':
 
     missclassified = get_missclassified_with_nearest_and_correct(alldistNoDiag)
     print(missclassified[:6,:6])
+
+    create_knn_graph()
 
     # create_angle_neighbor_graph()
     # create_knn_graph()
