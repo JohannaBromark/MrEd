@@ -7,6 +7,73 @@ import networkx as nx
 # import pygraphviz
 
 
+########################## Save stuff to file ##################################
+
+
+def save_neighbors_to_csv(filename, neighbors, neighbor_distances):
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+
+    # Save to file
+    with open(filename, "w") as file:
+        file.write("Track,,Nearest Neighbor,,Distance")
+        file.write("\n")
+        file.write("Track nr," + "Class," + "Track nr," + "Class,"+"Distance")
+        file.write("\n")
+        for idx, track_neighbors in enumerate(neighbors):
+            file.write(str(int(neighbor_distances[idx, 0])) + "," + str(int(neighbor_distances[idx, 1])) + " (" + get_label(
+                int(neighbor_distances[idx, 1])) + ")")
+            for nidx in track_neighbors:
+                neighbor = int(features[int(nidx), 0])
+                file.write("," + str(int(features[neighbor, 0])) + "," + str(
+                    int(features[neighbor, 1])) + " (" + get_label(
+                    int(features[neighbor, 1])) + "),")
+                file.write(str(neighbor_distances[idx, int(nidx)+2]))
+            file.write("\n")
+
+
+def save_angle_neighbors_to_file():
+
+    angles = read_stored_data("features_targets/all_angles.txt")
+    distance_matrix = get_k_nearest_neighbors(angles[:, 2:], 1)
+
+    save_neighbors_to_csv("analysis_docs/nearest_neighbor_angle.csv",
+                          distance_matrix,
+                          angles)
+
+
+def compute_angles():
+    """Compute the angles between each feature and save to file"""
+
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    only_mfcc = True
+    if only_mfcc:
+        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
+        features = features[:, mfcc_filter]
+    angles = np.zeros((len(features), len(features) +2))
+    norm_features = normalise(features[:, 2:])[0]
+    angles[:, :2] = features[:, :2]
+
+    for idx, feature in enumerate(norm_features):
+        for o_idx, other_feature in enumerate(norm_features):
+            angles[idx, o_idx+2] = angle(feature, other_feature)
+
+    save_matrix("features_targets/all_angles_mfcc.txt", angles)
+
+def compute_distances():
+    """Compute the distance between each feature and save to file"""
+    only_mfcc = True
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    if only_mfcc:
+        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
+        features = features[:, mfcc_filter]
+    distances = np.zeros((len(features), len(features) + 2))
+    norm_features = normalise(features[:, 2:])[0]
+    distances[:, :2] = features[:, :2]
+    for idx, feature in enumerate(norm_features):
+        for o_idx, other_feature in enumerate(norm_features):
+            distances[idx, o_idx + 2] = euclidean_dist(feature, other_feature)
+    save_matrix("features_targets/all_distances_mfcc.txt", distances)
+
 
 ########################### Neighbor computations ###############################
 
@@ -484,6 +551,10 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
+<<<<<<< HEAD
+    # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
+=======
+>>>>>>> 53341b3c096c0f75d981804569f4d86860479d19
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
 
@@ -530,6 +601,25 @@ def get_both_nearest_and_correct_neighbors(alldist):
 
     return nearest
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+<<<<<<< HEAD
+
+def get_missclassified_with_nearest_and_correct(alldist):
+    missclassified = np.array([])
+    nearest = get_both_nearest_and_correct_neighbors(alldist)
+    
+    for i in range(alldist.shape[0]):
+        if(nearest[i,1] != nearest[i,2]):
+            missclassified = np.append(missclassified, alldist[i,:])
+    
+
+   
+    missclassified = missclassified.reshape(int(len(missclassified)/alldist.shape[1]),int(alldist.shape[1]))
+
+    return missclassified
+
+
+=======
+>>>>>>> 53341b3c096c0f75d981804569f4d86860479d19
 
 
 def compute_knn_adjecency_matrix():
@@ -644,80 +734,20 @@ def distance_vs_angle():
     pass
 
 
-########################## Save stuff to file ##################################
-
-
-def save_neighbors_to_csv(filename, neighbors, neighbor_distances):
-    features = get_songs_feature_set("features_targets/all_vectors.txt")
-
-    # Save to file
-    with open(filename, "w") as file:
-        file.write("Track,,Nearest Neighbor,,Distance")
-        file.write("\n")
-        file.write("Track nr," + "Class," + "Track nr," + "Class,"+"Distance")
-        file.write("\n")
-        for idx, track_neighbors in enumerate(neighbors):
-            file.write(str(int(neighbor_distances[idx, 0])) + "," + str(int(neighbor_distances[idx, 1])) + " (" + get_label(
-                int(neighbor_distances[idx, 1])) + ")")
-            for nidx in track_neighbors:
-                neighbor = int(features[int(nidx), 0])
-                file.write("," + str(int(features[neighbor, 0])) + "," + str(
-                    int(features[neighbor, 1])) + " (" + get_label(
-                    int(features[neighbor, 1])) + "),")
-                file.write(str(neighbor_distances[idx, int(nidx)+2]))
-            file.write("\n")
-
-
-def save_angle_neighbors_to_file():
-
-    angles = read_stored_data("features_targets/all_angles.txt")
-    distance_matrix = get_k_nearest_neighbors(angles[:, 2:], 1)
-
-    save_neighbors_to_csv("analysis_docs/nearest_neighbor_angle.csv",
-                          distance_matrix,
-                          angles)
-
-
-def compute_angles():
-    """Compute the angles between each feature and save to file"""
-
-    features = get_songs_feature_set("features_targets/all_vectors.txt")
-    only_mfcc = True
-    if only_mfcc:
-        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
-        features = features[:, mfcc_filter]
-    angles = np.zeros((len(features), len(features) +2))
-    norm_features = normalise(features[:, 2:])[0]
-    angles[:, :2] = features[:, :2]
-
-    for idx, feature in enumerate(norm_features):
-        for o_idx, other_feature in enumerate(norm_features):
-            angles[idx, o_idx+2] = angle(feature, other_feature)
-
-    save_matrix("features_targets/all_angles_mfcc.txt", angles)
-
-def compute_distances():
-    """Compute the distance between each feature and save to file"""
-    only_mfcc = True
-    features = get_songs_feature_set("features_targets/all_vectors.txt")
-    if only_mfcc:
-        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
-        features = features[:, mfcc_filter]
-    distances = np.zeros((len(features), len(features) + 2))
-    norm_features = normalise(features[:, 2:])[0]
-    distances[:, :2] = features[:, :2]
-    for idx, feature in enumerate(norm_features):
-        for o_idx, other_feature in enumerate(norm_features):
-            distances[idx, o_idx + 2] = euclidean_dist(feature, other_feature)
-    save_matrix("features_targets/all_distances_mfcc.txt", distances)
-
 
 if __name__ == '__main__':
+    allDist = read_stored_data('features_targets/Alldistances.txt')
+    allDist = np.array(allDist)
+
+    alldistNoDiag = remove_diagonal(np.copy(allDist))
+
+    missclassified = get_missclassified_with_nearest_and_correct(alldistNoDiag)
+    print(missclassified[:6,:6])
 
     create_knn_graph()
 
     # create_angle_neighbor_graph()
-    #create_knn_graph()
+    # create_knn_graph()
     #save_angle_neighbors_to_file()
     #compute_angles()
     #get_k_nearest_neighbors(read_stored_data("features_targets/AllDistances.txt")[:, 2:], 3)
@@ -802,19 +832,25 @@ if __name__ == '__main__':
     # plt.show()
 
 
-"""
-    allDist, a = read_stored_data('features_targets/Alldistances.txt')
-    allDist = np.array(allDist)
 
-    alldistNoDiag = remove_diagonal(allDist)
-    nearest = get_nearest_neighbors_dist(alldistNoDiag)
-    nearest_correct = get_nearest_correct_neighbors(alldistNoDiag)
-    both = get_both_nearest_and_correct_neighbors(alldistNoDiag)
+    # allDist = read_stored_data('features_targets/Alldistances.txt')
+    # allDist = np.array(allDist)
 
-    for i in range(1000):
-        print(both[i, :])
+    # alldistNoDiag = remove_diagonal(np.copy(allDist))
 
+    # nearest = get_nearest_neighbors_dist(alldistNoDiag)
+    # nearest_correct = get_nearest_correct_neighbors(alldistNoDiag)
+    # both = get_both_nearest_and_correct_neighbors(alldistNoDiag)
+
+    # for i in range(1000):
+    #     print(both[i, :])
+    # for i in range(1000):
+    #     print(allDist[i,:7])
+
+    # print(allDist.shape)
+    # for i in range(allDist.shape[1]-900):
+    #     print(allDist[0,i])
     # nearesttracks = np.concatenate((nearest,nearest_correct[:,1]),axis=0) #Får inte skiten att funka.
-"""
+
 
 
