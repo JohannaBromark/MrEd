@@ -215,42 +215,6 @@ def mfcc_only(vectors):
   filtered = [0,1,10,11,12,13,14,15,16,17,18,19]
   return vectors[:,filtered]
 
-def compare_gmms():
-  ### Read vectors
-  # f_vectors = read_all_vectors()
-  # f_vectors = read_and_combine_fault_filtered_train_and_val()
-  # f_vectors = mfcc_only(f_vectors)
-  # features = f_vectors[:,2:]
-  # features, _, _ = normalise(features)
-  # targets = f_vectors[:,1]
-  
-  ### Read songs
-  train_songs = get_songs_feature_set('features_targets/fault_filtered_vectors_train.txt')
-  val_songs = get_songs_feature_set('features_targets/fault_filtered_vectors_valid.txt')
-  
-  all_songs = np.concatenate((train_songs, val_songs))
-  f_songs = mfcc_only(all_songs)
-  f_songs = normalise(f_songs[:,2:])[0]
-  t_songs = all_songs[:,1]
-
-  n_comp = 3
-  models = train_gmm_models(f_songs, t_songs, n_comp)
-  kl_distances = kl_distances_matrix(models)
-
-  # todo: comparison på fault filtered för songs
-  # random partitioning för real_time och song mean?
-
-
-  # np.fill_diagonal(kl_distances, 0) # use for gmm3?
-
-  path = 'analysis_docs/gmm_comparisons/song_mean/mfcc_only/fault_filtered/'
-  ### Save distances to .csv
-  write_gmm_distance_to_csv(kl_distances, path+'gmm'+str(n_comp)+'_distances.csv')
-
-  ### Save graph to .png
-  plot_distances(kl_distances, path+'gmm'+str(n_comp)+'_distances_vis.png')
-  
-
 def write_gmm_distance_to_csv(kl_distances, file_name):
   with open(file_name, 'w') as f:
     f.write(',')
@@ -278,9 +242,9 @@ def plot_distances(kl_distances, f_name):
 
   # Set up adjacency matrix
   dt = [('len', float)]
-  tuple_distances = (np.array([tuple(dist) for dist in kl_distances])) / 5
+  tuple_distances = np.array([tuple(dist) for dist in kl_distances]) / 5
   A = tuple_distances.view(dt)
-  
+
   # Create and draw graph
   G = nx.from_numpy_matrix(A)
   labels = dict(zip([i for i in range(10)], [get_label(i) for i in range(10)]))
@@ -289,7 +253,43 @@ def plot_distances(kl_distances, f_name):
 
   # Save fig
   G.node_attr.update(color="red", style="filled")
-  G.draw(f_name, format='png', prog='neato')
+  # G.draw(f_name, format='png', prog='neato')
+
+
+def compare_gmms():
+  ### Read vectors
+  # f_vectors = read_all_vectors()
+  # f_vectors = read_and_combine_fault_filtered_train_and_val()
+  # f_vectors = mfcc_only(f_vectors)
+  # features = f_vectors[:,2:]
+  # features, _, _ = normalise(features)
+  # targets = f_vectors[:,1]
+  
+  ### Read songs
+  train_songs = get_songs_feature_set('features_targets/fault_filtered_vectors_train.txt')
+  val_songs = get_songs_feature_set('features_targets/fault_filtered_vectors_valid.txt')
+  
+  all_songs = np.concatenate((train_songs, val_songs))
+  f_songs = mfcc_only(all_songs)
+  f_songs = normalise(f_songs[:,2:])[0]
+  t_songs = all_songs[:,1]
+
+
+  ### Train model and get distances
+  n_comp = 3
+  models = train_gmm_models(f_songs, t_songs, n_comp)
+  kl_distances = kl_distances_matrix(models)
+
+  # TODO plots could also be done for random partitioning
+
+  # np.fill_diagonal(kl_distances, 0) # use for gmm3?
+
+  path = 'analysis_docs/gmm_comparisons/song_mean/mfcc_only/fault_filtered/'
+  ### Save distances to .csv
+  # write_gmm_distance_to_csv(kl_distances, path+'gmm'+str(n_comp)+'_distances.csv')
+
+  ### Save graph to .png
+  plot_distances(kl_distances, path+'gmm'+str(n_comp)+'_distances_vis.png')
 
 if __name__ == '__main__':
 

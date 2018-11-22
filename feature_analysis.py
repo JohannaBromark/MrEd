@@ -551,10 +551,6 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
-<<<<<<< HEAD
-    # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
-=======
->>>>>>> 53341b3c096c0f75d981804569f4d86860479d19
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
 
@@ -601,7 +597,6 @@ def get_both_nearest_and_correct_neighbors(alldist):
 
     return nearest
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
-<<<<<<< HEAD
 
 def get_missclassified_with_nearest_and_correct(alldist):
     missclassified = np.array([])
@@ -618,13 +613,11 @@ def get_missclassified_with_nearest_and_correct(alldist):
     return missclassified
 
 
-=======
->>>>>>> 53341b3c096c0f75d981804569f4d86860479d19
 
 
 def compute_knn_adjecency_matrix():
 
-    all_distances = read_stored_data("features_targets/AllDistances.txt")
+    all_distances = read_stored_data("features_targets/all_distances_mfcc.txt")
     all_distances = all_distances[:, 2:]
     genre_adjecency_matrix = np.zeros((10, 10))
 
@@ -641,17 +634,18 @@ def compute_knn_adjecency_matrix():
 def create_knn_graph():
     """ RESULTS IN A CRAPPY DRAWING!!! don't know why :'("""
     adjecency_matrix = compute_knn_adjecency_matrix()
-    adjecency_matrix[1,0] = adjecency_matrix[1,0] * 100
     class_order = [7,6,3,0,8,1,9,4,2,5]
 
-    G = nx.from_numpy_matrix(adjecency_matrix)
+    dt = [('len', float)]
+    tuple_distances = np.array([tuple(dist) for dist in adjecency_matrix])
+    G = nx.from_numpy_matrix(tuple_distances.view(dt))
 
     name_mapping = dict(zip(G.nodes, [get_label(label) for label in class_order]))
     G = nx.relabel_nodes(G, name_mapping)
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(color="red", style="filled")
 
-    G.draw('analysis_docs/knn_distances_visualized.png', format='png', prog='neato')
+    # G.draw('analysis_docs/knn_mfcc_distances_visualized.png', format='png', prog='neato')
 
 ########################### Angles ####################################
 
@@ -742,12 +736,10 @@ if __name__ == '__main__':
     alldistNoDiag = remove_diagonal(np.copy(allDist))
 
     missclassified = get_missclassified_with_nearest_and_correct(alldistNoDiag)
-    print(missclassified[:6,:6])
-
-    create_knn_graph()
+    # print(missclassified[:6,:6])
 
     # create_angle_neighbor_graph()
-    # create_knn_graph()
+    create_knn_graph()
     #save_angle_neighbors_to_file()
     #compute_angles()
     #get_k_nearest_neighbors(read_stored_data("features_targets/AllDistances.txt")[:, 2:], 3)
