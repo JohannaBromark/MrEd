@@ -740,7 +740,7 @@ def distance_vs_angle():
 
 	pass
 
-def plot_missclassified_with_neighbor_by_feature():
+def plot_missclassified_with_neighbor_by_feature(id):
 	allDist = read_stored_data('features_targets/all_distances.txt')
 	allDist = np.array(allDist)
 
@@ -750,10 +750,10 @@ def plot_missclassified_with_neighbor_by_feature():
 	features = get_songs_feature_set('features_targets/all_vectors.txt')
 	features, a, b = normalise(features)
 	# print(missclassified[0,0])
-	song = 1
-	song1 = features[int(missclassified[song,0]),2:]
-	song2 = features[int(missclassified[song,1]),2:]
-	song3 = features[int(missclassified[song,2]),2:]
+	
+	song1 = features[int(missclassified[id,0]),2:]
+	song2 = features[int(missclassified[id,1]),2:]
+	song3 = features[int(missclassified[id,2]),2:]
 	
 	f, ax = plt.subplots()
 	ax.set_xticks([i for i in range(19)])
@@ -796,7 +796,7 @@ if __name__ == '__main__':
 
 	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 
-	plot_missclassified_with_neighbor_by_feature()
+	plot_missclassified_with_neighbor_by_feature(id)
 
 	# create_knn_graph()
 
