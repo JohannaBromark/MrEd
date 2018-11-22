@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
 import networkx as nx
-import pygraphviz
+# import pygraphviz
 
 
 
@@ -484,8 +484,12 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
+<<<<<<< HEAD
+    # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
+=======
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
+>>>>>>> 17bf69fb3c791218680eeb9ba71eab9f72d6f616
 
 def remove_diagonal(alldist):
     for i in range(alldist.shape[0]):
@@ -529,6 +533,10 @@ def get_both_nearest_and_correct_neighbors(alldist):
         nearest[i, 2] = np.argmin(alldist[i, 2 + (a * 100):102 + (a * 100)]) + a * 100
 
     return nearest
+<<<<<<< HEAD
+    #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+=======
+>>>>>>> 17bf69fb3c791218680eeb9ba71eab9f72d6f616
 
 
 def compute_knn_adjecency_matrix():
@@ -712,7 +720,47 @@ def compute_distances():
 
 
 if __name__ == '__main__':
-    compute_distances()
+
+    # create_angle_neighbor_graph()
+    #create_knn_graph()
+    #save_angle_neighbors_to_file()
+    #compute_angles()
+    #get_k_nearest_neighbors(read_stored_data("features_targets/AllDistances.txt")[:, 2:], 3)
+    #create_neighbor_graph()
+    #knn_neighbor_count()
+    #save_track_features_to_file()
+    #plot_all_track_dist_to_origo()
+    #knn_distance_measure_correct()
+    #view_wrongly_classified()
+    # plot_features()
+    #compare_popular_song_neighbors()
+    #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
+    #train_setP, test_setP = partdata()
+    # create_neighbor_graph()
+    #create_neighbor_graph()
+
+    #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
+    #train_setP, test_setP = partdata()
+
+
+    #allDist, a = read_stored_data('features_targets/Alldistances.txt')
+    #allDist = np.array(allDist)
+
+
+    # alldistNoDiag = remove_diagonal(allDist)
+    # nearest = get_nearest_neighbors_dist(alldistNoDiag)
+    # nearest_correct = get_nearest_correct_neighbors(alldistNoDiag)
+    # both = get_both_nearest_and_correct_neighbors(alldistNoDiag)
+
+    # for i in range(1000):
+    #     print(both[i,:])
+
+    # nearesttracks = np.concatenate((nearest,nearest_correct[:,1]),axis=0) #Får inte skiten att funka. 
+
+
+
+    
+    # compute_distances()
     #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
     #train_setP, test_setP = partdata()
 
