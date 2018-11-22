@@ -17,8 +17,13 @@ def filter_on_genre(vectors, genre):
   else:
     return np.array([v for v in vectors if v[1] == genre])
 
-def compare_mfccs(genre_1, genre_2):
-  f_vectors = read_stored_data()
+def compare_mfccs(genre_1, genre_2, compare_songs):
+
+  if compare_songs:
+    f_vectors = get_songs_feature_set()
+  else:
+    f_vectors = read_stored_data()
+    
   f_genre_1 = filter_on_genre(mfcc_only(f_vectors), genre_1)
   f_genre_2 = filter_on_genre(mfcc_only(f_vectors), genre_2)
 
@@ -49,37 +54,49 @@ def compare_mfccs(genre_1, genre_2):
   f, ax = plt.subplots()
   ax.set_xticks([i for i in range(max(x_2)+1)])
   x_ticks_labels = [
-    'G1, coeff 0 means', 
-    'G2, coeff 0 means',
-    'G1, coeff 1 means', 
-    'G2, coeff 1 means',
-    'G1, coeff 2 means', 
-    'G2, coeff 2 means',
-    'G1, coeff 3 means', 
-    'G2, coeff 3 means',
-    'G1, coeff 4 means', 
-    'G2, coeff 4 means',
-    'G1, coeff 0 vars', 
-    'G2, coeff 0 vars',
-    'G1, coeff 1 vars', 
-    'G2, coeff 1 vars',
-    'G1, coeff 2 vars', 
-    'G2, coeff 2 vars',
-    'G1, coeff 3 vars', 
-    'G2, coeff 3 vars',
-    'G1, coeff 4 vars', 
-    'G2, coeff 4 vars']
+    'Coeff 0 mean', 
+    'Coeff 0 mean',
+    'Coeff 1 mean', 
+    'Coeff 1 mean',
+    'Coeff 2 mean', 
+    'Coeff 2 mean',
+    'Coeff 3 mean', 
+    'Coeff 3 mean',
+    'Coeff 4 mean', 
+    'Coeff 4 mean',
+    'Coeff 0 var', 
+    'Coeff 0 var',
+    'Coeff 1 var', 
+    'Coeff 1 var',
+    'Coeff 2 var', 
+    'Coeff 2 var',
+    'Coeff 3 var', 
+    'Coeff 3 var',
+    'Coeff 4 var', 
+    'Coeff 4 var']
 
   ax.set_xticklabels(x_ticks_labels, rotation='80', fontsize=8)
-  plt.title('MFCC comparison of feature vectors between ' + genre_1 + ' and ' + genre_2)
+  if compare_songs:
+    plt.title('MFCCs of songs for ' + genre_1 + ' and ' + genre_2)
+  else:
+    plt.title('MFCCs of feature vectors for ' + genre_1 + ' and ' + genre_2)
   plt.xlabel('MFCC features')
   plt.ylabel('Feature values')
-  plt.plot(x_1, y_1, '.', label='G1: ' + genre_1 + ' feature vectors')
-  plt.plot(x_2, y_2, '.', label='G2: ' + genre_2 + ' feature vectors')
+
+  # plt.ylim(-10,10)
+
+  plt.plot(x_1, y_1, '.', label= genre_1)
+  plt.plot(x_2, y_2, '.', label= genre_2)
   plt.legend(loc='upper left')
   plt.tight_layout()
+  
+  if compare_songs:
+    plt.savefig('analysis_docs/mfcc_comparisons/songs/'+genre_1+'-'+genre_2)
+  else:
+    plt.savefig('analysis_docs/mfcc_comparisons/feature_vectors/'+genre_1+'-'+genre_2)
+
   plt.show()
 
 if __name__ == "__main__":
-  compare_mfccs('metal', 'rock')
+  compare_mfccs('hiphop', 'reggae', compare_songs=True)
   
