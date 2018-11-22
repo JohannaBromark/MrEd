@@ -484,12 +484,8 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
-<<<<<<< HEAD
-    # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
-=======
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
->>>>>>> 17bf69fb3c791218680eeb9ba71eab9f72d6f616
 
 def remove_diagonal(alldist):
     for i in range(alldist.shape[0]):
@@ -533,10 +529,7 @@ def get_both_nearest_and_correct_neighbors(alldist):
         nearest[i, 2] = np.argmin(alldist[i, 2 + (a * 100):102 + (a * 100)]) + a * 100
 
     return nearest
-<<<<<<< HEAD
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
-=======
->>>>>>> 17bf69fb3c791218680eeb9ba71eab9f72d6f616
 
 
 def compute_knn_adjecency_matrix():
@@ -720,6 +713,8 @@ def compute_distances():
 
 
 if __name__ == '__main__':
+
+    create_knn_graph()
 
     # create_angle_neighbor_graph()
     #create_knn_graph()

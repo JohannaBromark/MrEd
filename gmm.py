@@ -224,19 +224,21 @@ def compare_gmms():
   # targets = f_vectors[:,1]
   
   all_songs = get_songs_feature_set()
-  f_songs = normalise(all_songs[:,2:])[0]
+  # f_songs = normalise(all_songs[:,2:])[0]
+  f_songs = all_songs[:,2:]
   t_songs = all_songs[:,1]
-  n_comp = 3
+  n_comp = 1
   models = train_gmm_models(f_songs, t_songs, n_comp)
   kl_distances = kl_distances_matrix(models)
 
-  np.fill_diagonal(kl_distances, 0) # hmm..
-
-  ### Save graph to .png
-  plot_distances(kl_distances, 'analysis_docs/gmm_comparisons/song_mean/all_features_included/all_songs/gmm'+str(n_comp)+'_distances_vis.png')
+  # np.fill_diagonal(kl_distances, 0) # use for gmm3?
 
   ### Save distances to .csv
   write_gmm_distance_to_csv(kl_distances, 'analysis_docs/gmm_comparisons/song_mean/all_features_included/all_songs/gmm'+str(n_comp)+'_distances.csv')
+
+  ### Save graph to .png
+  plot_distances(kl_distances, 'analysis_docs/gmm_comparisons/song_mean/all_features_included/all_songs/gmm'+str(n_comp)+'_distances_vis.png')
+  
 
 def write_gmm_distance_to_csv(kl_distances, file_name):
   with open(file_name, 'w') as f:
@@ -265,7 +267,7 @@ def plot_distances(kl_distances, f_name):
 
   # Set up adjacency matrix
   dt = [('len', float)]
-  tuple_distances = (np.array([tuple(dist) for dist in kl_distances])/kl_distances.max())
+  tuple_distances = (np.array([tuple(dist) for dist in kl_distances])) / 10
   A = tuple_distances.view(dt)
   
   # Create and draw graph
