@@ -1,6 +1,5 @@
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
-from timbral_texture import get_label
 from scipy.stats import entropy as entropy
 import matplotlib.pyplot as plt
 import numpy as np
@@ -217,9 +216,11 @@ def mfcc_only(vectors):
   return vectors[:,filtered]
 
 def compare_gmms():
-  # f_vectors = read_all_vectors()
-  f_vectors = read_and_combine_fault_filtered_train_and_val()
-  f_vectors = mfcc_only(f_vectors)
+  f_vectors = read_all_vectors()
+  # f_vectors = read_and_combine_fault_filtered_train_and_val()
+  # f_vectors = mfcc_only(f_vectors)
+  k_fold = make_k_fold_partition_equal(f_vectors, 4)
+  print(get_k_fold_partitions(k_fold, 0))
   features = f_vectors[:,2:]
   features, _, _ = normalise(features)
   targets = f_vectors[:,1]

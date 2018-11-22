@@ -15,6 +15,7 @@ def get_k_nearest_neighbors(matrix, k):
     Computes the k-nearest neighbor from the matrix.
     The matrix should not include track number and label!
     """
+
     nearest_neghbors = np.zeros((1000, k))
 
     for idx, distances in enumerate(matrix):
@@ -297,17 +298,6 @@ def averageHist(dist,bucket_size=100):
 
 ################################ Distance computations ##################
 
-def compute_distances():
-    """Compute the distance between each feature and save to file"""
-    features = get_songs_feature_set("features_targets/all_vectors.txt")
-    distances = np.zeros((len(features), len(features) + 2))
-    norm_features = normalise(features[:, 2:])[0]
-    distances[:, :2] = features[:, :2]
-    for idx, feature in enumerate(norm_features):
-        for o_idx, other_feature in enumerate(norm_features):
-            distances[idx, o_idx + 2] = euclidean_dist(feature, other_feature)
-    save_matrix("features_targets/all_distances.txt", distances)
-
 
 def MaxMinDist(dist):
     maxx = 0
@@ -494,48 +484,59 @@ def create_neighbor_graph():
 
     G = nx.drawing.nx_agraph.to_agraph(G)
     G.node_attr.update(style="filled")
+<<<<<<< HEAD
     # G.draw('analysis_docs/knn_v2.png', format='png', prog='neato')
+=======
+    #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+
+>>>>>>> 17bf69fb3c791218680eeb9ba71eab9f72d6f616
 
 def remove_diagonal(alldist):
     for i in range(alldist.shape[0]):
-        alldist[i,i+2] = 999
+        alldist[i, i + 2] = 999
     return alldist
-    
+
+
 def get_nearest_neighbors_dist(alldist):
-    nearest = alldist[:,1:3]
+    nearest = alldist[:, 1:3]
 
     for i in range(alldist.shape[0]):
-        nearest[i,1] = np.argmin(alldist[i,2:])
+        nearest[i, 1] = np.argmin(alldist[i, 2:])
 
     return nearest
+
 
 def get_nearest_correct_neighbors(alldist):
-    nearest = alldist[:,1:3]
+    nearest = alldist[:, 1:3]
 
     a = 0
     for i in range(alldist.shape[0]):
-        if((i%100 == 0) and not(i == 0)):
+        if ((i % 100 == 0) and not (i == 0)):
             a += 1
 
-        nearest[i,1] = np.argmin(alldist[i,2+(a*100):102+(a*100)])+a*100
+        nearest[i, 1] = np.argmin(alldist[i, 2 + (a * 100):102 + (a * 100)]) + a * 100
 
     return nearest
+
 
 def get_both_nearest_and_correct_neighbors(alldist):
-    nearest = alldist[:,1:4]
+    nearest = alldist[:, 1:4]
 
     for i in range(alldist.shape[0]):
-        nearest[i,1] = np.argmin(alldist[i,2:])
+        nearest[i, 1] = np.argmin(alldist[i, 2:])
 
     a = 0
     for i in range(alldist.shape[0]):
-        if((i%100 == 0) and not(i == 0)):
+        if ((i % 100 == 0) and not (i == 0)):
             a += 1
 
-        nearest[i,2] = np.argmin(alldist[i,2+(a*100):102+(a*100)])+a*100
+        nearest[i, 2] = np.argmin(alldist[i, 2 + (a * 100):102 + (a * 100)]) + a * 100
 
     return nearest
+<<<<<<< HEAD
     #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+=======
+>>>>>>> 17bf69fb3c791218680eeb9ba71eab9f72d6f616
 
 
 def compute_knn_adjecency_matrix():
@@ -589,6 +590,67 @@ def create_angle_neighbor_graph():
     G.draw('analysis_docs/knn_angle_neighbor_visualized.png', format='png', prog='neato')
 
 
+def create_class_graph_angle():
+    angles_data = read_stored_data("features_targets/all_angles.txt")
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    angles = angles_data[:, 2:]
+
+    # Compute the mean angle from one class to all other classes
+    adjecency_matrix = np.zeros((10, 10))
+    for genre in range(10):
+        for neighbor in range(10):
+            sub_angles = angles[genre*100:(genre+1)*100, neighbor*100: (neighbor+1)*100]
+            mean = np.mean(sub_angles, axis=0)
+            adjecency_matrix[genre, neighbor] = np.sum(mean)/100
+
+    G = nx.from_numpy_matrix(adjecency_matrix*10000)
+    G = nx.drawing.nx_agraph.to_agraph(G)
+    G.draw('analysis_docs/knn_genre_angle_visualized.png', format='png', prog='neato')
+
+
+# Find tracks that gets wrongly classified with distance and correct with angles and vice versa.
+def distance_vs_angle():
+    angles_data = read_stored_data("features_targets/all_angles.txt")
+    distance_data = read_stored_data("features_targets/all_distances.txt")
+    features = get_songs_feature_set()
+
+    nearest_neighbor_angle = get_k_nearest_neighbors(angles_data[:, 2:], 1)
+    nearest_neighbor_distance = get_k_nearest_neighbors(distance_data[:, 2:], 1)
+
+    # Angle classifies correct, distance classifies wrong
+    angle_correct = []
+    # Angle classifies wrong, distance classifies correct
+    distance_correct = []
+    # Both angle and distance classifies wrong
+    both_wrong = []
+    # Both angle and distance classifies correct
+    both_correct = []
+
+    for idx, neighbors in enumerate(zip(nearest_neighbor_angle, nearest_neighbor_distance)):
+        angle_neighbor = int(neighbors[0][0])
+        distance_neighbor = int(neighbors[1][0])
+        if angles_data[idx, 1] == features[int(nearest_neighbor_angle[idx]), 1] \
+                and distance_data[idx, 1] != features[int(nearest_neighbor_distance[idx]), 1]:
+            angle_correct.append(features[idx, :])
+
+        elif angles_data[idx, 1] != features[int(nearest_neighbor_angle[idx]), 1] \
+                and distance_data[idx, 1] == features[int(nearest_neighbor_distance[idx]), 1]:
+            distance_correct.append(features[idx, :])
+
+        elif angles_data[idx, 1] != features[int(nearest_neighbor_angle[idx]), 1] \
+                and distance_data[idx, 1] != features[int(nearest_neighbor_distance[idx]), 1]:
+            both_wrong.append(features[idx, :])
+
+        elif angles_data[idx, 1] == features[int(nearest_neighbor_angle[idx]), 1] \
+                and distance_data[idx, 1] == features[int(nearest_neighbor_distance[idx]), 1]:
+            both_correct.append(features[idx, :])
+
+    # Could save this to file as well..
+    # Could count how many of each class there is in each list
+
+    pass
+
+
 ########################## Save stuff to file ##################################
 
 
@@ -625,7 +687,12 @@ def save_angle_neighbors_to_file():
 
 def compute_angles():
     """Compute the angles between each feature and save to file"""
+
     features = get_songs_feature_set("features_targets/all_vectors.txt")
+    only_mfcc = True
+    if only_mfcc:
+        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
+        features = features[:, mfcc_filter]
     angles = np.zeros((len(features), len(features) +2))
     norm_features = normalise(features[:, 2:])[0]
     angles[:, :2] = features[:, :2]
@@ -634,10 +701,22 @@ def compute_angles():
         for o_idx, other_feature in enumerate(norm_features):
             angles[idx, o_idx+2] = angle(feature, other_feature)
 
+    save_matrix("features_targets/all_angles_mfcc.txt", angles)
 
-    #save_matrix("features_targets/all_angles.txt", angles)
-
-
+def compute_distances():
+    """Compute the distance between each feature and save to file"""
+    only_mfcc = True
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    if only_mfcc:
+        mfcc_filter = [0,1,10,11,12,13,14,15,16,17,18,19]
+        features = features[:, mfcc_filter]
+    distances = np.zeros((len(features), len(features) + 2))
+    norm_features = normalise(features[:, 2:])[0]
+    distances[:, :2] = features[:, :2]
+    for idx, feature in enumerate(norm_features):
+        for o_idx, other_feature in enumerate(norm_features):
+            distances[idx, o_idx + 2] = euclidean_dist(feature, other_feature)
+    save_matrix("features_targets/all_distances_mfcc.txt", distances)
 
 
 if __name__ == '__main__':
@@ -681,6 +760,10 @@ if __name__ == '__main__':
 
 
     
+    # compute_distances()
+    #train_set, test_set = get_test_train_sets("features_targets/afe_feat_and_targ.txt",0,42)
+    #train_setP, test_setP = partdata()
+
     # a = allCorrectPlotDist(allDist)
     # b = allInCorrectPlotDist(allDist)
     # CorrectAvg = np.average(a)
@@ -722,5 +805,21 @@ if __name__ == '__main__':
     # plt.subplot(1,2,2)
     # plt.plot(Y)
     # plt.show()
+
+
+"""
+    allDist, a = read_stored_data('features_targets/Alldistances.txt')
+    allDist = np.array(allDist)
+
+    alldistNoDiag = remove_diagonal(allDist)
+    nearest = get_nearest_neighbors_dist(alldistNoDiag)
+    nearest_correct = get_nearest_correct_neighbors(alldistNoDiag)
+    both = get_both_nearest_and_correct_neighbors(alldistNoDiag)
+
+    for i in range(1000):
+        print(both[i, :])
+
+    # nearesttracks = np.concatenate((nearest,nearest_correct[:,1]),axis=0) #Får inte skiten att funka.
+"""
 
 
