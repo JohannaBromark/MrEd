@@ -18,6 +18,23 @@ def read_file(file_name='genres/rock/rock.00093.wav'):
   # pop: genres/pop/pop.00000.wav
   return audioBasicIO.readAudioFile(file_name)
 
+def read_content(file_name="features_targets/index_of_content.txt"):
+  with open(file_name) as f:
+    lines = f.readlines()
+    content = [[0]] * len(lines)
+    
+    for i in range(len(lines)):
+      content[i] = [s.strip() for s in lines[i].splitlines()]
+    content = np.array(content)
+
+    #fullösning
+    songs = [[0]] * len(content)
+    for i in range(len(content)):
+      # print(np.array(content[:,0])[:].split("::: ")[:])
+      songs[i] = np.array(content[:,0])[i].split("::: ")[:]
+  return songs
+  # return np.loadtxt("features_targets/index_of_content.txt",dtype=str)
+
 def read_directory(genre='rock'):
   path = 'genres/' + genre + '/'
   all_samples = [[0]] * len([f for f in os.listdir(path)])
@@ -256,13 +273,11 @@ def ungroup(grouped_features, grouped_targets):
 def mean_by_song(features):
   num_songs = len(np.unique(features[:, 0]))
   songs = np.zeros((num_songs, features.shape[1]))
-  song_numbers = np.unique(features[:, 0])
 
-  # for song_num in range(num_songs):
-  for i, song_num in enumerate(song_numbers):
+  for song_num in range(num_songs):
     song_idx = np.where(features[:, 0] == song_num)[0]
     song_matrix = np.take(features, song_idx, 0)
-    songs[i, :] = np.mean(song_matrix, 0)
+    songs[song_num, :] = np.mean(song_matrix, 0)
 
   return songs
 
@@ -293,56 +308,39 @@ def make_k_fold_partition(samples, k, seed = None):
   return partitions
 
 
-def make_k_fold_partition_equal(song_features_set, k, seed = None):
+def make_k_fold_partition_equal(samples, k):
   """
-  :param song_features_set: All samples that are used for training and testing
-  :param k: Number of partitions
-  :param seed: The seed for the random partition
+  :param samples: All samples that are used for training and testing
+  :param targets: Targets corresponding to each sample
+  :param k: Integer to decide number of partitions
   :return: partitions: 3D matrix (3D layers correspond to the partitions),
            partition_targets: matrix where each row is target for each partitions
   """
+  partition_size = samples.shape[0]//k
+  genres = np.unique(samples[:, 0]).astype("int64")
 
-  if seed is not None:
-    np.random.seed(seed)
-
-  partition_size = song_features_set.shape[0] // k
-
-  if 100 % k != 0:
-    raise IndexError("Cannot create even partitions!")
-
-  genres = np.unique(song_features_set[:, 0]).astype("int64")
-
-  partitions = np.zeros((partition_size, song_features_set.shape[1], k))
-  partitions_final = np.zeros((partition_size, song_features_set.shape[1], k))
-
+  partitions = np.zeros((partition_size, samples.shape[1], k))
+  partitions_final = np.zeros((partition_size, samples.shape[1], k))
   last_filled_idx = 0
 
-  # Shuffle the genres and place in partition
   for genre_idx in genres:
-    genre_samples_idx = np.where(song_features_set[:, 1] == genre_idx)[0]
-    genre_samples = song_features_set[genre_samples_idx]
-    np.random.shuffle(genre_samples)
-    genre_partitions = np.split(genre_samples, k)
-    # genre_partitions = np.array_split(genre_samples, k) Om denna används smäller det på rad 327 istället
+      idx = np.where(samples[:, 0] == genre_idx)[0]
+      same_genres_samples = samples[idx]
+      same_genres_samples = np.take(same_genres_samples, [x for x in random.sample(range(same_genres_samples.shape[0]), same_genres_samples.shape[0])], 0)
+      genre_split = np.split(same_genres_samples, k)
 
-    for idx, partition in enumerate(genre_partitions):
-      partitions[last_filled_idx: (last_filled_idx+partition.shape[0]), :, idx] = partition
+      # Divided now holds the songs for each partition
+      for i in range(k):
 
-    last_filled_idx += genre_partitions[0].shape[0]
+          partitions[last_filled_idx:last_filled_idx+genre_split[i].shape[0], :, i] = genre_split[i]
 
-  # Shuffle each partition
+      last_filled_idx += genre_split[0].shape[0]
+
   for i in range(k):
-    np.random.shuffle(partitions[:, :, i])
+    partitions_final[:, :, i] = np.take(partitions[:,:,i], [x for x in random.sample(range(partitions.shape[0]), partitions.shape[0])], 0)
 
-  """ Litet test bara
-    for i in range(k):
-      for j in range(10):
-        num_genre_in_partition = len(np.where(partitions[:, 1, i] == j)[0])
-        if num_genre_in_partition != 25:
-          print("FEEEEEEEEEL", num_genre_in_partition)
-  """
 
-  return partitions
+  return partitions_final
 
 
 def get_k_fold_partitions(partitioned_samples, partition_num):
@@ -407,7 +405,7 @@ def get_set_from_partitions(partitioned_samples, partition_num = 0):
 ##################
 ### Get songs directly from import ###
 
-def get_songs_feature_set(filename = "features_targets/all_vectors.txt"):
+def get_songs_feature_set(filename):
   """
   Takes a filename and returns the feature vectors for each song
   :param filename: file for the stored features
