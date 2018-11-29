@@ -12,157 +12,135 @@ def mfcc_only(vectors):
   return vectors[:,filtered]
 
 def filter_on_genre(vectors, genre):
-  # hiphop 4, reggae 8, classical 1
   if (isinstance(genre, str)):
     return np.array([v for v in vectors if get_label(v[1]) == genre])
   else:
     return np.array([v for v in vectors if v[1] == genre])
 
-def scatter_plot(f_genre_1, f_genre_2, compare_songs):
-  f_1 = f_genre_1[:,2:]
-  f_2 = f_genre_2[:,2:]
-  
+def scatter_plot(f_genre, start_at, n_genres):
+  f = f_genre[:,2:]
+
   mean_idx = [0,2,4,6,8]
   var_idx = [1,3,5,7,9]
+  y = np.concatenate((f[:,mean_idx].flatten('F'), f[:,var_idx].flatten('F')))
 
-  y_1 = np.concatenate((f_1[:,mean_idx].flatten('F'), f_1[:,var_idx].flatten('F')))
-  y_2 = np.concatenate((f_2[:,mean_idx].flatten('F'), f_2[:,var_idx].flatten('F')))
+  c = start_at+1
+  x = []
+  for j in range(f.shape[1]):
+    for i in range(f.shape[0]):
+      x.append(c)
+    c += n_genres
 
-  c = 0
-  x_1 = []
-  for j in range(f_1.shape[1]):
-    for i in range(f_1.shape[0]):
-      x_1.append(c)
-    c += 2
+  plt.plot(x, y, '.', label=get_label(f_genre[0,1]))
 
-  c = 1
-  x_2 = []
-  for j in range(f_2.shape[1]):
-    for i in range(f_2.shape[0]):
-      x_2.append(c)
-    c += 2
+def box_plot(genres, ax):
+  n_genres = len(genres)
+  f = []
+  for i in range(n_genres):
+    f.append(genres[i][:][2:])
 
-  
-  f, ax = plt.subplots()
-  ax.set_xticks([i for i in range(max(x_2)+1)])
-  x_ticks_labels = [
-    'Coeff 0 mean', 
-    'Coeff 0 mean',
-    'Coeff 1 mean', 
-    'Coeff 1 mean',
-    'Coeff 2 mean', 
-    'Coeff 2 mean',
-    'Coeff 3 mean', 
-    'Coeff 3 mean',
-    'Coeff 4 mean', 
-    'Coeff 4 mean',
-    'Coeff 0 var', 
-    'Coeff 0 var',
-    'Coeff 1 var', 
-    'Coeff 1 var',
-    'Coeff 2 var', 
-    'Coeff 2 var',
-    'Coeff 3 var', 
-    'Coeff 3 var',
-    'Coeff 4 var', 
-    'Coeff 4 var']
-
-  genre_1 = get_label(f_genre_1[0,1])
-  genre_2 = get_label(f_genre_2[0,1])
-
-  ax.set_xticklabels(x_ticks_labels, rotation='80', fontsize=8)
-  if compare_songs:
-    plt.title('MFCCs of songs for ' + genre_1 + ' and ' + genre_2)
-  else:
-    plt.title('MFCCs of feature vectors for ' + genre_1 + ' and ' + genre_2)
-  plt.xlabel('MFCC features')
-  plt.ylabel('Feature values')
-
-  plt.plot(x_1, y_1, '.', label= genre_1)
-  plt.plot(x_2, y_2, '.', label= genre_2)
-  plt.legend(loc='upper left')
-  plt.tight_layout()
-  
-  # if compare_songs:
-  #   plt.savefig('analysis_docs/mfcc_comparisons/songs/'+genre_1+'-'+genre_2)
-  # else:
-  #   plt.savefig('analysis_docs/mfcc_comparisons/feature_vectors/'+genre_1+'-'+genre_2)
-
-  # plt.show()
-
-
-def box_plot(f_genre_1, f_genre_2, compare_songs):
-
-  f_1 = f_genre_1[:,2:]
-  f_2 = f_genre_2[:,2:]
-
+  # print(f)
   idxs = [0,2,4,6,8,1,3,5,7,9]
 
   data = []
   for i in range(len(idxs)):
-    data.append(f_1[:,idxs[i]])
-    data.append(f_2[:,idxs[i]])
+    for j in range(n_genres):
+      g = genres[j]
+      data.append(g[:,idxs[i]+2])
+
+  ax.boxplot(data, whis=[0, 100]) ### SET WHISKERS HERE or ELSE [(Q1-1.5 IQR), (Q3+1.5 IQR)]
   
-  x_ticks_labels = [
-    'Coeff 0 mean', 
-    'Coeff 0 mean',
-    'Coeff 1 mean', 
-    'Coeff 1 mean',
-    'Coeff 2 mean', 
-    'Coeff 2 mean',
-    'Coeff 3 mean', 
-    'Coeff 3 mean',
-    'Coeff 4 mean', 
-    'Coeff 4 mean',
-    'Coeff 0 var', 
-    'Coeff 0 var',
-    'Coeff 1 var', 
-    'Coeff 1 var',
-    'Coeff 2 var', 
-    'Coeff 2 var',
-    'Coeff 3 var', 
-    'Coeff 3 var',
-    'Coeff 4 var', 
-    'Coeff 4 var']
+def compare_mfccs(genres, compare_songs, use_box_plot):
 
-  fig1, ax1 = plt.subplots()
-  # ax1.boxplot(data)
-  ax1.boxplot(data, whis=[0, 100]) ### SET WHISKERS HERE or ELSE [(Q1-1.5 IQR), (Q3+1.5 IQR)]
-  ax1.set_xticklabels(x_ticks_labels, rotation='80', fontsize=8)
-
-  genre_1 = get_label(f_genre_1[0,1])
-  genre_2 = get_label(f_genre_2[0,1])
+  n_genres = len(genres)
 
   if compare_songs:
-    plt.title('MFCCs of songs for ' + genre_1 + ' and ' + genre_2)
+    f_vectors = get_songs_feature_set("features_targets/all_vectors.txt")
   else:
-    plt.title('MFCCs of feature vectors for ' + genre_1 + ' and ' + genre_2)
+    f_vectors = read_stored_data()
+    
+  f_genres = []
+  for i in range(n_genres):
+    f_genres.append(filter_on_genre(mfcc_only(f_vectors), genres[i]))
+
+  x_ticks_labels = []
+  for i in range(5):
+    x_ticks_labels.append(np.array(['Coeff ' + str(i) + ' mean']*n_genres))
+  for i in range(5):
+    x_ticks_labels.append(np.array(['Coeff ' + str(i) + ' var']*n_genres))
+  
+  x_ticks_labels = np.array(x_ticks_labels).flatten()
+  
+  fig, ax = plt.subplots()
+
+  if use_box_plot:
+    box_plot(f_genres, ax)
+  else:
+    for i, g in enumerate(f_genres):
+      scatter_plot(g, i, n_genres)
+
+  ax.set_xticks([i for i in range(1,len(x_ticks_labels)+1)])
+  ax.set_xticklabels(x_ticks_labels, rotation='80', fontsize=8)
+
+  if compare_songs:
+    title = 'MFCCs of songs for '
+  else:
+    title = 'MFCCs of feature vectors for '
+  
+  for g in genres:
+    title += g + ' and '
+    
+  plt.title(title[:-5])
 
   plt.xlabel('MFCC features')
   plt.ylabel('Feature values')
 
   plt.tight_layout()
+
   plt.show()
 
 
-def compare_mfccs(genre_1, genre_2, compare_songs, use_box_plot):
+def read_nearest_and_correct_nearest():
+  data = []
+  with open("features_targets/nearest_and_correct_nearest.txt", 'r') as f:
+    lines = f.readlines()
+    for l in lines:
+      data.append(np.array([float(i) for i in l.split()]))
+  return np.array(data)
 
-  if compare_songs:
-    f_vectors = get_songs_feature_set()
-  else:
-    f_vectors = read_stored_data()
-    
-  f_genre_1 = filter_on_genre(mfcc_only(f_vectors), genre_1)
-  f_genre_2 = filter_on_genre(mfcc_only(f_vectors), genre_2)
 
-  if use_box_plot:
-    box_plot(f_genre_1, f_genre_2, compare_songs)
-  else:
-    scatter_plot(f_genre_1, f_genre_2, compare_songs)
-  
+def compare_nearest_and_correct_nearest(sample_n):
+
+  data = read_nearest_and_correct_nearest()
+
+  all_songs = get_songs_feature_set("features_targets/all_vectors.txt")
+  all_texture_windows = read_stored_data()
+
+  sample_windows = all_texture_windows[np.where(all_texture_windows[:,0] == data[sample_n,0])]
+
+  sample = all_songs[np.where(all_songs[:,0] == data[sample_n,0])]
+  nearest = all_songs[np.where(all_songs[:,0] == data[sample_n,2])]
+  correct_nearest = all_songs[np.where(all_songs[:,0] == data[sample_n,3])]
+
+  sample_windows = mfcc_only(sample_windows)
+  sample = mfcc_only(sample)
+  nearest = mfcc_only(nearest)
+  correct_nearest = mfcc_only(correct_nearest)
+
+  idxs = [0,2,4,6,8,1,3,5,7,9]
+
+  fig, ax = plt.subplots()
+  box_plot([sample_windows], ax)
+  scatter_plot(sample, 0, 1)
+  scatter_plot(nearest, 0, 1)
+  scatter_plot(correct_nearest, 0, 1)
+  plt.show()
+
 
 if __name__ == "__main__":
+
   # box plot explanation
   # https://stackoverflow.com/questions/17725927/boxplots-in-matplotlib-markers-and-outliers
-  compare_mfccs('reggae', 'hiphop', compare_songs=False, use_box_plot=True)
+  # compare_mfccs(genres=['reggae', 'hiphop'], compare_songs=False, use_box_plot=False)
+  compare_nearest_and_correct_nearest(sample_n = 50)
   

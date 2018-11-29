@@ -597,11 +597,6 @@ def get_both_nearest_and_correct_neighbors(alldist):
 		nearest[i, 3] = np.argmin(alldist[i, 2 + (a * 100):103 + (a * 100)]) + a * 100
 	
 	return nearest
-<<<<<<< HEAD
-
-=======
-	#G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
->>>>>>> 1fa074b25e481f58dd049fa91e90f3c0ad5af445
 
 def get_missclassified(alldistt):
 	missclassified = np.array([])
@@ -857,13 +852,19 @@ def plot_missclassified_with_neighbor_by_feature_mfcc(id,normalise=True):
 
 	plt.show()
 
+def save_to_file(data, filename):
+	with open(filename, "w") as f:
+		for row in data:
+			for col in row:
+				f.write(str(col) + ' ')
+			f.write('\n')
 
 if __name__ == '__main__':
 	allDist = read_stored_data('features_targets/all_distances.txt')
 	allDist = np.array(allDist)
 
 	alldistNoDiag = remove_diagonal(np.copy(allDist))
-
+	save_to_file(get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag), "features_targets/nearest_and_correct_nearest.txt")
 	# plot_missclassified_with_neighbor_by_feature(100)
 	# plot_missclassified_with_neighbor_by_feature_mfcc(100)
 
