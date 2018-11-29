@@ -54,6 +54,11 @@ def write_fault_filtered():
   faultfiltered('features_targets/train_fault.txt','fault_filtered_vectors_train.txt')
   faultfiltered('features_targets/test_fault.txt','fault_filtered_vectors_test.txt')
 
+def write_random_filtered():
+  faultfiltered('features_targets/valid_random.txt','random_filtered_vectors_valid.txt')
+  faultfiltered('features_targets/train_random.txt','random_filtered_vectors_train.txt')
+  faultfiltered('features_targets/test_random.txt','random_filtered_vectors_test.txt')
+
 def write_all_vectors():
   samples, targets, names = read_directories()
   seg_size = 512

@@ -539,20 +539,20 @@ def correct_incorrectDistPlot(allCorrect, allInCorrect):
 	plt.show()
 
 def create_neighbor_graph():
-	nearest_neighbors = get_nearest_neighbors()
-	features = get_songs_feature_set("features_targets/all_vectors.txt")
-	G = nx.DiGraph()
-	colors = createColorDict()
-	for idx, neighbor_i in enumerate(nearest_neighbors[:, 0]):
-		if idx not in G:
-			G.add_node(idx, color=colors[int(features[idx, 1])+1])
-		if int(neighbor_i) not in G:
-			G.add_node(int(neighbor_i), color=colors[int(features[int(neighbor_i), 1])+1])
-		G.add_edge(idx, int(neighbor_i))
+    nearest_neighbors = get_nearest_neighbors()
+    features = get_songs_feature_set("features_targets/all_vectors.txt")
+    G = nx.DiGraph()
+    colors = createColorDict()
+    for idx, neighbor_i in enumerate(nearest_neighbors[:, 0]):
+        if idx not in G:
+            G.add_node(idx, color=colors[int(features[idx, 1])+1])
+        if int(neighbor_i) not in G:
+            G.add_node(int(neighbor_i), color=colors[int(features[int(neighbor_i), 1])+1])
+        G.add_edge(idx, int(neighbor_i))
 
-	G = nx.drawing.nx_agraph.to_agraph(G)
-	# G.node_attr.update(style="filled")
-	#G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+    G = nx.drawing.nx_agraph.to_agraph(G)
+    G.node_attr.update(style="filled")
+    #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
 
 
 def remove_diagonal(alldist):
@@ -594,10 +594,17 @@ def get_both_nearest_and_correct_neighbors(alldist):
 		if ((i % 100 == 0) and not (i == 0)):
 			a += 1
 
+<<<<<<< HEAD
 		nearest[i, 3] = np.argmin(alldist[i, 2 + (a * 100):103 + (a * 100)]) + a * 100
 	
 	return nearest
 	#G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+=======
+		nearest[i, 2] = np.argmin(alldist[i, 2 + (a * 100):102 + (a * 100)]) + a * 100
+
+    return nearest
+    #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
+>>>>>>> c1dc553f85017abc72d9c1858c5b5c7577b5c42c
 
 def get_missclassified(alldistt):
 	missclassified = np.array([])
@@ -632,9 +639,9 @@ def get_missclassified_with_neighbors_nearest_and_correct(alldistt):
 
 def compute_knn_adjecency_matrix():
 
-	all_distances = read_stored_data("features_targets/AllDistances.txt")
-	all_distances = all_distances[:, 2:]
-	genre_adjecency_matrix = np.zeros((10, 10))
+    all_distances = read_stored_data("features_targets/all_distances_mfcc.txt")
+    all_distances = all_distances[:, 2:]
+    genre_adjecency_matrix = np.zeros((10, 10))
 
 	for g in range(10):
 		for g2 in range(10):
@@ -647,19 +654,20 @@ def compute_knn_adjecency_matrix():
 
 
 def create_knn_graph():
-	""" RESULTS IN A CRAPPY DRAWING!!! don't know why :'("""
-	adjecency_matrix = compute_knn_adjecency_matrix()
-	adjecency_matrix[1,0] = adjecency_matrix[1,0] * 100
-	class_order = [7,6,3,0,8,1,9,4,2,5]
+    """ RESULTS IN A CRAPPY DRAWING!!! don't know why :'("""
+    adjecency_matrix = compute_knn_adjecency_matrix()
+    class_order = [7,6,3,0,8,1,9,4,2,5]
 
-	G = nx.from_numpy_matrix(adjecency_matrix)
+    dt = [('len', float)]
+    tuple_distances = np.array([tuple(dist) for dist in adjecency_matrix])
+    G = nx.from_numpy_matrix(tuple_distances.view(dt))
 
 	name_mapping = dict(zip(G.nodes, [get_label(label) for label in class_order]))
 	G = nx.relabel_nodes(G, name_mapping)
 	G = nx.drawing.nx_agraph.to_agraph(G)
 	G.node_attr.update(color="red", style="filled")
 
-	G.draw('analysis_docs/knn_distances_visualized.png', format='png', prog='neato')
+    # G.draw('analysis_docs/knn_mfcc_distances_visualized.png', format='png', prog='neato')
 
 ########################### Angles ####################################
 
