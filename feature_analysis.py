@@ -594,17 +594,10 @@ def get_both_nearest_and_correct_neighbors(alldist):
 		if ((i % 100 == 0) and not (i == 0)):
 			a += 1
 
-<<<<<<< HEAD
 		nearest[i, 3] = np.argmin(alldist[i, 2 + (a * 100):103 + (a * 100)]) + a * 100
 	
 	return nearest
 	#G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
-=======
-		nearest[i, 2] = np.argmin(alldist[i, 2 + (a * 100):102 + (a * 100)]) + a * 100
-
-    return nearest
-    #G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
->>>>>>> c1dc553f85017abc72d9c1858c5b5c7577b5c42c
 
 def get_missclassified(alldistt):
 	missclassified = np.array([])
