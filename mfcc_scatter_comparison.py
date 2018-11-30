@@ -131,9 +131,19 @@ def compare_nearest_and_correct_nearest(sample_n):
 
   fig, ax = plt.subplots()
   box_plot([sample_windows], ax)
-  scatter_plot(sample, 0, 1, label='Sample: ' + str(int(sample[0,0])) + ' (' + get_label(sample[0,1]) + ')')
-  scatter_plot(nearest, 0, 1, label='Nearest: ' + str(int(nearest[0,0])) + ' (' + get_label(nearest[0,1]) + ')')
-  scatter_plot(correct_nearest, 0, 1, label='Correct nearest: ' + str(int(correct_nearest[0,0])) + ' (' + get_label(correct_nearest[0,1]) + ')')
+
+  song_names = read_content()
+  sample_name = song_names[int(data[sample_n,0])]
+  nearest_name = song_names[int(data[sample_n,2])]
+  correct_nearest_name = song_names[int(data[sample_n,3])]
+
+  # scatter_plot(sample, 0, 1, label='Sample: ' + str(int(sample[0,0])) + ' (' + get_label(sample[0,1]) + ')')
+  # scatter_plot(nearest, 0, 1, label='Nearest: ' + str(int(nearest[0,0])) + ' (' + get_label(nearest[0,1]) + ')')
+  # scatter_plot(correct_nearest, 0, 1, label='Correct nearest: ' + str(int(correct_nearest[0,0])) + ' (' + get_label(correct_nearest[0,1]) + ')')
+
+  scatter_plot(sample, 0, 1, label='Sample: ' + sample_name[0] + ' ' + sample_name[1] + ' ' + sample_name[2])
+  scatter_plot(nearest, 0, 1, label='Nearest: ' + nearest_name[0] + ' ' + nearest_name[1] + ' ' + nearest_name[2])
+  scatter_plot(correct_nearest, 0, 1, label='Correct nearest: ' + correct_nearest_name[0] + ' ' + correct_nearest_name[1] + ' ' + correct_nearest_name[2])
   
 
   x_ticks_labels = []
@@ -144,7 +154,7 @@ def compare_nearest_and_correct_nearest(sample_n):
   ax.set_xticks([i for i in range(1,len(x_ticks_labels)+1)])
   ax.set_xticklabels(x_ticks_labels, rotation='80', fontsize=8)
   
-  plt.title('MFCC values for texture windows of song number: ' + str(int(sample[0,0])))
+  plt.title('MFCC values for texture windows of song ' + sample_name[0])
   plt.tight_layout()
   plt.legend()
   plt.show()
@@ -155,5 +165,6 @@ if __name__ == "__main__":
   # box plot explanation
   # https://stackoverflow.com/questions/17725927/boxplots-in-matplotlib-markers-and-outliers
   # compare_mfccs(genres=['reggae', 'hiphop', 'classical'], compare_songs=False, use_box_plot=True)
-  compare_nearest_and_correct_nearest(sample_n = 50)
+  compare_nearest_and_correct_nearest(sample_n = 0)
+  
   
