@@ -168,7 +168,7 @@ def run_gmm_k_fold():
   confusion_matrix = (confusion_matrix / num_iterations).astype("int64")
   print(confusion_matrix)
 
-  save_confusion_matrix("analysis_docs/gmm_with_single_features/energy.csv", confusion_matrix)
+  # save_confusion_matrix("analysis_docs/gmm_with_single_features/energy .csv", confusion_matrix)
 
 
 ###########################
@@ -314,7 +314,7 @@ if __name__ == '__main__':
 
   # runFaultFilteredGMM()
   # runRandomGMM()
-  run_gmm_k_fold()
+  # run_gmm_k_fold()
   # compare_gmms()
 
   

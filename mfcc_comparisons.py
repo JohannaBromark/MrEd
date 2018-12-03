@@ -159,11 +159,9 @@ def compare_nearest_and_correct_nearest(sample_n):
   plt.legend()
   plt.show()
 
-def plot_single_mfccs():
+def plot_single_mfccs(genres, mfcc_number):
   data = get_songs_feature_set("features_targets/all_vectors.txt")
   g_idx = 1
-  genres = ['reggae','hiphop']
-  mfcc_number = 0
 
   n_genres = np.unique(data[:,g_idx]).shape[0]
 
@@ -184,7 +182,13 @@ if __name__ == "__main__":
 
   # box plot explanation
   # https://stackoverflow.com/questions/17725927/boxplots-in-matplotlib-markers-and-outliers
+
+  ### Compare MFCC box plots
   # compare_mfccs(genres=['classical', 'hiphop'], compare_songs=False, use_box_plot=True)
+
+  ### MFCC box plots of a misclassified song with neighbour and the nearest correct
   # compare_nearest_and_correct_nearest(sample_n = 0)
-  plot_single_mfccs()
+
+  ### Plot single MFCC values for all songs
+  # plot_single_mfccs(genres=['reggae', 'hiphop', 'all'], mfcc_number=0)
   
