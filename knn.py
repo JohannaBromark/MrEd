@@ -43,18 +43,20 @@ def run_knn_random():
 
 
 def run_knn_k_fold():
-  features, _ = read_stored_data('features_targets/afe_feat_and_targ.txt')
-  features_mean = mean_by_song(features)
+  # features, _ = read_stored_data('features_targets/afe_feat_and_targ.txt')
+  # features_mean = mean_by_song(features)
+  features = get_songs_feature_set('features_targets/all_vectors.txt')
+  # targets = features[:,1]
+  # features = features[:,2:]
 
   k = 10
   num_genres = 10
   num_iterations = 100
-
   iteration_accuracies = []
   confusion_matrix = np.zeros((num_genres, num_genres))
 
   for e in range(num_iterations):
-    feature_partition = make_k_fold_partition(features_mean, 10)
+    feature_partition = make_k_fold_partition(features, 10)
     print("Iteration: ", e)
     s = 0
     predictions_matrix = np.zeros((num_genres, num_genres))
@@ -62,7 +64,7 @@ def run_knn_k_fold():
       train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(feature_partition, i)
       train_samples, mu, std = normalise(train_samples)
       test_samples = (test_samples - mu)/std
-
+    
       knn = KNeighborsClassifier(n_neighbors=1)
 
       knn.fit(train_samples, train_targets)
@@ -78,10 +80,59 @@ def run_knn_k_fold():
   confusion_matrix = (confusion_matrix/num_genres).astype("int64")
 
   # Save the confusion matrix to file
-  #save_confusion_matrix("analysis_docs/confusion_matrix_knn.csv", confusion_matrix)
+  save_confusion_matrix("analysis_docs/confusion_matrix_knn_feature_.csv", confusion_matrix)
 
   print(np.mean(iteration_accuracies))
 
+def run_knn_k_fold_for_singular_feature():
+
+  features = get_songs_feature_set('features_targets/all_vectors.txt')
+ 
+
+  k = 10
+  num_genres = 10
+  num_iterations = 100
+  for a in range(19):
+    iteration_accuracies = []
+    confusion_matrix = np.zeros((num_genres, num_genres))
+
+    for e in range(num_iterations):
+      feature_partition = make_k_fold_partition(features, 10)
+      print("Iteration: ", e)
+      s = 0
+      predictions_matrix = np.zeros((num_genres, num_genres))
+      for i in range(k):
+        train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(feature_partition, i)
+        train_samples, mu, std = normalise(train_samples)
+        test_samples = (test_samples - mu)/std
+        ##
+        train_samples = np.array(train_samples)
+        test_samples = np.array(test_samples)
+
+        train_samples = train_samples[:,a].reshape(-1,1)
+        test_samples = test_samples[:,a].reshape(-1,1)
+        # print(train_samples.shape)
+        
+        ##
+
+        knn = KNeighborsClassifier(n_neighbors=1)
+
+        knn.fit(train_samples, train_targets)
+
+        predictions = knn.predict(test_samples)
+        for j in range(len(predictions)):
+          predictions_matrix[predictions[j], test_targets[j] ] += 1
+        score = knn.score(test_samples, test_targets)
+        s += score
+      confusion_matrix += (predictions_matrix / k)
+      iteration_accuracies.append(s/k)
+      print(s/k)
+    confusion_matrix = (confusion_matrix/num_genres).astype("int64")
+
+    # Save the confusion matrix to file
+    save_confusion_matrix("analysis_docs/confusion_matrix_knn_feature_"+str(a+1)+".csv", confusion_matrix)
+
+  print(np.mean(iteration_accuracies))
 
 def run_knn_find_neighbors():
   train_set, test_set = get_test_train_sets('features_targets/afe_feat_and_targ.txt')
@@ -129,8 +180,9 @@ def run_knn_find_neighbors():
 
 if __name__ == '__main__':
 
-  run_knn_random()
+  # run_knn_random()
   # run_knn_k_fold()
+  # run_knn_k_fold_for_singular_feature()
   #run_knn_find_neighbors()
 
 

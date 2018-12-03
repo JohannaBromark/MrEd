@@ -868,13 +868,10 @@ if __name__ == '__main__':
 	# allDist = read_stored_data('features_targets/all_distances.txt')
 	# allDist = np.array(allDist)
 
-<<<<<<< HEAD
 	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 
-=======
 	alldistNoDiag = remove_diagonal(np.copy(allDist))
 	# save_to_file(get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag), "features_targets/nearest_and_correct_nearest.txt")
->>>>>>> cdd4eb4bc30ff12742d98f98b0c0ec551049b017
 	# plot_missclassified_with_neighbor_by_feature(100)
 	plot_missclassified_with_neighbor_by_feature_mfcc(200,False)
 
