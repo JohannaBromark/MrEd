@@ -114,11 +114,11 @@ def run_gmm_k_fold():
   
   ### GMM and partition settings 
   num_genres = np.unique(features[:,1]).shape[0]
-  num_iterations = 10
+  num_iterations = 1
   n_components = 3
   n_folds = 10
   # MFCC 0 mean and var is 8 and 9
-  filter_idxs = [8,9,12,13]
+  filter_idxs = [18]
 
   # Store accuracies and create a confusion matrix 
   iteration_accuracies = []
@@ -165,10 +165,10 @@ def run_gmm_k_fold():
   print("Final accuracy: ", final_accuracy)
   print("Final variance: ", final_accuracy_variance)
 
-  confusion_matrix /= 10
-  confusion_matrix = (confusion_matrix / 10).astype("int64")
+  confusion_matrix = (confusion_matrix / num_iterations).astype("int64")
+  print(confusion_matrix)
 
-  #save_confusion_matrix("analysis_docs/confusion_matrix_gmm.csv", confusion_matrix)
+  save_confusion_matrix("analysis_docs/gmm_with_single_features/energy.csv", confusion_matrix)
 
 
 ###########################
