@@ -597,11 +597,6 @@ def get_both_nearest_and_correct_neighbors(alldist):
 		nearest[i, 3] = np.argmin(alldist[i, 2 + (a * 100):103 + (a * 100)]) + a * 100
 	
 	return nearest
-<<<<<<< HEAD
-
-=======
-	#G.draw('analysis_docs/knn_v3.png', format='png', prog='neato')
->>>>>>> 1fa074b25e481f58dd049fa91e90f3c0ad5af445
 
 def get_missclassified(alldistt):
 	missclassified = np.array([])
@@ -746,7 +741,7 @@ def distance_vs_angle():
 
 	pass
 
-def plot_missclassified_with_neighbor_by_feature(id,normalise=True):
+def plot_missclassified_with_neighbor_by_feature(id,normalize=True):
 	allDist = read_stored_data('features_targets/all_distances.txt')
 	allDist = np.array(allDist)
 
@@ -754,7 +749,7 @@ def plot_missclassified_with_neighbor_by_feature(id,normalise=True):
 	content = read_content('features_targets/index_of_content.txt') #TODO sätt namnet på låten i labels
 	missclassified = get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag)
 	features = get_songs_feature_set('features_targets/all_vectors.txt')
-	if normalise == True:
+	if normalize == True:
 		features, a, b = normalise(features)
 	# print(missclassified[0,0])
 	# for i in range(150):
@@ -774,11 +769,11 @@ def plot_missclassified_with_neighbor_by_feature(id,normalise=True):
 		'Centroid mean', 
 		'Centroid var',
 		'Rolloff mean', 
-		'Rolloff mean',
+		'Rolloff var',
 		'Flux mean', 
-		'Flux mean',
+		'Flux var',
 		'Zero-Crossing mean', 
-		'Zero-Crossing mean',
+		'Zero-Crossing var',
 		'MFCC0 mean', 
 		'MFCC0 var',
 		'MFCC1 mean', 
@@ -806,7 +801,7 @@ def plot_missclassified_with_neighbor_by_feature(id,normalise=True):
 
 	plt.show()
 
-def plot_missclassified_with_neighbor_by_feature_mfcc(id,normalise=True):
+def plot_missclassified_with_neighbor_by_feature_mfcc(id,normalize=True):
 	allDist = read_stored_data('features_targets/all_distances.txt')
 	allDist = np.array(allDist)
 
@@ -814,15 +809,20 @@ def plot_missclassified_with_neighbor_by_feature_mfcc(id,normalise=True):
 	content = read_content('features_targets/index_of_content.txt') #TODO sätt namnet på låten i labels
 	missclassified = get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag)
 	features = get_songs_feature_set('features_targets/all_vectors.txt')
-	if normalise == True:
+	if normalize == True:
 		features, a, b = normalise(features)
 	# print(missclassified[0,0])
 	# for i in range(150):
 	# 	print(features[i,:])
+	for i in range(len(missclassified)):
+		print("ID: "+str(i))
+		print(int(missclassified[i,0]))
 	
 	song1 = features[int(missclassified[id,0]),10:20]
-	song2 = features[int(missclassified[id,2]),10:20]
-	song3 = features[int(missclassified[id,3]),10:20]
+	song2 = song1-features[int(missclassified[id,2]),10:20]
+	# song2 = features[int(missclassified[id,2]),10:20]
+	# song3 = features[int(missclassified[id,3]),10:20]
+	song3 = song1-features[int(missclassified[id,3]),10:20]
 	songlabel1 = content[int(missclassified[id,0])]
 	songlabel2 = content[int(missclassified[id,2])]
 	songlabel3 = content[int(missclassified[id,3])]
@@ -849,9 +849,9 @@ def plot_missclassified_with_neighbor_by_feature_mfcc(id,normalise=True):
 	print(missclassified[id,2])
 	print(missclassified[id,3])
 
-	song = plt.plot(song1,"o-", markersize=12, label=("Missclassified Song "+str(missclassified[id,0])+str(songlabel1))) #blå
-	nearest = plt.plot(song2, "o",markersize=12,label=("Nearest to song "+str(missclassified[id,2])+str(songlabel2)))#gul
-	correct = plt.plot(song3, "o",markersize=12, label=("Nearest correct to song "+str(missclassified[id,3])+str(songlabel3))) #grön
+	# song = plt.plot(song1,"o-", markersize=12, label=("Missclassified Song "+str(missclassified[id,0])+str(songlabel1))) #blå
+	nearest = plt.plot(song2, "o-",markersize=12,label=("Nearest to song "+str(missclassified[id,2])+str(songlabel2)))#gul
+	correct = plt.plot(song3, "o-",markersize=12, label=("Nearest correct to song "+str(missclassified[id,3])+str(songlabel3))) #grön
 	# plt.legend(()=[song,nearest,correct],loc='upper left')
 	ax.legend()
 
@@ -859,13 +859,13 @@ def plot_missclassified_with_neighbor_by_feature_mfcc(id,normalise=True):
 
 
 if __name__ == '__main__':
-	allDist = read_stored_data('features_targets/all_distances.txt')
-	allDist = np.array(allDist)
+	# allDist = read_stored_data('features_targets/all_distances.txt')
+	# allDist = np.array(allDist)
 
-	alldistNoDiag = remove_diagonal(np.copy(allDist))
+	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 
 	# plot_missclassified_with_neighbor_by_feature(100)
-	# plot_missclassified_with_neighbor_by_feature_mfcc(100)
+	plot_missclassified_with_neighbor_by_feature_mfcc(200,False)
 
 	# np.set_printoptions(threshold=sys.maxsize)
 	# content = read_content('features_targets/index_of_content.txt')
@@ -873,7 +873,7 @@ if __name__ == '__main__':
 	# print(np.array(content))
 
 	# print(get_both_nearest_and_correct_neighbors(alldistNoDiag))
-	print(get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag))
+	# print(get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag))
 	# create_knn_graph()
 
 	# create_angle_neighbor_graph()

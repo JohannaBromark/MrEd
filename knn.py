@@ -1,24 +1,33 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
-from timbral_texture import get_label
+# from timbral_texture import get_label
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
 
 def run_knn_random():
-  features, targets = read_stored_data('features_targets/afe_feat_and_targ.txt')
-  # features = normalise(features)
-  features_mean = mean_by_song(features)
-  grouped_targets = features_mean[:, 1]
-  features_mean = features_mean[:, 2:]
+  features = get_songs_feature_set('features_targets/all_vectors.txt')
+  targets = features[:,1]
+  feat = normalise(features[:,2:])[0]
+  # features_mean = mean_by_song(features)
+  # grouped_targets = features_mean[:, 1]
+  # features_mean = features_mean[:, 2:]
+  # print(features[0:5,:])
 
-  grouped_targets = np.array(grouped_targets)
+  #only mfccX
+  # features = features[:,8:10]
+  # print(features[0:5,:])
+
+  # grouped_targets = np.array(grouped_targets)
 
   b = 0
-
+  # for k in range(10):
+  #   features = feat[:,[8,12]]
+  #   # print(features[0,:])
+  #   b=0
   for i in range(100):
-    train_samples, test_samples, train_targets, test_targets = train_test_split(features_mean, grouped_targets,
+    train_samples, test_samples, train_targets, test_targets = train_test_split(features, targets,
                                                                                 test_size=0.1, random_state=i)
 
     knn = KNeighborsClassifier(n_neighbors=1)
@@ -28,7 +37,8 @@ def run_knn_random():
     predictions = knn.predict(test_samples)
     score = knn.score(test_samples, test_targets)
     b = b + score
-    print(score)
+    # print(score)
+  # print("MFCC"+str(k)+":")
   print(b / 100)
 
 
@@ -119,8 +129,8 @@ def run_knn_find_neighbors():
 
 if __name__ == '__main__':
 
-
-  run_knn_k_fold()
+  run_knn_random()
+  # run_knn_k_fold()
   #run_knn_find_neighbors()
 
 
