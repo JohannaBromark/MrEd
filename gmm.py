@@ -100,6 +100,10 @@ def runFaultFilteredGMM():
   print('Prediction')
   print(a)
 
+
+##############################
+# GMM WITH K FOLD PARTITIONING
+
 def run_gmm_k_fold():
   ### Prepare feature data
   features = read_stored_data('features_targets/all_vectors.txt')
@@ -165,6 +169,10 @@ def run_gmm_k_fold():
   confusion_matrix = (confusion_matrix / 10).astype("int64")
 
   #save_confusion_matrix("analysis_docs/confusion_matrix_gmm.csv", confusion_matrix)
+
+
+###########################
+# KL DIVERGENCE COMPARISONS
 
 def gmm_props(m):
   """Return model means, covariances and weights for a given GMM model"""
