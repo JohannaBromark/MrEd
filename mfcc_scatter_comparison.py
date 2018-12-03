@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
   # box plot explanation
   # https://stackoverflow.com/questions/17725927/boxplots-in-matplotlib-markers-and-outliers
-  # compare_mfccs(genres=['reggae', 'hiphop', 'classical'], compare_songs=False, use_box_plot=True)
-  compare_nearest_and_correct_nearest(sample_n = 0)
+  compare_mfccs(genres=['classical', 'hiphop'], compare_songs=False, use_box_plot=True)
+  # compare_nearest_and_correct_nearest(sample_n = 0)
   
   
