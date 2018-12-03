@@ -4,8 +4,6 @@ from scipy.stats import entropy as entropy
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
-
-
 from utils import *
 
 def runRandomGMM():
@@ -102,55 +100,82 @@ def runFaultFilteredGMM():
   print('Prediction')
   print(a)
 
+
+##############################
+# GMM WITH K FOLD PARTITIONING
+
 def run_gmm_k_fold():
-  features, _ = read_stored_data('features_targets/afe_feat_and_targ.txt')
-  # features = normalise(features)
-  #features = features[:, 1:]
-  features_mean = mean_by_song(features)
+  ### Prepare feature data
+  features = read_stored_data('features_targets/all_vectors.txt')
+  feature_vectors = mean_by_song(features)
 
-  k = 10
-  num_genres = 10
+  ### Normalisation with GMM3 gives bad results.. 
+  # songs[:,2:] = normalise(songs[:,2:])[0]
+  
+  ### GMM and partition settings 
+  num_genres = np.unique(features[:,1]).shape[0]
   num_iterations = 10
+  n_components = 3
+  n_folds = 10
+  # MFCC 0 mean and var is 8 and 9
+  filter_idxs = [8,9,12,13]
 
+  # Store accuracies and create a confusion matrix 
   iteration_accuracies = []
   confusion_matrix = np.zeros((num_genres, num_genres))
+
   for e in range(num_iterations):
-    feature_partition = make_k_fold_partition(features_mean, 10)
+    # Create partitions
+    partitions = make_k_fold_partition(feature_vectors, n_folds)
+
     print("Iteration: ", e)
     accuracy_per_partition = []
-    for i in range(k):
-      train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(feature_partition, i)
+
+    for i in range(n_folds):
+      # Get train and test sets
+      train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(partitions, i)
+
+      train_samples = train_samples[:,filter_idxs]
+      test_samples = test_samples[:,filter_idxs]
+
       score = np.empty((test_samples.shape[0], 10))
+
+      # Train models and classify test samples
       for j in range(num_genres):
-        predictor = GaussianMixture(
-          n_components=3,
-          covariance_type='full',
-          tol=0.000001,
-          max_iter=500,
-          n_init=2,
-          init_params='kmeans'
-          )
+        predictor = GaussianMixture(n_components=n_components)
         predictor.fit(train_samples[train_targets == j])
         score[:, j] = predictor.score_samples(test_samples)
       Y_predicted = np.argmax(score, axis=1)
+
+      # Create confusion matrix
       for p in range(len(Y_predicted)):
         confusion_matrix[Y_predicted[p], test_targets[p]] += 1
+
+      # Compute accuracy
       a = np.count_nonzero(Y_predicted == test_targets) / len(test_targets)
       accuracy_per_partition.append(a)
+
     iteration_accuracy = np.mean(accuracy_per_partition)
     iteration_accuracies.append(iteration_accuracy)
     print("Accuracy: ", iteration_accuracy)
 
   final_accuracy = np.mean(iteration_accuracies)
   final_accuracy_variance = np.var(iteration_accuracies)
+
   print("Final accuracy: ", final_accuracy)
   print("Final variance: ", final_accuracy_variance)
+
   confusion_matrix /= 10
   confusion_matrix = (confusion_matrix / 10).astype("int64")
 
   #save_confusion_matrix("analysis_docs/confusion_matrix_gmm.csv", confusion_matrix)
 
+
+###########################
+# KL DIVERGENCE COMPARISONS
+
 def gmm_props(m):
+  """Return model means, covariances and weights for a given GMM model"""
   return m.means_, m.covariances_, m.weights_
 
 def train_gmm_models(features, targets, n_components=3):
@@ -202,9 +227,6 @@ def kl_distances_matrix(models):
       distances[j] = (kl_distance_between(models[i], models[j]))
     distance_matrix[i] = distances
   return np.array(distance_matrix)
-
-def read_all_vectors():
-  return read_stored_data()
 
 def read_and_combine_fault_filtered_train_and_val():
   training = read_stored_data('features_targets/fault_filtered_vectors_train.txt')
@@ -258,7 +280,7 @@ def plot_distances(kl_distances, f_name):
 
 def compare_gmms():
   ### Read vectors
-  # f_vectors = read_all_vectors()
+  # f_vectors = read_stored_data()
   # f_vectors = read_and_combine_fault_filtered_train_and_val()
   # f_vectors = mfcc_only(f_vectors)
   # features = f_vectors[:,2:]
@@ -280,21 +302,19 @@ def compare_gmms():
   models = train_gmm_models(f_songs, t_songs, n_comp)
   kl_distances = kl_distances_matrix(models)
 
-  # TODO plots could also be done for random partitioning
-
-  # np.fill_diagonal(kl_distances, 0) # use for gmm3?
-
   path = 'analysis_docs/gmm_comparisons/song_mean/mfcc_only/fault_filtered/'
+
   ### Save distances to .csv
   # write_gmm_distance_to_csv(kl_distances, path+'gmm'+str(n_comp)+'_distances.csv')
 
   ### Save graph to .png
-  plot_distances(kl_distances, path+'gmm'+str(n_comp)+'_distances_vis.png')
+  # plot_distances(kl_distances, path+'gmm'+str(n_comp)+'_distances_vis.png')
 
 if __name__ == '__main__':
 
   # runFaultFilteredGMM()
   # runRandomGMM()
-  # run_gmm_k_fold()
-  compare_gmms()
-  pass
+  run_gmm_k_fold()
+  # compare_gmms()
+
+  
