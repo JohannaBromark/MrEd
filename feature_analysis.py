@@ -5,6 +5,7 @@ import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
 import networkx as nx
 import sys
+import re
 # import pygraphviz
 
 
@@ -878,7 +879,15 @@ def prominent_features():
 	prominent_array = np.zeros((11,20), dtype=int)
 	prominent_array[0,:] = range(20)
 	prominent_array[1:,0] = range(10)
-	print(prominent_array[:,0])
+	for j in range(1,20):
+		data = read_confusion_matrix("analysis_docs/gmm_with_single_features/feature_"+str(j-1)+".csv")
+		for i in range(1,11):
+			prominent_array[i,j] = data[i-1,i-1] 
+	# prominent_array= ",".join(str(prominent_array))
+	# prominent_array = ",".join(list(map(lambda r: str(r), prominent_array)))
+	# prominent_array = re.sub("\s" , "," , str(prominent_array).strip())
+	print(prominent_array)
+	save_confusion_matrix("Prominent_features_gmm3.csv",prominent_array)
 
 	# read()
 
