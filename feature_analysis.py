@@ -873,18 +873,18 @@ def feature_mean_by_class():
 	for i in range(10):
 		print(get_label(classes[0+i*100]))
 		print(np.average(features[0+i*100:100+i*100,10]))
-def testplot():
-	features = get_songs_feature_set('features_targets/all_vectors.txt')
-	classes = features[:,1]
-	# features, mu, va = normalise(features[:,2:])
-	features = features[:,11]
-	for i in range(10):
-		plt.plot(features[0+i*100:100+i*100])
-	plt.show()
+
+def prominent_features():
+	prominent_array = np.zeros((11,20), dtype=int)
+	prominent_array[0,:] = range(20)
+	prominent_array[1:,0] = range(10)
+	print(prominent_array[:,0])
+
+	# read()
 
 
 if __name__ == '__main__':
-	testplot()
+	prominent_features()
 	# feature_mean_by_class()
 	# allDist = read_stored_data('features_targets/all_distances.txt')
 	# allDist = np.array(allDist)
