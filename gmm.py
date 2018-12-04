@@ -121,55 +121,123 @@ def run_gmm_k_fold():
   filter_idxs = [18]
 
   # Store accuracies and create a confusion matrix 
-  iteration_accuracies = []
-  confusion_matrix = np.zeros((num_genres, num_genres))
+    iteration_accuracies = []
+    confusion_matrix = np.zeros((num_genres, num_genres))
 
-  for e in range(num_iterations):
-    # Create partitions
-    partitions = make_k_fold_partition(feature_vectors, n_folds)
+    for e in range(num_iterations):
+      # Create partitions
+      partitions = make_k_fold_partition(feature_vectors, n_folds)
 
-    print("Iteration: ", e)
-    accuracy_per_partition = []
+      print("Iteration: ", e)
+      accuracy_per_partition = []
 
-    for i in range(n_folds):
-      # Get train and test sets
-      train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(partitions, i)
+      for i in range(n_folds):
+        # Get train and test sets
+        train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(partitions, i)
 
-      train_samples = train_samples[:,filter_idxs]
-      test_samples = test_samples[:,filter_idxs]
+        train_samples = train_samples[:,filter_idxs]
+        test_samples = test_samples[:,filter_idxs]
 
-      score = np.empty((test_samples.shape[0], 10))
+        score = np.empty((test_samples.shape[0], 10))
 
-      # Train models and classify test samples
-      for j in range(num_genres):
-        predictor = GaussianMixture(n_components=n_components)
-        predictor.fit(train_samples[train_targets == j])
-        score[:, j] = predictor.score_samples(test_samples)
-      Y_predicted = np.argmax(score, axis=1)
+        # Train models and classify test samples
+        for j in range(num_genres):
+          predictor = GaussianMixture(n_components=n_components)
+          predictor.fit(train_samples[train_targets == j])
+          score[:, j] = predictor.score_samples(test_samples)
+        Y_predicted = np.argmax(score, axis=1)
 
-      # Create confusion matrix
-      for p in range(len(Y_predicted)):
-        confusion_matrix[Y_predicted[p], test_targets[p]] += 1
+        # Create confusion matrix
+        for p in range(len(Y_predicted)):
+          confusion_matrix[Y_predicted[p], test_targets[p]] += 1
 
-      # Compute accuracy
-      a = np.count_nonzero(Y_predicted == test_targets) / len(test_targets)
-      accuracy_per_partition.append(a)
+        # Compute accuracy
+        a = np.count_nonzero(Y_predicted == test_targets) / len(test_targets)
+        accuracy_per_partition.append(a)
 
-    iteration_accuracy = np.mean(accuracy_per_partition)
-    iteration_accuracies.append(iteration_accuracy)
-    print("Accuracy: ", iteration_accuracy)
+      iteration_accuracy = np.mean(accuracy_per_partition)
+      iteration_accuracies.append(iteration_accuracy)
+      print("Accuracy: ", iteration_accuracy)
 
-  final_accuracy = np.mean(iteration_accuracies)
-  final_accuracy_variance = np.var(iteration_accuracies)
+    final_accuracy = np.mean(iteration_accuracies)
+    final_accuracy_variance = np.var(iteration_accuracies)
 
-  print("Final accuracy: ", final_accuracy)
-  print("Final variance: ", final_accuracy_variance)
+    print("Final accuracy: ", final_accuracy)
+    print("Final variance: ", final_accuracy_variance)
 
-  confusion_matrix = (confusion_matrix / num_iterations).astype("int64")
-  print(confusion_matrix)
+    confusion_matrix = (confusion_matrix / num_iterations).astype("int64")
+    print(confusion_matrix)
 
-  # save_confusion_matrix("analysis_docs/gmm_with_single_features/energy .csv", confusion_matrix)
+    save_confusion_matrix("analysis_docs/gmm_with_single_features/energy .csv", confusion_matrix)
 
+def run_gmm_k_fold_confusion_matrix_single_feature_creator():
+  ### Prepare feature data
+  features = read_stored_data('features_targets/all_vectors.txt')
+  feature_vectors = mean_by_song(features)
+
+  ### Normalisation with GMM3 gives bad results.. 
+  # songs[:,2:] = normalise(songs[:,2:])[0]
+  
+  ### GMM and partition settings 
+  num_genres = np.unique(features[:,1]).shape[0]
+  num_iterations = 50
+  n_components = 3
+  n_folds = 10
+  # MFCC 0 mean and var is 8 and 9
+  filter_idxs = [18]
+
+  # Store accuracies and create a confusion matrix 
+  for q in range(19):
+    filter_idxs = [q]
+
+    iteration_accuracies = []
+    confusion_matrix = np.zeros((num_genres, num_genres))
+
+    for e in range(num_iterations):
+      # Create partitions
+      partitions = make_k_fold_partition(feature_vectors, n_folds)
+
+      print("Iteration: ", e)
+      accuracy_per_partition = []
+
+      for i in range(n_folds):
+        # Get train and test sets
+        train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(partitions, i)
+
+        train_samples = train_samples[:,filter_idxs]
+        test_samples = test_samples[:,filter_idxs]
+
+        score = np.empty((test_samples.shape[0], 10))
+
+        # Train models and classify test samples
+        for j in range(num_genres):
+          predictor = GaussianMixture(n_components=n_components)
+          predictor.fit(train_samples[train_targets == j])
+          score[:, j] = predictor.score_samples(test_samples)
+        Y_predicted = np.argmax(score, axis=1)
+
+        # Create confusion matrix
+        for p in range(len(Y_predicted)):
+          confusion_matrix[Y_predicted[p], test_targets[p]] += 1
+
+        # Compute accuracy
+        a = np.count_nonzero(Y_predicted == test_targets) / len(test_targets)
+        accuracy_per_partition.append(a)
+
+      iteration_accuracy = np.mean(accuracy_per_partition)
+      iteration_accuracies.append(iteration_accuracy)
+      print("Accuracy: ", iteration_accuracy)
+
+    final_accuracy = np.mean(iteration_accuracies)
+    final_accuracy_variance = np.var(iteration_accuracies)
+
+    print("Final accuracy: ", final_accuracy)
+    print("Final variance: ", final_accuracy_variance)
+
+    confusion_matrix = (confusion_matrix / num_iterations).astype("int64")
+    print(confusion_matrix)
+
+    save_confusion_matrix("analysis_docs/gmm_with_single_features/feature_"+str(q)+".csv", confusion_matrix)
 
 ###########################
 # KL DIVERGENCE COMPARISONS
@@ -311,7 +379,7 @@ def compare_gmms():
   # plot_distances(kl_distances, path+'gmm'+str(n_comp)+'_distances_vis.png')
 
 if __name__ == '__main__':
-
+  # run_gmm_k_fold_confusion_matrix_single_feature_creator()
   # runFaultFilteredGMM()
   # runRandomGMM()
   # run_gmm_k_fold()

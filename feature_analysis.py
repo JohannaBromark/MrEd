@@ -864,16 +864,37 @@ def save_to_file(data, filename):
 				f.write(str(col) + ' ')
 			f.write('\n')
 
+def feature_mean_by_class():
+	features = get_songs_feature_set('features_targets/all_vectors.txt')
+	classes = features[:,1]
+	# features, mu, va = normalise(features[:,2:])
+	features = features[:,2:]
+	print(features[0,:])
+	for i in range(10):
+		print(get_label(classes[0+i*100]))
+		print(np.average(features[0+i*100:100+i*100,10]))
+def testplot():
+	features = get_songs_feature_set('features_targets/all_vectors.txt')
+	classes = features[:,1]
+	# features, mu, va = normalise(features[:,2:])
+	features = features[:,11]
+	for i in range(10):
+		plt.plot(features[0+i*100:100+i*100])
+	plt.show()
+
+
 if __name__ == '__main__':
+	testplot()
+	# feature_mean_by_class()
 	# allDist = read_stored_data('features_targets/all_distances.txt')
 	# allDist = np.array(allDist)
 
 	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 
-	alldistNoDiag = remove_diagonal(np.copy(allDist))
+	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 	# save_to_file(get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag), "features_targets/nearest_and_correct_nearest.txt")
 	# plot_missclassified_with_neighbor_by_feature(100)
-	plot_missclassified_with_neighbor_by_feature_mfcc(200,False)
+	# plot_missclassified_with_neighbor_by_feature_mfcc(200,False)
 
 	# np.set_printoptions(threshold=sys.maxsize)
 	# content = read_content('features_targets/index_of_content.txt')

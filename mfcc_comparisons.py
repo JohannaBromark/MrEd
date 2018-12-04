@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
 import networkx as nx
-import pygraphviz
+# import pygraphviz
 
 
 def mfcc_only(vectors):
@@ -40,7 +40,8 @@ def box_plot(genres, ax):
     f.append(genres[i][:][2:])
 
   # print(f)
-  idxs = [0,2,4,6,8,1,3,5,7,9]
+  # idxs = [0,2,4,6,8,1,3,5,7,9]
+  idxs = [0]
 
   data = []
   for i in range(len(idxs)):
@@ -190,5 +191,5 @@ if __name__ == "__main__":
   # compare_nearest_and_correct_nearest(sample_n = 0)
 
   ### Plot single MFCC values for all songs
-  # plot_single_mfccs(genres=['reggae', 'hiphop', 'all'], mfcc_number=0)
+  plot_single_mfccs(genres=['reggae', 'hiphop', 'all'], mfcc_number=1)
   
