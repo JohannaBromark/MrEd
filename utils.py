@@ -107,6 +107,24 @@ def save_confusion_matrix(filename, confusion_matrix):
       file.write(get_label(row_idx) + ",")
       file.write(",".join(list(map(lambda r: str(r), row))) + "\n")
 
+def read_confution_matrix(filename):
+  rows = []
+  with open(filename, "r") as file:
+    read_rows = file.readlines()
+    for row in read_rows:
+      rowList = row.split(",")
+      row = []
+      for element in rowList:
+        try:
+          num = float(element)
+          row.append(num)
+        except:
+          pass
+      if len(row) > 0:
+        rows.append(row)
+
+  return np.array(rows)
+
 
 def save_matrix(filename, matrix):
   with open(filename, "w") as file:
