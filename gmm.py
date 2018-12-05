@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 from utils import *
+from scipy.stats import multivariate_normal
 
 def runRandomGMM():
   features, targets = read_stored_data()
@@ -110,14 +111,15 @@ def run_gmm_k_fold():
   feature_vectors = mean_by_song(features)
 
   ### Normalisation with GMM3 gives bad results.. 
-  # songs[:,2:] = normalise(songs[:,2:])[0]
+  feature_vectors[:,2:] = normalise(feature_vectors[:,2:])[0]
   
   ### GMM and partition settings 
   num_genres = np.unique(features[:,1]).shape[0]
-  num_iterations = 1
+  num_iterations = 10
   n_components = 3
   n_folds = 10
   # MFCC 0 mean and var is 8 and 9
+  filter_on_index = True
   filter_idxs = [18]
 
   # Store accuracies and create a confusion matrix 
@@ -135,8 +137,9 @@ def run_gmm_k_fold():
       # Get train and test sets
       train_samples, train_targets, test_samples, test_targets = get_k_fold_partitions(partitions, i)
 
-      train_samples = train_samples[:,filter_idxs]
-      test_samples = test_samples[:,filter_idxs]
+      if filter_on_index:
+        train_samples = train_samples[:,filter_idxs]
+        test_samples = test_samples[:,filter_idxs]
 
       score = np.empty((test_samples.shape[0], 10))
 
@@ -310,11 +313,41 @@ def compare_gmms():
   ### Save graph to .png
   # plot_distances(kl_distances, path+'gmm'+str(n_comp)+'_distances_vis.png')
 
+def compare_1_dim_gmms():
+  data = get_songs_feature_set('features_targets/all_vectors.txt')
+  t_songs = data[:,1]
+
+  feature_n = 1
+  # Set feature idx, 2:3 means feature 2 (as in 0,1,2), 0 and 1 is song no and label
+  f_songs = data[:,feature_n+2:feature_n+1+2]
+
+  ### Train model and get distances
+  n_comp = 3
+  models = train_gmm_models(f_songs, t_songs, n_comp)
+  plot_1_dim_gaussian(models[:])
+
+
+def plot_1_dim_gaussian(models):
+  colors = createColorDict()
+
+  for i in range(len(models)):
+    means, variance, weights = gmm_props(models[i])
+    x = np.linspace(-0.01, 0.02, 100, endpoint=False)
+    y1 = multivariate_normal.pdf(x, mean=means[0,0], cov=variance[0,0,0]) * weights[0]
+    y2 = multivariate_normal.pdf(x, mean=means[1,0], cov=variance[1,0,0]) * weights[1]
+    y3 = multivariate_normal.pdf(x, mean=means[2,0], cov=variance[2,0,0]) * weights[2]
+
+    plt.plot(x, y1+y2+y3, colors[(i+1)*2], label=get_label(i))
+
+  plt.legend()
+  plt.show()
+
 if __name__ == '__main__':
 
   # runFaultFilteredGMM()
   # runRandomGMM()
-  # run_gmm_k_fold()
+  run_gmm_k_fold()
   # compare_gmms()
+  # compare_1_dim_gmms()
 
   

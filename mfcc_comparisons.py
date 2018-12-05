@@ -190,5 +190,5 @@ if __name__ == "__main__":
   # compare_nearest_and_correct_nearest(sample_n = 0)
 
   ### Plot single MFCC values for all songs
-  # plot_single_mfccs(genres=['reggae', 'hiphop', 'all'], mfcc_number=0)
+  plot_single_mfccs(genres=['reggae', 'classical', 'all'], mfcc_number=0)
   
