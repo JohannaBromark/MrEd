@@ -1,0 +1,12 @@
+,feature: 0,feature: 1,feature: 2,feature: 3,feature: 4,feature: 5,feature: 6,feature: 7,feature: 8,feature: 9,feature: 10,feature: 11,feature: 12,feature: 13,feature: 14,feature: 15,feature: 16,feature: 17,feature: 18
+0,Centroid m,Centroic V,Rolloffs M,Rolloff V,Flux M,Flux V,Zero-Cross M,Zero-Cross V,MFCC0 M,MFCC0 V,MFCC1 M,MFCC1 V,MFCC2 M,MFCC2 V,MFCC3 M,MFCC3 V,MFCC4 M,MFCC4 V,RMS energy
+Blues,0,23,35,28,0,5,30,32,0,2,33,0,1,26,12,10,2,0,20
+Classical,75,98,39,91,0,0,31,94,21,12,1,4,79,39,57,21,73,7,44
+Country,2,14,0,0,54,69,1,0,0,20,18,36,18,17,3,35,22,5,7
+Disco,9,36,4,26,14,0,9,40,2,22,22,17,0,17,8,0,21,38,47
+Hiphop,26,0,38,27,54,22,35,4,31,17,0,15,4,23,0,15,3,41,18
+Jazz,1,2,22,16,0,16,21,2,9,18,12,20,21,20,8,0,5,26,37
+Metal,43,12,66,36,75,77,49,23,48,65,66,52,69,35,0,44,71,45,0
+Pop,46,60,2,60,10,0,20,53,37,6,23,8,27,1,18,21,1,1,2
+Reggae,44,1,9,4,8,2,7,0,25,33,8,58,24,43,14,39,0,22,0
+Rock,3,0,1,0,0,0,1,0,4,3,0,6,4,0,15,1,8,1,2

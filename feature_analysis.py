@@ -5,6 +5,7 @@ import matplotlib.patches as mpatches
 import matplotlib.mlab as mlab
 import networkx as nx
 import sys
+import re
 # import pygraphviz
 
 
@@ -864,16 +865,45 @@ def save_to_file(data, filename):
 				f.write(str(col) + ' ')
 			f.write('\n')
 
+def feature_mean_by_class():
+	features = get_songs_feature_set('features_targets/all_vectors.txt')
+	classes = features[:,1]
+	# features, mu, va = normalise(features[:,2:])
+	features = features[:,2:]
+	print(features[0,:])
+	for i in range(10):
+		print(get_label(classes[0+i*100]))
+		print(np.average(features[0+i*100:100+i*100,10]))
+
+def prominent_features():
+	prominent_array = np.zeros((11,20), dtype=int)
+	prominent_array[0,:] = range(20)
+	prominent_array[1:,0] = range(10)
+	for j in range(1,20):
+		data = read_confusion_matrix("analysis_docs/gmm_with_single_features/feature_"+str(j-1)+".csv")
+		for i in range(1,11):
+			prominent_array[i,j] = data[i-1,i-1] 
+	# prominent_array= ",".join(str(prominent_array))
+	# prominent_array = ",".join(list(map(lambda r: str(r), prominent_array)))
+	# prominent_array = re.sub("\s" , "," , str(prominent_array).strip())
+	print(prominent_array)
+	save_confusion_matrix("Prominent_features_gmm3.csv",prominent_array)
+
+	# read()
+
+
 if __name__ == '__main__':
+	prominent_features()
+	# feature_mean_by_class()
 	# allDist = read_stored_data('features_targets/all_distances.txt')
 	# allDist = np.array(allDist)
 
 	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 
-	alldistNoDiag = remove_diagonal(np.copy(allDist))
+	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 	# save_to_file(get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag), "features_targets/nearest_and_correct_nearest.txt")
 	# plot_missclassified_with_neighbor_by_feature(100)
-	plot_missclassified_with_neighbor_by_feature_mfcc(200,False)
+	# plot_missclassified_with_neighbor_by_feature_mfcc(200,False)
 
 	# np.set_printoptions(threshold=sys.maxsize)
 	# content = read_content('features_targets/index_of_content.txt')

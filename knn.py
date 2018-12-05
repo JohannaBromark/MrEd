@@ -115,7 +115,7 @@ def run_knn_k_fold_for_singular_feature():
         
         ##
 
-        knn = KNeighborsClassifier(n_neighbors=1)
+        knn = KNeighborsClassifier(n_neighbors=3)
 
         knn.fit(train_samples, train_targets)
 
@@ -130,7 +130,7 @@ def run_knn_k_fold_for_singular_feature():
     confusion_matrix = (confusion_matrix/num_genres).astype("int64")
 
     # Save the confusion matrix to file
-    save_confusion_matrix("analysis_docs/confusion_matrix_knn_feature_"+str(a+1)+".csv", confusion_matrix)
+    save_confusion_matrix("analysis_docs/confusion_matrix_knn3_feature_"+str(a+1)+".csv", confusion_matrix)
 
   print(np.mean(iteration_accuracies))
 
@@ -182,7 +182,7 @@ if __name__ == '__main__':
 
   # run_knn_random()
   # run_knn_k_fold()
-  # run_knn_k_fold_for_singular_feature()
+  run_knn_k_fold_for_singular_feature()
   #run_knn_find_neighbors()
 
 
