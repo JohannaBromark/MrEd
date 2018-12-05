@@ -101,12 +101,12 @@ def write_afe_to_file(songs, targets, song_names, f_name):
 
 def save_confusion_matrix(filename, confusion_matrix):
   with open(filename, "w") as file:
-    file.write("," + ",".join([get_label(i) for i in range(10)]))
-    # file.write("," + ",".join(["feature: "+str(i) for i in range(19)]))
+    # file.write("," + ",".join([get_label(i) for i in range(10)]))
+    file.write("," + ",".join(["feature: "+str(i) for i in range(19)]))
 
     file.write("\n")
     for row_idx, row in enumerate(confusion_matrix):
-      file.write(get_label(row_idx) + ",")
+      # file.write(get_label(row_idx) + ",")
       file.write(",".join(list(map(lambda r: str(r), row))) + "\n")
 
 def read_confusion_matrix(filename):

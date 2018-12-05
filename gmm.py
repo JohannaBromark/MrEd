@@ -109,17 +109,18 @@ def run_gmm_k_fold():
   ### Prepare feature data
   features = read_stored_data('features_targets/all_vectors.txt')
   feature_vectors = mean_by_song(features)
+  # feature_vectors = features
 
   ### Normalisation with GMM3 gives bad results.. 
-  feature_vectors[:,2:] = normalise(feature_vectors[:,2:])[0]
+  # feature_vectors[:,2:] = normalise(feature_vectors[:,2:])[0]
   
   ### GMM and partition settings 
   num_genres = np.unique(features[:,1]).shape[0]
   num_iterations = 10
-  n_components = 3
+  n_components = 1
   n_folds = 10
   # MFCC 0 mean and var is 8 and 9
-  filter_on_index = True
+  filter_on_index = False
   filter_idxs = [18]
 
   # Store accuracies and create a confusion matrix 
@@ -183,8 +184,8 @@ def run_gmm_k_fold_confusion_matrix_single_feature_creator():
   
   ### GMM and partition settings 
   num_genres = np.unique(features[:,1]).shape[0]
-  num_iterations = 50
-  n_components = 3
+  num_iterations = 10
+  n_components = 1
   n_folds = 10
   # MFCC 0 mean and var is 8 and 9
   filter_idxs = [18]
@@ -240,7 +241,7 @@ def run_gmm_k_fold_confusion_matrix_single_feature_creator():
     confusion_matrix = (confusion_matrix / num_iterations).astype("int64")
     print(confusion_matrix)
 
-    save_confusion_matrix("analysis_docs/gmm_with_single_features/feature_"+str(q)+".csv", confusion_matrix)
+    save_confusion_matrix("analysis_docs/gmm1_with_single_features/feature_"+str(q)+".csv", confusion_matrix)
 
 ###########################
 # KL DIVERGENCE COMPARISONS
@@ -411,10 +412,10 @@ def plot_1_dim_gaussian(models):
   plt.show()
 
 if __name__ == '__main__':
-  # run_gmm_k_fold_confusion_matrix_single_feature_creator()
+  run_gmm_k_fold_confusion_matrix_single_feature_creator()
   # runFaultFilteredGMM()
   # runRandomGMM()
-  run_gmm_k_fold()
+  # run_gmm_k_fold()
   # compare_gmms()
   # compare_1_dim_gmms()
 
