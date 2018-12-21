@@ -788,18 +788,23 @@ def plot_missclassified_with_neighbor_by_feature(id,normalize=True):
 		'Energy'
 		]
 
-	ax.set_xticklabels(x_ticks_labels, rotation='80', fontsize=12)
+	ax.set_xticklabels(x_ticks_labels, rotation='80', fontsize=18)
+
 # plt.plot(i, dist_to_origo, "o", c=colors[int(features[i, 1]) + 1])
 	print(missclassified[id,0]) 
 	print(missclassified[id,2])
 	print(missclassified[id,3])
 
 	song = plt.plot(song1,"o-", markersize=12, label=("Missclassified Song "+str(missclassified[id,0])+str(songlabel1))) #blå
-	nearest = plt.plot(song2, "o",markersize=12,label=("Nearest to song "+str(missclassified[id,2])+str(songlabel2)))#gul
-	correct = plt.plot(song3, "o",markersize=12, label=("Nearest correct to song "+str(missclassified[id,3])+str(songlabel3))) #grön
+	nearest = plt.plot(song2, "o--",markersize=12,label=("Nearest to song "+str(missclassified[id,2])+str(songlabel2)))#gul
+	correct = plt.plot(song3, "o--",markersize=12, label=("Nearest correct to song "+str(missclassified[id,3])+str(songlabel3))) #grön
 	# plt.legend(()=[song,nearest,correct],loc='upper left')
-	ax.legend()
+	# song = plt.plot(song1,"o-", markersize=8, label=("Missclassified song: "+str(songlabel1[2]) + ' by ' + str(songlabel1[1]))) #blå
+	# nearest = plt.plot(song2, "o--",markersize=8,label=("Nearest to song: "+str(songlabel2[2]) + ' by ' + str(songlabel2[1])))#gul
+	# correct = plt.plot(song3, "o--",markersize=8, label=("Nearest correct to song: "+str(songlabel3[2]) + ' by ' + str(songlabel3[1]))) #grön
 
+	ax.legend(prop={'size': 16})
+	# plt.savefig('bob_marley_misclassified.png')
 	plt.show()
 
 def plot_missclassified_with_neighbor_by_feature_mfcc(id,normalize=True):
@@ -902,7 +907,7 @@ if __name__ == '__main__':
 
 	# alldistNoDiag = remove_diagonal(np.copy(allDist))
 	# save_to_file(get_missclassified_with_neighbors_nearest_and_correct(alldistNoDiag), "features_targets/nearest_and_correct_nearest.txt")
-	# plot_missclassified_with_neighbor_by_feature(100)
+	plot_missclassified_with_neighbor_by_feature(302)
 	# plot_missclassified_with_neighbor_by_feature_mfcc(200,False)
 
 	# np.set_printoptions(threshold=sys.maxsize)

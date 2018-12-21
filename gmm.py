@@ -120,8 +120,8 @@ def run_gmm_k_fold():
   n_components = 1
   n_folds = 10
   # MFCC 0 mean and var is 8 and 9
-  filter_on_index = False
-  filter_idxs = [18]
+  filter_on_index = True
+  filter_idxs = [1]
 
   # Store accuracies and create a confusion matrix 
   iteration_accuracies = []
@@ -386,8 +386,8 @@ def compare_1_dim_gmms():
   data = get_songs_feature_set('features_targets/all_vectors.txt')
   t_songs = data[:,1]
 
-  feature_n = 1
-  # Set feature idx, 2:3 means feature 2 (as in 0,1,2), 0 and 1 is song no and label
+  feature_n = 3
+  # Set feature idx, 2:3 means feature 2 (as in 0,1,2)
   f_songs = data[:,feature_n+2:feature_n+1+2]
 
   ### Train model and get distances
@@ -399,9 +399,17 @@ def compare_1_dim_gmms():
 def plot_1_dim_gaussian(models):
   colors = createColorDict()
 
+  all_means = []
   for i in range(len(models)):
+    all_means.append(gmm_props(models[i])[0])
+  all_means = np.array(all_means)
+  largest = max(all_means.flatten())
+
+  for i in range(len(models)):
+
     means, variance, weights = gmm_props(models[i])
-    x = np.linspace(-0.01, 0.02, 100, endpoint=False)
+
+    x = np.linspace(-largest*0.5, largest+largest*0.2, 100, endpoint=False)
     y1 = multivariate_normal.pdf(x, mean=means[0,0], cov=variance[0,0,0]) * weights[0]
     y2 = multivariate_normal.pdf(x, mean=means[1,0], cov=variance[1,0,0]) * weights[1]
     y3 = multivariate_normal.pdf(x, mean=means[2,0], cov=variance[2,0,0]) * weights[2]
@@ -412,10 +420,10 @@ def plot_1_dim_gaussian(models):
   plt.show()
 
 if __name__ == '__main__':
-  run_gmm_k_fold_confusion_matrix_single_feature_creator()
+  # run_gmm_k_fold_confusion_matrix_single_feature_creator()
   # runFaultFilteredGMM()
   # runRandomGMM()
-  # run_gmm_k_fold()
+  run_gmm_k_fold()
   # compare_gmms()
   # compare_1_dim_gmms()
 

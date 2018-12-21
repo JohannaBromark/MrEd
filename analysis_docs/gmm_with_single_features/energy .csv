@@ -1,11 +1,11 @@
-,blues,classical,country,disco,hiphop,jazz,metal,pop,reggae,rock
-blues,64,0,8,1,0,6,4,1,2,8
-classical,0,93,3,0,0,5,0,0,0,2
-country,4,0,67,7,2,5,2,6,2,18
-disco,1,0,4,47,9,0,6,8,6,5
-hiphop,1,0,0,8,61,0,1,8,14,2
-jazz,8,3,4,1,0,74,2,3,3,2
-metal,7,0,1,5,2,1,79,0,0,9
-pop,0,0,1,8,8,2,0,62,6,2
-reggae,3,0,1,7,14,1,0,2,57,3
-rock,7,1,7,12,0,1,2,6,7,43
+,feature: 0,feature: 1,feature: 2,feature: 3,feature: 4,feature: 5,feature: 6,feature: 7,feature: 8,feature: 9,feature: 10,feature: 11,feature: 12,feature: 13,feature: 14,feature: 15,feature: 16,feature: 17,feature: 18
+34,1,43,28,19,24,30,6,17,31
+46,98,23,3,1,61,54,0,1,24
+5,0,12,21,11,5,6,4,17,16
+4,0,7,33,26,2,1,31,27,15
+0,0,0,2,2,0,0,2,4,1
+0,0,0,0,0,0,1,0,0,0
+7,0,6,1,1,5,6,0,1,3
+0,0,3,9,35,1,0,51,27,5
+0,0,0,0,0,0,0,0,0,0
+0,0,1,1,1,0,0,0,1,0

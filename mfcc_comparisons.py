@@ -40,8 +40,8 @@ def box_plot(genres, ax):
     f.append(genres[i][:][2:])
 
   # print(f)
-  # idxs = [0,2,4,6,8,1,3,5,7,9]
-  idxs = [0]
+  idxs = [0,2,4,6,8,1,3,5,7,9]
+  # idxs = [0]
 
   data = []
   for i in range(len(idxs)):
@@ -49,7 +49,7 @@ def box_plot(genres, ax):
       g = genres[j]
       data.append(g[:,idxs[i]+2])
 
-  ax.boxplot(data, whis=[0, 100]) ### SET WHISKERS HERE or ELSE [(Q1-1.5 IQR), (Q3+1.5 IQR)]
+  ax.boxplot(data, whis=[5, 95]) ### SET WHISKERS HERE or ELSE [(Q1-1.5 IQR), (Q3+1.5 IQR)]
   
 def compare_mfccs(genres, compare_songs, use_box_plot):
 
@@ -185,11 +185,11 @@ if __name__ == "__main__":
   # https://stackoverflow.com/questions/17725927/boxplots-in-matplotlib-markers-and-outliers
 
   ### Compare MFCC box plots
-  # compare_mfccs(genres=['classical', 'hiphop'], compare_songs=False, use_box_plot=True)
+  compare_mfccs(genres=['classical', 'hiphop'], compare_songs=True, use_box_plot=True)
 
   ### MFCC box plots of a misclassified song with neighbour and the nearest correct
   # compare_nearest_and_correct_nearest(sample_n = 0)
 
   ### Plot single MFCC values for all songs
-  plot_single_mfccs(genres=['reggae', 'hiphop', 'all'], mfcc_number=1)
+  # plot_single_mfccs(genres=['reggae', 'hiphop', 'all'], mfcc_number=1)
   
